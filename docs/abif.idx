@@ -1,0 +1,11 @@
+nimTitle	abif	abif.html	module abif		0
+nim	ABIFTrace	abif.html#ABIFTrace	type ABIFTrace		20
+nim	newABIFTrace	abif.html#newABIFTrace,string,bool	proc newABIFTrace(filename: string; trimming: bool = false): ABIFTrace		196
+nim	close	abif.html#close,ABIFTrace	proc close(trace: ABIFTrace)		235
+nim	getTagNames	abif.html#getTagNames,ABIFTrace	proc getTagNames(trace: ABIFTrace): seq[string]		239
+nim	getData	abif.html#getData,ABIFTrace,string	proc getData(trace: ABIFTrace; tag: string): string		243
+nim	getSequence	abif.html#getSequence,ABIFTrace	proc getSequence(trace: ABIFTrace): string		248
+nim	getQualityValues	abif.html#getQualityValues,ABIFTrace	proc getQualityValues(trace: ABIFTrace): seq[int]		253
+nim	getSampleName	abif.html#getSampleName,ABIFTrace	proc getSampleName(trace: ABIFTrace): string		264
+nim	exportFasta	abif.html#exportFasta,ABIFTrace,string	proc exportFasta(trace: ABIFTrace; outFile: string = "")		269
+nim	exportFastq	abif.html#exportFastq,ABIFTrace,string	proc exportFastq(trace: ABIFTrace; outFile: string = "")		284
