@@ -1,177 +1,190 @@
 <!DOCTYPE html>
 <html xmlns="https://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
+ <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ABIF Parser for Nim</title>
   
   <!-- Favicon -->
-  <link rel="shortcut icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAAAAAUAAAAF////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAAAAAIAAABbAAAAlQAAAKIAAACbAAAAmwAAAKIAAACVAAAAWwAAAAL///8A////AP///wD///8A////AAAAABQAAADAAAAAYwAAAA3///8A////AP///wD///8AAAAADQAAAGMAAADAAAAAFP///wD///8A////AP///wAAAACdAAAAOv///wD///8A////AP///wD///8A////AP///wD///8AAAAAOgAAAJ3///8A////AP///wAAAAAnAAAAcP///wAAAAAoAAAASv///wD///8A////AP///wAAAABKAAAAKP///wAAAABwAAAAJ////wD///8AAAAAgQAAABwAAACIAAAAkAAAAJMAAACtAAAAFQAAABUAAACtAAAAkwAAAJAAAACIAAAAHAAAAIH///8A////AAAAAKQAAACrAAAAaP///wD///8AAAAARQAAANIAAADSAAAARf///wD///8AAAAAaAAAAKsAAACk////AAAAADMAAACcAAAAnQAAABj///8A////AP///wAAAAAYAAAAGP///wD///8A////AAAAABgAAACdAAAAnAAAADMAAAB1AAAAwwAAAP8AAADpAAAAsQAAAE4AAAAb////AP///wAAAAAbAAAATgAAALEAAADpAAAA/wAAAMMAAAB1AAAAtwAAAOkAAAD/AAAA/wAAAP8AAADvAAAA3gAAAN4AAADeAAAA3gAAAO8AAAD/AAAA/wAAAP8AAADpAAAAtwAAAGUAAAA/AAAA3wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAD/AAAA/wAAAP/AAAA/wAAAP8AAADfAAAAPwAAAGX///8A////AAAAAEgAAADtAAAAvwAAAL0AAADGAAAA7wAAAO8AAADGAAAAvQAAAL8AAADtAAAASP///wD///8A////AP///wD///8AAAAAO////wD///8A////AAAAAIcAAACH////AP///wD///8AAAAAO////wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A//8AAP//AAD4HwAA7/cAAN/7AAD//wAAoYUAAJ55AACf+QAAh+EAAAAAAADAAwAA4AcAAP5/AAD//wAA//8AAA=="/>
+  <link rel="shortcut icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAAAAAUAAAAF////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAAAAAIAAABbAAAAlQAAAKIAAACbAAAAmwAAAKIAAACVAAAAWwAAAAL///8A////AP///wD///8A////AAAAABQAAADAAAAAYwAAAA3///8A////AP///wD///8AAAAADQAAAGMAAADAAAAAFP///wD///8A////AP///wAAAACdAAAAOv///wD///8A////AP///wD///8A////AP///wD///8AAAAAOgAAAJ3///8A////AP///wAAAAAnAAAAcP///wAAAAAoAAAASv///wD///8A////AP///wAAAABKAAAAKP///wAAAABwAAAAJ////wD///8AAAAAgQAAABwAAACIAAAAkAAAAJMAAACtAAAAFQAAABUAAACtAAAAkwAAAJAAAACIAAAAHAAAAIH///8A////AAAAAKQAAACrAAAAaP///wD///8AAAAARQAAANIAAADSAAAARf///wD///8AAAAAaAAAAKsAAACk////AAAAADMAAACcAAAAnQAAABj///8A////AP///wAAAAAYAAAAGP///wD///8A////AAAAABgAAACdAAAAnAAAADMAAAB1AAAAwwAAAP8AAADpAAAAsQAAAE4AAAAb////AP///wAAAAAbAAAATgAAALEAAADpAAAA/wAAAMMAAAB1AAAAtwAAAOkAAAD/AAAA/wAAAP8AAADvAAAA3gAAAN4AAADeAAAA3gAAAO8AAAD/AAAA/wAAAP8AAADpAAAAtwAAAGUAAAA/AAAA3wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAD/AAAA/wAAAP/AAAA/wAAAP8AAADfAAAAPwAAAGX///8A////AAAAAEgAAADtAAAAvwAAAL0AAADGAAAA7wAAAO8AAADGAAAAvQAAAL8AAADtAAAASP///wD///8A////AP///wD///8AAAAAO////wD///8A////AAAAAIcAAACH////AP///wD///8AAAAAO////wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A//8AAP//AAD4HwAA7/cAAN/7AAD//wAAoYUAAJ55AACf+QAAh+EAAAAAAADAAwAA4AcAAP5/AAD//wAA//8AAA=="/>
 
   <!-- CSS -->
   <link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.0.8">
   <style>
-    .project-container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .project-section {
-      margin-bottom: 30px;
-    }
-    .tool-box {
-      background-color: var(--box-background-color);
-      border: 1px solid var(--third-background-color);
-      border-radius: 5px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .tool-name {
-      font-weight: bold;
-      margin-bottom: 10px;
-      color: var(--headsections-color);
-    }
-    .code-example {
-      background-color: var(--third-background-color);
-      padding: 15px;
-      border-radius: 5px;
-      overflow-x: auto;
-      font-family: 'Source Code Pro', monospace;
-      margin: 15px 0;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 40px;
-      border-top: 1px solid var(--third-background-color);
-      padding-top: 10px;
-    }
-    .library-button {
-      display: inline-block;
-      background-color: var(--headsections-color);
-      color: white;
-      text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      margin-top: 20px;
-      font-weight: bold;
-      transition: background-color 0.2s;
-    }
-    .library-button:hover {
-      background-color: var(--links-color);
-    }
+   .project-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+   }
+   .project-section {
+    margin-bottom: 30px;
+   }
+   .tool-box {
+    background-color: var(--box-background-color);
+    border: 1px solid var(--third-background-color);
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+   }
+   .tool-name {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: var(--headsections-color);
+   }
+   .code-example {
+    background-color: var(--third-background-color);
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-family: 'Source Code Pro', monospace;
+    margin: 15px 0;
+   }
+   .footer {
+    text-align: center;
+    margin-top: 40px;
+    border-top: 1px solid var(--third-background-color);
+    padding-top: 10px;
+   }
+   .library-button {
+    display: inline-block;
+    background-color: var(--headsections-color);
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-top: 20px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+   }
+   .library-button:hover {
+    background-color: var(--links-color);
+   }
   </style>
 
   <!-- JS -->
   <script type="text/javascript" src="dochack.js?v=2.0.8"></script>
-</head>
-<body>
+ </head>
+ <body>
   <div class="document">
-    <div class="container">
-      <div class="row">
-        <div class="three columns">
-          <div class="theme-select-wrapper">
-            <label for="theme-select">Theme:&nbsp;</label>
-            <select id="theme-select" onchange="setTheme(this.value)">
-              <option value="auto">🌗 Match OS</option>
-              <option value="dark">🌑 Dark</option>
-              <option value="light">🌕 Light</option>
-            </select>
-          </div>
-        </div>
-        <div class="nine columns">
-          <div class="project-container">
-            <h1 class="title">ABIF Parser for Nim</h1>
-            
-            <div class="project-section">
-              <p>
-                A Nim library to parse ABIF (Applied Biosystems Information Format) files from DNA sequencing machines, 
-                commonly used in Sanger capillary sequencing.
-              </p>
-	      <p>
-		<a href="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml"><img src="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml/badge.svg" alt="CI status"></a>
-		<a href="abif.html">Library API</a> | <a href="https://github.com/quadram-institute-bioscience/nim-abif?tab=readme-ov-file"> Github repository</a>
-              </p>
-            </div>
-            
-            <div class="project-section">
-              <h2>Features</h2>
-              <ul>
-                <li>Parse <code>.ab1</code> and <code>.fsa</code> trace files</li>
-                <li>Extract sequence data, quality values, and sample names</li>
-                <li>Supports all standard ABIF data types</li>
-                <li>Export to FASTA and FASTQ formats</li>
-                <li>Correctly handles big-endian binary data</li>
-              </ul>
-            </div>
-            
-            <div class="project-section">
-              <h2>Tools</h2>
-              
-              <div class="tool-box">
-                <div class="tool-name">abif</div>
-                <p>Basic command-line tool for converting ABIF files to FASTA.</p>
-                <div class="code-example">abif trace.ab1 output.fa</div>
-              </div>
-              
-              <div class="tool-box">
-                <div class="tool-name">abi2fq</div>
-                <p>Advanced FASTQ converter with quality trimming capabilities.</p>
-                <p>This tool allows you to:</p>
-                <ul>
-                  <li>Convert ABIF trace files to FASTQ format</li>
-                  <li>Trim low-quality bases from sequence ends</li>
-                  <li>Configure sliding window size and quality threshold</li>
-                  <li>Output to STDOUT or to a file</li>
-                </ul>
-                
-                <h4>Usage Examples:</h4>
-                <div class="code-example">
+   <div class="container">
+    <div class="row">
+     <div class="three columns">
+      <div class="theme-select-wrapper">
+       <label for="theme-select">Theme:&nbsp;</label>
+       <select id="theme-select" onchange="setTheme(this.value)">
+        <option value="auto">🌗 Match OS</option>
+        <option value="dark">🌑 Dark</option>
+        <option value="light">🌕 Light</option>
+       </select>
+      </div>
+     </div>
+     <div class="nine columns">
+      <div class="project-container">
+       <h1 class="title">ABIF Parser for Nim</h1>
+       
+       <div class="project-section">
+        <p>
+         A Nim library to parse ABIF (Applied Biosystems Information Format) files from DNA sequencing machines, 
+         commonly used in Sanger capillary sequencing.
+        </p>
+        <p>
+         <a href="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml"><img src="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml/badge.svg" alt="CI status"></a>
+         <a href="abif.html">Library API</a> | <a href="https://github.com/quadram-institute-bioscience/nim-abif?tab=readme-ov-file"> Github repository</a>
+        </p>
+       </div>
+       
+       <div class="project-section">
+        <h2>Features</h2>
+        <ul>
+         <li>Parse <code>.ab1</code> and <code>.fsa</code> trace files</li>
+         <li>Extract sequence data, quality values, and sample names</li>
+         <li>Supports all standard ABIF data types</li>
+         <li>Export to FASTA and FASTQ formats</li>
+         <li>Correctly handles big-endian binary data</li>
+        </ul>
+       </div>
+       
+       <div class="project-section">
+        <h2>Tools</h2>
+        
+        <div class="tool-box">
+         <div class="tool-name">abi2fq</div>
+         <p>Advanced FASTQ converter with quality trimming capabilities.</p>
+         <p>This tool allows you to:</p>
+         <ul>
+          <li>Convert ABIF trace files to FASTQ format</li>
+          <li>Trim low-quality bases from sequence ends</li>
+          <li>Configure sliding window size and quality threshold</li>
+          <li>Output to STDOUT or to a file</li>
+         </ul>
+         
+         <h4>Usage Examples:</h4>
+         <div class="code-example">
 # Basic conversion
 abi2fq trace.ab1 output.fq
-</div>
+         </div>
 
-<div class="code-example">
+         <div class="code-example">
 # With quality trimming (window size 15, quality threshold 25)
 abi2fq --window=15 --quality=25 trace.ab1 output.fq
-</div>
+         </div>
 
-<div class="code-example">
+         <div class="code-example">
 # Skip quality trimming
 abi2fq --no-trim trace.ab1 output.fq
-</div>
+         </div>
 
-<div class="code-example">
+         <div class="code-example">
 # Show additional information
 abi2fq --verbose trace.ab1
-</div>
+         </div>
 
-<div class="code-example">
-
+         <div class="code-example">
 # Output to STDOUT
 abi2fq trace.ab1
-                </div>
-              </div>
-            </div>
-            
-            <div class="project-section">
-              <h2>Installation</h2>
-              <div class="code-example">nimble install abif</div>
-              <p>Or add to your <code>.nimble</code> file:</p>
-              <div class="code-example">requires "abif >= 0.1.0"</div>
-            </div>
-            
-            <div class="footer">
-              <a class="library-button" href="abif.html">Library Documentation</a> | &copy; 2023 Quadram Institute Bioscience (Andrea Telatin)
-            </div>
-          </div>
+         </div>
         </div>
+       </div>
+       
+
+       <div class="tool-box">
+        <div class="tool-name">abimerge</div>
+        <p>Merge overlapping traces.</p>
+        <div class="code-example">abimerge trace_F.ab1t race_R.ab1</div>
       </div>
+
+
+       <div class="tool-box">
+        <div class="tool-name">abimerge</div>
+        <p>Merge overlapping traces.</p>
+        <div class="code-example">abimerge trace_F.ab1 race_R.ab1</div>
+      </div>
+
+      <div class="tool-box">
+        <div class="tool-name">abimetadata</div>
+        <p>Print tags from traces</p>
+        <div class="code-example">abimetadata trace_F.ab1</div>
+      </div>
+
+       <div class="project-section">
+        <h2>Installation</h2>
+        <div class="code-example">nimble install abif</div>
+        <p>To install the tool:</p>
+        <div class="code-example">conda install -c bioconda nim-abif</div>
+       </div>
+       
+       <div class="footer">
+        <a href="abif.html">Library Documentation</a> | &copy; 2023 Quadram Institute Bioscience (Andrea Telatin)
+       </div>
+      </div>
+     </div>
     </div>
+   </div>
   </div>
   
   <!-- Google fonts -->
   <link href='https://fonts.googleapis.com/css?family=Lato:400,600,900' rel='stylesheet' type='text/css'/>
   <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro:400,500,600' rel='stylesheet' type='text/css'/>
-</body>
+ </body>
 </html>

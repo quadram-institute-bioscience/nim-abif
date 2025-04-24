@@ -52,21 +52,22 @@
     <summary><a class="reference reference-toplevel" href="#7" id="57">Types</a></summary>
     <ul class="simple simple-toc-section">
       <li><a class="reference" href="#ABIFTrace" title="ABIFTrace = ref object
-  stream*: FileStream
-  fileName*: string
-  version*: int
-  numElems*: int
-  tags*: TableRef[string, DirectoryEntry]
-  data*: TableRef[string, string]">ABIFTrace</a></li>
+  stream*: FileStream        ## File stream
+  fileName*: string          ## Path to the file
+  version*: int              ## ABIF format version
+  numElems*: int             ## Number of directory entries
+  ## Offset to the directory
+  tags*: TableRef[string, DirectoryEntry] ## Directory entries indexed by tag
+  data*: TableRef[string, string] ## Extracted data values">ABIFTrace</a></li>
 <li><a class="reference" href="#DirectoryEntry" title="DirectoryEntry = object
-  tagName*: string
-  tagNum*: int
-  elemType*: ElementType
-  elemSize*: int
-  elemNum*: int
-  dataSize*: int
-  dataOffset*: int
-  dataHandle*: int">DirectoryEntry</a></li>
+  tagName*: string           ## Four-character tag name
+  tagNum*: int               ## Tag number
+  elemType*: ElementType     ## Type of data stored
+  elemSize*: int             ## Size of one element in bytes
+  elemNum*: int              ## Number of elements
+  dataSize*: int             ## Total size of data in bytes
+  dataOffset*: int           ## Offset to the data in the file
+  dataHandle*: int           ## Data handle (reserved)">DirectoryEntry</a></li>
 <li><a class="reference" href="#ElementType" title="ElementType = enum
   etByte = 1, etChar = 2, etWord = 3, etShort = 4, etLong = 5, etRational = 6,
   etFloat = 7, etDouble = 8, etDate = 10, etTime = 11, etThumb = 12,
@@ -132,39 +133,55 @@
     
     <div id="tocRoot"></div>
     
-    <p class="module-desc"></p>
+    <p class="module-desc"><p>This module provides a parser for ABIF (Applied Biosystems Input Format) files, commonly used for DNA sequencing data (e.g., .ab1 files).</p>
+<p>The parser can read the binary format, extract key information such as sequences, quality values, and other metadata, and export the data to common bioinformatics formats like FASTA and FASTQ.</p>
+<p>Example:</p>
+<pre class="listing"><span class="Keyword">import</span> <span class="Identifier">abif</span>
+
+<span class="Comment"># Open an ABIF file</span>
+<span class="Keyword">let</span> <span class="Identifier">trace</span> <span class="Operator">=</span> <span class="Identifier">newABIFTrace</span><span class="Punctuation">(</span><span class="StringLit">&quot;example.ab1&quot;</span><span class="Punctuation">)</span>
+
+<span class="Comment"># Get sequence data</span>
+<span class="Identifier">echo</span> <span class="Identifier">trace</span><span class="Operator">.</span><span class="Identifier">getSequence</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
+
+<span class="Comment"># Export to FASTA format</span>
+<span class="Identifier">trace</span><span class="Operator">.</span><span class="Identifier">exportFasta</span><span class="Punctuation">(</span><span class="StringLit">&quot;output.fa&quot;</span><span class="Punctuation">)</span>
+
+<span class="Comment"># Close the file when done</span>
+<span class="Identifier">trace</span><span class="Operator">.</span><span class="Identifier">close</span><span class="Punctuation">(</span><span class="Punctuation">)</span></pre></p>
     <div class="section" id="7">
   <h1><a class="toc-backref" href="#7">Types</a></h1>
   <dl class="item">
     <div id="ABIFTrace">
   <dt><pre><a href="abif.html#ABIFTrace"><span class="Identifier">ABIFTrace</span></a> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span>
-  <span class="Identifier">stream</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">FileStream</span>
-  <span class="Identifier">fileName</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
-  <span class="Identifier">version</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
-  <span class="Identifier">numElems</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
-  <span class="Identifier">tags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">TableRef</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">,</span> <a href="abif.html#DirectoryEntry"><span class="Identifier">DirectoryEntry</span></a><span class="Other">]</span>
-  <span class="Identifier">data</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">TableRef</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">string</span><span class="Other">]</span>
-</pre></dt>
+  <span class="Identifier">stream</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">FileStream</span>        <span class="Comment">## File stream</span>
+  <span class="Identifier">fileName</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>          <span class="Comment">## Path to the file</span>
+  <span class="Identifier">version</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>              <span class="Comment">## ABIF format version</span>
+  <span class="Identifier">numElems</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>             <span class="Comment">## Number of directory entries</span>
+  <span class="Comment">## Offset to the directory</span>
+  <span class="Identifier">tags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">TableRef</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">,</span> <a href="abif.html#DirectoryEntry"><span class="Identifier">DirectoryEntry</span></a><span class="Other">]</span> <span class="Comment">## Directory entries indexed by tag</span>
+  <span class="Identifier">data</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">TableRef</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">string</span><span class="Other">]</span> <span class="Comment">## Extracted data values</span>
+  </pre></dt>
   <dd>
     
-    
+    Main object representing an ABIF file. Contains methods to extract and process the data.
     
   </dd>
 </div>
 <div id="DirectoryEntry">
   <dt><pre><a href="abif.html#DirectoryEntry"><span class="Identifier">DirectoryEntry</span></a> <span class="Other">=</span> <span class="Keyword">object</span>
-  <span class="Identifier">tagName</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
-  <span class="Identifier">tagNum</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
-  <span class="Identifier">elemType</span><span class="Operator">*</span><span class="Other">:</span> <a href="abif.html#ElementType"><span class="Identifier">ElementType</span></a>
-  <span class="Identifier">elemSize</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
-  <span class="Identifier">elemNum</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
-  <span class="Identifier">dataSize</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
-  <span class="Identifier">dataOffset</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
-  <span class="Identifier">dataHandle</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
-</pre></dt>
+  <span class="Identifier">tagName</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>           <span class="Comment">## Four-character tag name</span>
+  <span class="Identifier">tagNum</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>               <span class="Comment">## Tag number</span>
+  <span class="Identifier">elemType</span><span class="Operator">*</span><span class="Other">:</span> <a href="abif.html#ElementType"><span class="Identifier">ElementType</span></a>     <span class="Comment">## Type of data stored</span>
+  <span class="Identifier">elemSize</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>             <span class="Comment">## Size of one element in bytes</span>
+  <span class="Identifier">elemNum</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>              <span class="Comment">## Number of elements</span>
+  <span class="Identifier">dataSize</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>             <span class="Comment">## Total size of data in bytes</span>
+  <span class="Identifier">dataOffset</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>           <span class="Comment">## Offset to the data in the file</span>
+  <span class="Identifier">dataHandle</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>           <span class="Comment">## Data handle (reserved)</span>
+  </pre></dt>
   <dd>
     
-    
+    Represents a directory entry in the ABIF file. Each entry contains metadata about a data element.
     
   </dd>
 </div>
@@ -176,7 +193,7 @@
   <span class="Identifier">etPString</span> <span class="Other">=</span> <span class="DecNumber">18</span><span class="Other">,</span> <span class="Identifier">etCString</span> <span class="Other">=</span> <span class="DecNumber">19</span><span class="Other">,</span> <span class="Identifier">etTag</span> <span class="Other">=</span> <span class="DecNumber">20</span></pre></dt>
   <dd>
     
-    
+    Represents the data types that can be stored in an ABIF file.
     
   </dd>
 </div>
@@ -191,7 +208,7 @@
   <dt><pre><span class="Keyword">proc</span> <a href="#abifVersion"><span class="Identifier">abifVersion</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
+    Returns the version of the abif library.
     
   </dd>
 </div>
@@ -203,7 +220,7 @@
                                <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
+    Closes the file stream associated with the trace.
     
   </dd>
 </div>
@@ -216,7 +233,9 @@
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
+    <p>Exports the sequence to a FASTA format file.</p>
+<p>Parameters: outFile: Path to the output file. If empty, &quot;trace.fa&quot; is used.</p>
+
     
   </dd>
 </div>
@@ -229,7 +248,9 @@
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
+    <p>Exports the sequence and quality values to a FASTQ format file.</p>
+<p>Parameters: outFile: Path to the output file. If empty, &quot;trace.fq&quot; is used.</p>
+
     
   </dd>
 </div>
@@ -242,7 +263,10 @@
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
+    <p>Retrieves data for a specific tag.</p>
+<p>Parameters: tag: The tag name to retrieve data for</p>
+<p>Returns: The data as a string, or an empty string if the tag does not exist</p>
+
     
   </dd>
 </div>
@@ -255,7 +279,9 @@
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
+    <p>Returns the sequence quality values as a sequence of integers.</p>
+<p>Each value represents the quality score for the corresponding base in the sequence.</p>
+
     
   </dd>
 </div>
@@ -268,7 +294,9 @@
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
+    <p>Returns the sample name from the trace.</p>
+<p>Uses the pre-extracted &quot;name&quot; data or retrieves it from the SMPL1 tag.</p>
+
     
   </dd>
 </div>
@@ -281,7 +309,9 @@
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
+    <p>Returns the DNA sequence from the trace.</p>
+<p>Uses the pre-extracted &quot;sequence&quot; data or retrieves it from the PBAS2 tag.</p>
+
     
   </dd>
 </div>
@@ -293,7 +323,7 @@
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
+    Returns a sequence of all tag names in the ABIF file.
     
   </dd>
 </div>
@@ -306,7 +336,11 @@
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
+    <p>Creates a new ABIFTrace object from the specified file.</p>
+<p>Parameters: filename: Path to the ABIF file trimming: If true, low quality regions are trimmed (not implemented)</p>
+<p>Returns: A new ABIFTrace object</p>
+<p>Raises: IOError: If the file cannot be opened or is not a valid ABIF file</p>
+
     
   </dd>
 </div>
@@ -322,7 +356,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-04-24 20:58:59 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-04-24 21:41:23 UTC</small>
       </div>
     </div>
   </div>
