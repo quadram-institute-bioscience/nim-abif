@@ -1,5 +1,12 @@
 import std/[streams, tables, strformat, endians]
 
+const NimblePkgVersion {.strdefine.} = "<NimblePkgVersion>"
+
+proc abifVersion*(): string =
+  if len(NimblePkgVersion) == 0:
+    return "0.0.0"
+  else:
+    return NimblePkgVersion
 type
   ElementType* = enum
     etByte = 1, etChar = 2, etWord = 3, etShort = 4, etLong = 5,
@@ -306,7 +313,8 @@ when isMainModule:
   import os
   
   if paramCount() < 1:
-    echo "Usage: abif <trace_file.ab1> [output_file]"
+
+    stderr.writeLine( "Usage: abif <trace_file.ab1> [output_file]" )
     quit(1)
   
   let inFile = paramStr(1)

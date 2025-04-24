@@ -1,5 +1,5 @@
 import std/[os, tables, strformat, strutils, parseopt, sequtils, streams, algorithm]
-import ../abif
+import ./abif
 
 #[
   abimetadata - Display and modify metadata in ABIF files

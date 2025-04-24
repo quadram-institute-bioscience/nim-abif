@@ -1,6 +1,6 @@
 import std/[unittest, strutils, os]
 import ../src/abimerge
-import ../abif
+import ../src/abif
 
 # Test reverse and revcompl functions
 test "Reverse function":

@@ -1,5 +1,6 @@
 import std/[os, strformat, strutils, parseopt]
-import ../abif
+import ./abif
+#import nimabif/packageinfo  # For NimblePkgVersion
 
 type
   Config = object
@@ -9,6 +10,7 @@ type
     qualityThreshold: int
     noTrim: bool
     verbose: bool
+    showVersion: bool
 
 proc printHelp() =
   echo """
@@ -23,6 +25,7 @@ Options:
   -q, --quality=INT          Quality threshold 0-60 (default: 20)
   -n, --no-trim              Disable quality trimming
   -v, --verbose              Print additional information
+  --version                  Show version information
 
 If output file is not specified, FASTQ will be written to STDOUT.
 """
@@ -34,7 +37,8 @@ proc parseCommandLine(): Config =
     windowSize: 10,
     qualityThreshold: 20,
     noTrim: false,
-    verbose: false
+    verbose: false,
+    showVersion: false
   )
   
   var fileArgs: seq[string] = @[]
@@ -61,11 +65,17 @@ proc parseCommandLine(): Config =
         result.noTrim = true
       of "v", "verbose":
         result.verbose = true
+      of "version":
+        result.showVersion = true
       else:
         echo "Unknown option: ", key
         printHelp()
     of cmdEnd: assert(false)
   
+  if result.showVersion:
+    echo "abi2fq ", abifVersion()
+    quit(0)
+    
   if fileArgs.len < 1:
     echo "Error: Input file required"
     printHelp()
