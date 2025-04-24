@@ -17,4 +17,9 @@ nimcache/
 
 # Test artifacts
 tests/output*.fq
-tests/output*.fa.DS_Store
+tests/output*.fa
+
+# Mac extravaganzas
+.DS_Store
+r/
+paper
