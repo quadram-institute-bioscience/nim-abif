@@ -88,6 +88,8 @@
                 A Nim library to parse ABIF (Applied Biosystems Information Format) files from DNA sequencing machines, 
                 commonly used in Sanger capillary sequencing.
               </p>
+	      <p><a href="abif.html">Library API</a>
+              </p>
             </div>
             
             <div class="project-section">
@@ -125,15 +127,24 @@
                 <div class="code-example">
 # Basic conversion
 abi2fq trace.ab1 output.fq
+</div>
 
+<div class="code-example">
 # With quality trimming (window size 15, quality threshold 25)
 abi2fq --window=15 --quality=25 trace.ab1 output.fq
+</div>
 
+<div class="code-example">
 # Skip quality trimming
 abi2fq --no-trim trace.ab1 output.fq
+</div>
 
+<div class="code-example">
 # Show additional information
 abi2fq --verbose trace.ab1
+</div>
+
+<div class="code-example">
 
 # Output to STDOUT
 abi2fq trace.ab1
