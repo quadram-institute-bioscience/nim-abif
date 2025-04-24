@@ -60,10 +60,28 @@ let rawData = trace.getData("DATA1")  # Raw channel data
 
 ### Command-line Usage
 
-The library also provides a simple command-line tool:
+The library provides two command-line tools:
+
+#### Basic FASTA export
 
 ```
 abif trace.ab1 output.fa
+```
+
+#### Advanced FASTQ converter with quality trimming
+
+```
+abi2fq trace.ab1 output.fq
+```
+
+The abi2fq tool provides quality-based sequence trimming:
+
+```
+abi2fq --help                    # Show help message
+abi2fq --window=15 --quality=25 trace.ab1  # Trim with window size 15, quality threshold 25
+abi2fq --no-trim trace.ab1       # Skip quality trimming
+abi2fq --verbose trace.ab1       # Show additional information
+abi2fq trace.ab1                 # Output to STDOUT
 ```
 
 ## Data Types
