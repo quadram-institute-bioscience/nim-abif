@@ -1,7 +1,7 @@
 # Package information
 packageName = "abif"
 version     = "0.1.0"
-author      = "Claude AI"
+author      = "Andrea Telatin, Claude AI"
 description = "ABIF (Applied Biosystems Information Format) parser for DNA sequencing data"
 license     = "MIT"
 

@@ -1,0 +1,45 @@
+name: ABIF Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        nim-version: ['1.6.0', 'stable']
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Nim
+      uses: jiro4989/setup-nim-action@v1
+      with:
+        nim-version: ${{ matrix.nim-version }}
+    
+    - name: Install dependencies
+      run: nimble install -y
+      
+    - name: Build
+      run: nimble buildbin
+      
+    - name: Run tests
+      run: nimble test
+      
+    - name: Generate docs
+      run: nimble docs
+      
+    - name: Upload binaries
+      uses: actions/upload-artifact@v3
+      with:
+        name: abif-${{ matrix.os }}-${{ matrix.nim-version }}
+        path: |
+          bin/abif
+          bin/abi2fq
