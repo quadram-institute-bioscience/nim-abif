@@ -1,6 +1,9 @@
 # ABIF Parser for Nim
 
-A Nim library to parse ABIF (Applied Biosystems Information Format) files from DNA sequencing machines, commonly used in Sanger capillary sequencing.
+A Nim library to parse [ABIF](chromatograms.md) (Applied Biosystems Information Format)
+files from DNA sequencing machines, commonly used in Sanger capillary sequencing.
+
+- [**API reference**](https://quadram-institute-bioscience.github.io/nim-abif/)
 
 ## Features
 
@@ -109,11 +112,11 @@ nimble docs
 
 ## License
 
-This library is licensed under the MIT License - see the LICENSE file for details.
+This library is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
 This Nim implementation is based on:
-- Python implementation: [abifpy](https://github.com/bow/abifpy)
-- Perl implementation: Bio::Trace::ABIF from CPAN
-- Co-authored with [Claude code](https://claude.ai)
+- Co-authored with [Claude code](CLAUDE.md)
+- Inspired by Python implementation: [abifpy](https://github.com/bow/abifpy) and a Perl implementation: [Bio::Trace::ABIF](https://metacpan.org/pod/Bio::Trace::ABIF) from CPAN
+
