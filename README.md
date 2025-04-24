@@ -1,5 +1,7 @@
 # ABIF Parser for Nim
 
+<img align="right" width="256" height="256" src="docs/logo.svg" alt="Nim ABIF library logo">
+
 A Nim library to parse [ABIF](chromatograms.md) (Applied Biosystems Information Format)
 files from DNA sequencing machines, commonly used in Sanger capillary sequencing.
 
