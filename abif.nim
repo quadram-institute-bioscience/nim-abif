@@ -57,7 +57,7 @@ proc readInt16BE(s: Stream): int =
   result = cast[int16](res).int
   # Adjust for negative values
   if result > 32767:
-    result -= 65536
+    result -= 65536.int
 
 proc readInt32BE(s: Stream): int =
   var val: uint32 = s.readUint32()
@@ -66,7 +66,7 @@ proc readInt32BE(s: Stream): int =
   result = cast[int32](res).int
   # Adjust for negative values
   if result > 2147483647:
-    result -= 4294967296
+    result -= 4294967296.int
 
 proc readStringBE(s: Stream, len: int): string =
   result = newString(len)
