@@ -8,11 +8,10 @@ on:
 
 jobs:
   test:
-    name: Test on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Test on Ubuntu
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest]
         nim-version: ['1.6.0', 'stable']
       fail-fast: false
 
@@ -37,9 +36,9 @@ jobs:
       run: nimble docs
       
     - name: Upload binaries
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
-        name: abif-${{ matrix.os }}-${{ matrix.nim-version }}
+        name: abif-ubuntu-${{ matrix.nim-version }}
         path: |
           bin/abif
           bin/abi2fq
