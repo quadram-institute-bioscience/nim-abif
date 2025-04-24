@@ -1,0 +1,20 @@
+# Binaries
+abif
+test_abif
+src/abi2fq
+tests/test_abif
+bin/
+tests/test_abi2fq
+
+# Output files
+trace.fa
+trace.fq
+*.fa
+*.fq
+
+# Nim cache
+nimcache/
+
+# Test artifacts
+tests/output*.fq
+tests/output*.fa.DS_Store
