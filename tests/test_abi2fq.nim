@@ -2,8 +2,9 @@ import unittest
 import os, osproc, strutils
 
 proc runTests() =
-  # Get absolute path to the bin directory with abif as parent
-  let abifDir = "/Users/telatina/git/abif"
+  # Get absolute path to the project root directory
+  let currentDir = getCurrentDir()
+  let abifDir = if currentDir.endsWith("tests"): parentDir(currentDir) else: currentDir
   echo "ABIF directory: ", abifDir
   
   let binDir = abifDir / "bin"
@@ -14,7 +15,9 @@ proc runTests() =
     
     test "abi2fq binary exists":
       # Build the binary
-      discard execCmd("cd " & abifDir & " && nimble buildbin")
+      let buildCmd = "cd " & abifDir & " && nimble buildbin"
+      echo "Running build command: ", buildCmd
+      discard execCmd(buildCmd)
       
       # Check if the binary exists
       check fileExists(abi2fqPath)
