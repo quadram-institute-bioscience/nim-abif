@@ -1,29 +1,30 @@
 import std/[streams, tables, strformat, endians]
 
 type
-  ElementType = enum
+  ElementType* = enum
     etByte = 1, etChar = 2, etWord = 3, etShort = 4, etLong = 5,
     etRational = 6, etFloat = 7, etDouble = 8, etDate = 10,
     etTime = 11, etThumb = 12, etBool = 13, etPoint = 14, etRect = 15,
     etVPoint = 16, etVRect = 17, etPString = 18, etCString = 19, etTag = 20
   
-  DirectoryEntry = object
-    tagName: string
-    tagNum: int
-    elemType: ElementType
-    elemSize: int
-    elemNum: int
-    dataSize: int
-    dataOffset: int
-    dataHandle: int
+  DirectoryEntry* = object
+    tagName*: string
+    tagNum*: int
+    elemType*: ElementType
+    elemSize*: int
+    elemNum*: int
+    dataSize*: int
+    dataOffset*: int
+    dataHandle*: int
     
   ABIFTrace* = ref object
-    stream: FileStream
-    version: int
-    numElems: int
+    stream*: FileStream
+    fileName*: string
+    version*: int
+    numElems*: int
     dataOffset: int
-    tags: TableRef[string, DirectoryEntry]
-    data: TableRef[string, string]
+    tags*: TableRef[string, DirectoryEntry]
+    data*: TableRef[string, string]
 
 const
   Extract = {
@@ -196,6 +197,7 @@ proc unpackData(trace: ABIFTrace, entry: DirectoryEntry): string =
 proc newABIFTrace*(filename: string, trimming: bool = false): ABIFTrace =
   result = ABIFTrace(
     stream: newFileStream(filename, fmRead),
+    fileName: filename,
     tags: newTable[string, DirectoryEntry](),
     data: newTable[string, string]()
   )
