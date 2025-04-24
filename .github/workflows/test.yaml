@@ -35,10 +35,16 @@ jobs:
     - name: Generate docs
       run: nimble docs
       
-    - name: Upload binaries
-      uses: actions/upload-artifact@v2
+    # Instead of using upload-artifact action, we'll just archive the files
+    - name: Archive binaries
+      run: |
+        mkdir -p artifacts
+        cp bin/abif bin/abi2fq artifacts/
+        tar -czf abif-ubuntu-${{ matrix.nim-version }}.tar.gz artifacts/
+        
+    # Store the archive using the GitHub Actions cache
+    - name: Store build artifacts
+      uses: actions/cache@v3
       with:
-        name: abif-ubuntu-${{ matrix.nim-version }}
-        path: |
-          bin/abif
-          bin/abi2fq
+        path: abif-ubuntu-${{ matrix.nim-version }}.tar.gz
+        key: ${{ runner.os }}-nim${{ matrix.nim-version }}-${{ github.sha }}
