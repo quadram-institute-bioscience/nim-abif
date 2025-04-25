@@ -1,6 +1,6 @@
 import unittest
 import strutils, os, streams
-import ../abif
+import ../src/abif
 
 proc runTests() =
   suite "ABIF Trace Tests":

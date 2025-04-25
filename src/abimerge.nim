@@ -1,5 +1,6 @@
 import std/[os, strformat, strutils, parseopt]
-import ../abif
+import ./abif
+#import nimabif/packageinfo  # For NimblePkgVersion
 
 #[
     A program to merge two traces, one forward and one reverse, into a single sequence.
@@ -248,6 +249,7 @@ type
     windowSize*: int     # Window size for quality trimming
     qualityThreshold*: int   # Quality threshold for trimming
     noTrim*: bool        # Whether to disable quality trimming
+    showVersion*: bool   # Whether to show version information
 
 proc printHelp() =
   echo """
@@ -274,6 +276,7 @@ Options:
    --min-score INT           Minimum alignment score [default: 80]
    --pct-id FLOAT            Minimum percentage of identity [default: 85]
    -v, --verbose             Print additional information
+   --version                 Show version information
 """
   quit(0)
 
@@ -328,7 +331,8 @@ proc parseCommandLine(): Config =
     outputFile: "",
     windowSize: 4,       # Default window size for quality trimming
     qualityThreshold: 22, # Default quality threshold
-    noTrim: false         # Enable trimming by default
+    noTrim: false,        # Enable trimming by default
+    showVersion: false    # Don't show version by default
   )
   
   var fileArgs: seq[string] = @[]
@@ -382,11 +386,17 @@ proc parseCommandLine(): Config =
           quit(1)
       of "v", "verbose":
         result.verbose = true
+      of "version":
+        result.showVersion = true
       else:
         echo "Unknown option: ", key
         printHelp()
     of cmdEnd: assert(false)
   
+  if result.showVersion:
+    echo "abimerge ", abifVersion()
+    quit(0)
+    
   if fileArgs.len < 2:
     echo "Error: Both forward and reverse input files are required"
     printHelp()

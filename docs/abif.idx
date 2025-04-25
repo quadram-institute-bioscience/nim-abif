@@ -1,11 +1,33 @@
-nimTitle	abif	abif.html	module abif		0
-nim	ABIFTrace	abif.html#ABIFTrace	type ABIFTrace		20
-nim	newABIFTrace	abif.html#newABIFTrace,string,bool	proc newABIFTrace(filename: string; trimming: bool = false): ABIFTrace		196
-nim	close	abif.html#close,ABIFTrace	proc close(trace: ABIFTrace)		235
-nim	getTagNames	abif.html#getTagNames,ABIFTrace	proc getTagNames(trace: ABIFTrace): seq[string]		239
-nim	getData	abif.html#getData,ABIFTrace,string	proc getData(trace: ABIFTrace; tag: string): string		243
-nim	getSequence	abif.html#getSequence,ABIFTrace	proc getSequence(trace: ABIFTrace): string		248
-nim	getQualityValues	abif.html#getQualityValues,ABIFTrace	proc getQualityValues(trace: ABIFTrace): seq[int]		253
-nim	getSampleName	abif.html#getSampleName,ABIFTrace	proc getSampleName(trace: ABIFTrace): string		264
-nim	exportFasta	abif.html#exportFasta,ABIFTrace,string	proc exportFasta(trace: ABIFTrace; outFile: string = "")		269
-nim	exportFastq	abif.html#exportFastq,ABIFTrace,string	proc exportFastq(trace: ABIFTrace; outFile: string = "")		284
+nimTitle	abif	abif.html	module src/abif		0
+nim	abifVersion	abif.html#abifVersion	proc abifVersion(): string		28
+nim	etByte	abif.html#etByte	ElementType.etByte		36
+nim	etChar	abif.html#etChar	ElementType.etChar		36
+nim	etWord	abif.html#etWord	ElementType.etWord		36
+nim	etShort	abif.html#etShort	ElementType.etShort		36
+nim	etLong	abif.html#etLong	ElementType.etLong		36
+nim	etRational	abif.html#etRational	ElementType.etRational		36
+nim	etFloat	abif.html#etFloat	ElementType.etFloat		36
+nim	etDouble	abif.html#etDouble	ElementType.etDouble		36
+nim	etDate	abif.html#etDate	ElementType.etDate		36
+nim	etTime	abif.html#etTime	ElementType.etTime		36
+nim	etThumb	abif.html#etThumb	ElementType.etThumb		36
+nim	etBool	abif.html#etBool	ElementType.etBool		36
+nim	etPoint	abif.html#etPoint	ElementType.etPoint		36
+nim	etRect	abif.html#etRect	ElementType.etRect		36
+nim	etVPoint	abif.html#etVPoint	ElementType.etVPoint		36
+nim	etVRect	abif.html#etVRect	ElementType.etVRect		36
+nim	etPString	abif.html#etPString	ElementType.etPString		36
+nim	etCString	abif.html#etCString	ElementType.etCString		36
+nim	etTag	abif.html#etTag	ElementType.etTag		36
+nim	ElementType	abif.html#ElementType	enum ElementType		36
+nim	DirectoryEntry	abif.html#DirectoryEntry	object DirectoryEntry		43
+nim	ABIFTrace	abif.html#ABIFTrace	type ABIFTrace		55
+nim	newABIFTrace	abif.html#newABIFTrace,string,bool	proc newABIFTrace(filename: string; trimming: bool = false): ABIFTrace		241
+nim	close	abif.html#close,ABIFTrace	proc close(trace: ABIFTrace)		292
+nim	getTagNames	abif.html#getTagNames,ABIFTrace	proc getTagNames(trace: ABIFTrace): seq[string]		297
+nim	getData	abif.html#getData,ABIFTrace,string	proc getData(trace: ABIFTrace; tag: string): string		302
+nim	getSequence	abif.html#getSequence,ABIFTrace	proc getSequence(trace: ABIFTrace): string		314
+nim	getQualityValues	abif.html#getQualityValues,ABIFTrace	proc getQualityValues(trace: ABIFTrace): seq[int]		322
+nim	getSampleName	abif.html#getSampleName,ABIFTrace	proc getSampleName(trace: ABIFTrace): string		336
+nim	exportFasta	abif.html#exportFasta,ABIFTrace,string	proc exportFasta(trace: ABIFTrace; outFile: string = "")		344
+nim	exportFastq	abif.html#exportFastq,ABIFTrace,string	proc exportFastq(trace: ABIFTrace; outFile: string = "")		363

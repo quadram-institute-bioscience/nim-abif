@@ -1,5 +1,3 @@
-I can create a parser for ABIF files based on the documentation you've provided. Here's a summary of the format and how to implement it:
-
 # ABIF (Applied Biosystems Information Format) File Format
 
 The ABIF format is a binary file format used by Applied Biosystems for storing genetic analysis data. It's used primarily for `.ab1` (sequencing data) and `.fsa` (fragment analysis data) files.
@@ -74,3 +72,5 @@ Different instrument models and software versions use different tags. Some commo
 5. Larger items have their binary data at the location specified by `dataoffset`
 
 All integers in the format are stored in big-endian byte order (high-order byte first).
+
+> Made by Claude Code (Sonnet 3.7), summarising the original ABIF format documentation

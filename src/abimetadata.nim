@@ -1,5 +1,5 @@
 import std/[os, tables, strformat, strutils, parseopt, sequtils, streams, algorithm]
-import ../abif
+import ./abif
 
 #[
   abimetadata - Display and modify metadata in ABIF files
@@ -124,7 +124,7 @@ proc listMetadata(trace: ABIFTrace, debug: bool, limit: int = 0) =
   var headers = @["Tag", "Data Type", "Size", "Value"]
   var rows: seq[seq[string]] = @[]
   
-  echo "Processing tags..."
+  stderr.writeLine( "Processing tags..." )
   var processedCount = 0
     # If limit is set, only process that many tags
   var tagsToProcess = tagNames
@@ -135,7 +135,7 @@ proc listMetadata(trace: ABIFTrace, debug: bool, limit: int = 0) =
   for tagName in tagsToProcess:
       
     if debug:
-      echo "Processing tag: ", tagName
+      stderr.writeLine( "Processing tag: ", tagName)
       
     if not trace.tags.hasKey(tagName):
       if debug:
@@ -157,7 +157,7 @@ proc listMetadata(trace: ABIFTrace, debug: bool, limit: int = 0) =
     else:
       try:
         let value = formatTagValue(tagName, entry, trace)
-        displayValue = if value.len > 60: value[0..59] & "..." else: value
+        displayValue = if value.len > 120: value[0..119] & "..." else: value
       except:
         displayValue = "(error getting value: " & getCurrentExceptionMsg() & ")"
     

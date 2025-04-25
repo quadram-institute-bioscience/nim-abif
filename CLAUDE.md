@@ -3,8 +3,8 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Build and Test Commands
-- Build all binaries: `nimble buildbin` (outputs to bin/ directory)
-- Build core binary: `nim c -d:release abif.nim`
+- Build all binaries: `nimble build` (or `nimble buildbin`) (outputs to bin/ directory)
+- Build core binary: `nim c -d:release src/abif.nim`
 - Build abi2fq: `nim c -d:release src/abi2fq.nim`
 - Run ABIF converter: `./bin/abif [trace_file.ab1] [output_file]`
 - Run FASTQ converter: `./bin/abi2fq [options] [trace_file.ab1] [output_file]`
