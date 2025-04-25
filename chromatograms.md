@@ -68,9 +68,105 @@ Different instrument models and software versions use different tags. Some commo
 1. Read the header and extract the directory information
 2. Parse the directory entries
 3. For each entry, read its data according to the data type and size
-4. Small data items (≤4 bytes) are stored directly in the `dataoffset` field
+4. Small data items (<=4 bytes) are stored directly in the `dataoffset` field
 5. Larger items have their binary data at the location specified by `dataoffset`
 
 All integers in the format are stored in big-endian byte order (high-order byte first).
+
+# Chromatogram Generation
+
+The abif library now includes functionality to generate SVG chromatograms from ABIF trace files. The chromatogram visualizer renders trace data with professional features like color-coding, base calls, and position markers.
+
+## Usage
+
+```
+abichromatogram <trace_file.ab1> [options]
+```
+
+Where:
+- `<trace_file.ab1>` is the input ABIF trace file
+
+Options:
+- `-o, --output FILE` - Output SVG file (default: chromatogram.svg)
+- `-w, --width WIDTH` - SVG width in pixels (default: 1200)
+- `-h, --height HEIGHT` - SVG height in pixels (default: 600)
+- `-s, --start POS` - Start position for region display (default: 0)
+- `-e, --end POS` - End position for region display (default: whole trace)
+- `-d, --downsample FACTOR` - Downsample factor to reduce data density (default: 1)
+- `--hide-bases` - Hide base calls
+- `--debug` - Show debug information
+
+## Features
+
+The chromatogram visualization shows:
+
+1. Raw trace data from the four fluorescence channels
+2. Base call positions marked with vertical lines
+3. Base letters shown at the top of the peaks
+4. Color-coded channels based on nucleotide type:
+   - A: green
+   - C: blue
+   - G: black
+   - T: red
+5. Position markers and grid lines for navigation
+6. Trace channel legend 
+7. Base count summary
+
+## Technical Implementation
+
+The chromatogram generator extracts the following data from the ABIF file:
+
+- Raw trace data from the DATA1-DATA4 tags (or DATA9-DATA12 in newer files)
+- Base order from FWO_1 tag to identify which channel corresponds to which base
+- Peak locations from PLOC2 tag for marking base calls
+- Base calls from PBAS2 tag for sequence annotation
+
+The raw traces are normalized to a consistent scale and rendered as SVG polylines. Base calls are rendered as text at each peak position.
+
+## Examples
+
+Basic usage:
+```
+abichromatogram tests/3730.ab1 output.svg
+```
+
+With downsampling for smoother visualization:
+```
+abichromatogram tests/3730.ab1 -o output.svg -d 5
+```
+
+Viewing a specific region:
+```
+abichromatogram tests/3730.ab1 -o region.svg -s 500 -e 1000
+```
+
+Changing dimensions:
+```
+abichromatogram tests/3730.ab1 -w 1600 -h 800
+```
+
+Debugging mode:
+```
+abichromatogram tests/3730.ab1 --debug
+```
+
+## Integration
+
+The chromatogram generator is integrated into the abif library build system:
+
+- Added to the namedBin list in abif.nimble
+- Included in the buildbin and install tasks
+- Requires the nimsvg package for SVG generation
+
+## Future Enhancements
+
+Potential future improvements:
+
+1. Zooming capability to focus on specific regions
+2. Quality score visualization
+3. Interactive web-based visualization
+4. Export as PNG/PDF
+5. Additional annotations and metrics
+6. Region highlighting for areas of interest
 
 > Made by Claude Code (Sonnet 3.7), summarising the original ABIF format documentation
