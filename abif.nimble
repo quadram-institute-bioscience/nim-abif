@@ -41,15 +41,15 @@ task docs, "Generate documentation":
 
 task buildbin, "Build all binaries to bin/ directory":
     exec "mkdir -p bin"
-    exec "nim c -d:release --opt:speed --mm:arc -o:bin/abif        src/abif.nim"
-    exec "nim c -d:release --opt:speed --mm:arc -o:bin/abi2fq      src/abi2fq.nim"
-    exec "nim c -d:release --opt:speed --mm:arc -o:bin/abimerge    src/abimerge.nim"
-    exec "nim c -d:release --opt:speed --mm:arc -o:bin/abimetadata src/abimetadata.nim"
+    exec "nim c -d:release --opt:speed -o:bin/abif        src/abif.nim"
+    exec "nim c -d:release --opt:speed -o:bin/abi2fq      src/abi2fq.nim"
+    exec "nim c -d:release --opt:speed -o:bin/abimerge    src/abimerge.nim"
+    exec "nim c -d:release --opt:speed -o:bin/abimetadata src/abimetadata.nim"
     echo "Binaries built to bin/ directory"
 
 # Before installing, compile the binaries
 before install:
-  exec "nim c -d:release --opt:speed src/abif.nim"
-  exec "nim c -d:release --opt:speed src/abi2fq.nim"
-  exec "nim c -d:release --opt:speed src/abimerge.nim"
-  exec "nim c -d:release --opt:speed src/abimetadata.nim"
+  exec "nim c -d:release -d:danger --opt:speed src/abif.nim"
+  exec "nim c -d:release -d:danger --opt:speed src/abi2fq.nim"
+  exec "nim c -d:release -d:danger --opt:speed src/abimerge.nim"
+  exec "nim c -d:release -d:danger --opt:speed src/abimetadata.nim"

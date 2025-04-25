@@ -1,40 +1,60 @@
 import std/[os, strformat, strutils, parseopt]
 import ./abif
-#import nimabif/packageinfo  # For NimblePkgVersion
 
-#[
-    A program to merge two traces, one forward and one reverse, into a single sequence.
-
-    Usage:
-    abimerge [options] <input_F.ab1> <input_R.ab1> [output.fastq]
-
-    Options:
-    -h, --help                 Show this help message
-    -m, --min-overlap INT      Minimum overlap length for merging (default: 20)
-    -o, --output STRING        Output file name (default: STDOUT)
-    -j, --join INT             If no overlap is detected join the two sequences with a gap of INT Ns
-                               (reverse complement the second sequence)
-    Smith-Waterman options:
-     --score-match INT         Score for a match [default: 10]
-     --score-mismatch INT      Score for a mismatch [default: -8]
-     --score-gap INT           Score for a gap [default: -10]
-     --min-score INT           Minimum alignment score [default: 80]
-     --pct-id FLOAT            Minimum percentage of identity [default: 85]
-
-    Use smith-waterman alignment to merge two traces. The output is a FASTQ file with the merged sequence. 
-]#
+## This module provides a command-line tool for merging two ABI trace files 
+## (forward and reverse) into a single sequence.
+##
+## The abimerge tool uses Smith-Waterman local alignment to find the overlapping
+## region between forward and reverse sequences, then merges them to create a 
+## consensus sequence with improved accuracy.
+##
+## Command-line usage:
+##
+## .. code-block:: none
+##   abimerge [options] <input_F.ab1> <input_R.ab1> [output.fastq]
+##
+## Options:
+##   -h, --help                 Show help message
+##   -m, --min-overlap INT      Minimum overlap length for merging (default: 20)
+##   -o, --output STRING        Output file name (default: STDOUT)
+##   -j, --join INT             Join with gap of INT Ns if no overlap detected
+##   --score-match INT          Score for a match (default: 10)
+##   --score-mismatch INT       Score for a mismatch (default: -8)
+##   --score-gap INT            Score for a gap (default: -10)
+##   --min-score INT            Minimum alignment score (default: 80)
+##   --pct-id FLOAT             Minimum percentage identity (default: 85)
+##
+## Examples:
+##
+## .. code-block:: none
+##   # Merge two ABIF files with default settings
+##   abimerge forward.ab1 reverse.ab1 merged.fastq
+##
+##   # Merge with custom alignment parameters
+##   abimerge --min-overlap 30 --score-match 12 forward.ab1 reverse.ab1 merged.fastq
+##
+##   # Join sequences with N gap if no overlap
+##   abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq
 
 type
   swAlignment* = object
-    top*, bottom*, middle*: string
-    score*, length*: int
+    ## Represents a Smith-Waterman alignment between two sequences.
+    top*: string      ## The first sequence in the alignment
+    bottom*: string   ## The second sequence in the alignment
+    middle*: string   ## The alignment representation (|, ., or space)
+    score*: int       ## The alignment score
+    length*: int      ## The length of the alignment
     pctid*: float
     queryStart*, queryEnd*, targetStart*, targetEnd*: int
 
 type
   swWeights* = object
-    match*, mismatch*, gap*, gapopening*: int
-    minscore*: int
+    ## Scoring parameters for Smith-Waterman alignment.
+    match*: int       ## Score for matching bases
+    mismatch*: int    ## Penalty for mismatched bases
+    gap*: int         ## Penalty for gap extension
+    gapopening*: int  ## Penalty for opening a gap
+    minscore*: int    ## Minimum score for accepting an alignment
 
 let
   swDefaults* = swWeights(
