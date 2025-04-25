@@ -102,6 +102,8 @@ task buildbin, "Build all binaries to bin/ directory":
 
 # Before installing, compile the binaries
 before install:
+  # Install nimsvg dependency first to ensure it's available
+  exec "nimble install -y nimsvg"
   exec "nim c -d:release -d:danger --opt:speed src/abif.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abi2fq.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abimerge.nim"
