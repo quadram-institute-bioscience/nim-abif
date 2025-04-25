@@ -82,15 +82,20 @@
      <div class="nine columns">
       <div class="project-container">
        <h1 class="title">ABIF Parser for Nim</h1>
-       
+         <p>
+          <!-- Github action -->
+          <a href="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml">
+              <img src="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml/badge.svg" alt="CI status">
+          </a>
+         </p>
        <div class="project-section">
         <p>
          A Nim library to parse ABIF (Applied Biosystems Information Format) files from DNA sequencing machines, 
          commonly used in Sanger capillary sequencing.
         </p>
         <p>
-         <a href="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml"><img src="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml/badge.svg" alt="CI status"></a>
-         <a href="abif.html">Library API</a> | <a href="https://github.com/quadram-institute-bioscience/nim-abif?tab=readme-ov-file"> Github repository</a>
+         
+         <a href="theindex.html">Library API</a> | <a href="https://github.com/quadram-institute-bioscience/nim-abif?tab=readme-ov-file"> Github repository</a>
         </p>
        </div>
        
@@ -109,7 +114,7 @@
         <h2>Tools</h2>
         
         <div class="tool-box">
-         <div class="tool-name">abi2fq</div>
+         <div class="tool-name"><a href="abi2f2.html">abi2fq</a></div>
          <p>Advanced FASTQ converter with quality trimming capabilities.</p>
          <p>This tool allows you to:</p>
          <ul>
@@ -149,16 +154,17 @@ abi2fq trace.ab1
        
 
        <div class="tool-box">
-        <div class="tool-name">abimerge</div>
+        <div class="tool-name"><a href="abimerge.html">abimerge</a></div>
         <p>Merge overlapping traces.</p>
         <div class="code-example">abimerge trace_F.ab1t race_R.ab1</div>
       </div>
 
 
        <div class="tool-box">
-        <div class="tool-name">abimerge</div>
-        <p>Merge overlapping traces.</p>
-        <div class="code-example">abimerge trace_F.ab1 race_R.ab1</div>
+        <div class="tool-name">abichromatogram</div>
+        <p>Render chromatogram in SVG format</p>
+        <img src="chromas.png">
+        <div class="code-example">abichromatogram file.ab1 -o image.svg -s 500 -e 1000 --width 1600</div>
       </div>
 
       <div class="tool-box">
