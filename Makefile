@@ -1,6 +1,7 @@
 all:
 	nimble build
 	nimble test
+	nimble docs
 
 # Make clean should remove bin/* and all the binaries (not .nim!) in tests
 clean:
