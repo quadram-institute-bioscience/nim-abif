@@ -12,10 +12,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.0.8">
+<link rel="stylesheet" type="text/css" href="nimdoc.out.css">
 
 <!-- JS -->
-<script type="text/javascript" src="dochack.js?v=2.0.8"></script>
+<script type="text/javascript" src="dochack.js"></script>
 </head>
 <body>
   <div class="document" id="documentId">
@@ -113,8 +113,14 @@
   <li><a class="reference" href="#printHelp" title="printHelp()">printHelp()</a></li>
 
 </ul>
-<ul class="simple nested-toc-section">testModifyTag
-  <li><a class="reference" href="#testModifyTag%2Cstring%2Cstring" title="testModifyTag(inputFile, outputFile: string)">testModifyTag(inputFile, outputFile: string)</a></li>
+<ul class="simple nested-toc-section">verifyTagUpdate
+  <li><a class="reference" href="#verifyTagUpdate%2Cstring%2Cstring%2Cstring" title="verifyTagUpdate(inputFile, outputFile, tagName: string): bool">verifyTagUpdate(inputFile, outputFile, tagName: string): bool</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">verifyTagUpdateBasic
+  <li><a class="reference" href="#verifyTagUpdateBasic%2Cstring%2Cstring%2Cstring%2Cstring%2Cint" title="verifyTagUpdateBasic(inputFile, outputFile, tagName: string; newValue: string;
+                     offset: int): bool">verifyTagUpdateBasic(inputFile, outputFile, tagName: string; newValue: string;
+                     offset: int): bool</a></li>
 
 </ul>
 
@@ -175,7 +181,8 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
   <span class="Identifier">listTags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>            <span class="Comment">## Whether to list all tags (default behavior)</span>
   <span class="Identifier">debug</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>               <span class="Comment">## Whether to show debug information</span>
   <span class="Identifier">limit</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>                <span class="Comment">## Maximum number of tags to display (0 = no limit)</span>
-  <span class="Identifier">showVersion</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>         <span class="Comment">## Whether to show version information</span></pre></dt>
+  <span class="Identifier">showVersion</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>         <span class="Comment">## Whether to show version information</span>
+  </pre></dt>
   <dd>
     
     Configuration for the abimetadata tool. Contains command-line options and settings.
@@ -280,7 +287,8 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
 <div id="main-procs-all">
   <div id="main">
   <dt><pre><span class="Keyword">proc</span> <a href="#main"><span class="Identifier">main</span></a><span class="Other">(</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">]</span><span class="Other">,</span>
-              <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+              <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">,</span> <span class="Identifier">ExecIOEffect</span><span class="Other">]</span><span class="Other">,</span>
+              <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     <p>Main entry point for the abimetadata program.</p>
@@ -295,14 +303,11 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
   <div id="modifyTag,ABIFTrace,string,string,string">
   <dt><pre><span class="Keyword">proc</span> <a href="#modifyTag%2CABIFTrace%2Cstring%2Cstring%2Cstring"><span class="Identifier">modifyTag</span></a><span class="Other">(</span><span class="Identifier">trace</span><span class="Other">:</span> <a href="abif.html#ABIFTrace"><span class="Identifier">ABIFTrace</span></a><span class="Other">;</span> <span class="Identifier">tagName</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">newValue</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span>
                <span class="Identifier">outputFile</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">WriteIOEffect</span><span class="Other">,</span> <span class="Identifier">ExecIOEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    <p>Modifies the value of a tag in an ABIF file.</p>
-<p>Currently only supports modifying string-type tags.</p>
-<p>Parameters: trace: The ABIFTrace containing the tag tagName: The name of the tag to modify newValue: The new value for the tag outputFile: Path to the output file</p>
-<p>Returns: true if the tag was successfully modified, false otherwise</p>
-
+    Modifies the value of a tag in an ABIF file.
     
   </dd>
 </div>
@@ -339,16 +344,29 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
 </div>
 
 </div>
-<div id="testModifyTag-procs-all">
-  <div id="testModifyTag,string,string">
-  <dt><pre><span class="Keyword">proc</span> <a href="#testModifyTag%2Cstring%2Cstring"><span class="Identifier">testModifyTag</span></a><span class="Other">(</span><span class="Identifier">inputFile</span><span class="Other">,</span> <span class="Identifier">outputFile</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+<div id="verifyTagUpdate-procs-all">
+  <div id="verifyTagUpdate,string,string,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#verifyTagUpdate%2Cstring%2Cstring%2Cstring"><span class="Identifier">verifyTagUpdate</span></a><span class="Other">(</span><span class="Identifier">inputFile</span><span class="Other">,</span> <span class="Identifier">outputFile</span><span class="Other">,</span> <span class="Identifier">tagName</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    <p>Special test procedure for modifying the SMPL1 tag.</p>
-<p>This is used for a specific test case with 01_F.ab1.</p>
-<p>Parameters: inputFile: Path to the input ABIF file outputFile: Path to the output file</p>
+    <p>Verifies that a tag was properly updated by comparing original and modified files.</p>
+<p>Parameters: inputFile: Path to the original ABIF file outputFile: Path to the modified ABIF file tagName: The name of the tag that was modified</p>
+<p>Returns: true if the tag was successfully updated, false otherwise</p>
 
+    
+  </dd>
+</div>
+
+</div>
+<div id="verifyTagUpdateBasic-procs-all">
+  <div id="verifyTagUpdateBasic,string,string,string,string,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#verifyTagUpdateBasic%2Cstring%2Cstring%2Cstring%2Cstring%2Cint"><span class="Identifier">verifyTagUpdateBasic</span></a><span class="Other">(</span><span class="Identifier">inputFile</span><span class="Other">,</span> <span class="Identifier">outputFile</span><span class="Other">,</span> <span class="Identifier">tagName</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span>
+                          <span class="Identifier">newValue</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span class="Identifier">discardable</span><span class="Other">,</span>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Verifies tag update by directly checking the binary content at the specified offset This simpler method just checks if we can find the expected value at the offset
     
   </dd>
 </div>
@@ -370,7 +388,7 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-04-25 13:57:00 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-04-25 20:52:43 UTC</small>
       </div>
     </div>
   </div>
