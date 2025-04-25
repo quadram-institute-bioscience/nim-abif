@@ -1,6 +1,6 @@
 import std/[os, tables, strutils, streams, algorithm]
 import ./abif
-
+export abif
 ## This module provides a command-line tool for displaying and modifying metadata in ABIF files.
 ## 
 ## The abimetadata tool allows users to:
