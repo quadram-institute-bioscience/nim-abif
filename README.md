@@ -67,7 +67,7 @@ let rawData = trace.getData("DATA1")  # Raw channel data
 
 ### Command-line Usage
 
-The library provides two command-line tools:
+The library provides three command-line tools:
 
 #### Basic FASTA export
 
@@ -89,6 +89,23 @@ abi2fq --window=15 --quality=25 trace.ab1  # Trim with window size 15, quality t
 abi2fq --no-trim trace.ab1       # Skip quality trimming
 abi2fq --verbose trace.ab1       # Show additional information
 abi2fq trace.ab1                 # Output to STDOUT
+```
+
+#### Merging paired (forward/reverse) traces
+
+```
+abimerge forward.ab1 reverse.ab1 merged.fq
+```
+
+The abimerge tool combines forward and reverse Sanger reads using Smith-Waterman alignment:
+
+```
+abimerge --help                          # Show help message
+abimerge --min-overlap=30 fwd.ab1 rev.ab1 # Require at least 30bp overlap
+abimerge --score-match=10 --score-mismatch=-8 --score-gap=-10 fwd.ab1 rev.ab1  # Custom alignment scores
+abimerge --join=10 fwd.ab1 rev.ab1       # Join seqs with 10 Ns if no overlap found
+abimerge --pct-id=90 fwd.ab1 rev.ab1     # Require 90% identity in overlap region
+abimerge --verbose fwd.ab1 rev.ab1       # Show alignment details
 ```
 
 ## Data Types

@@ -34,10 +34,10 @@ task docs, "Generate documentation":
 
 task buildbin, "Build all binaries to bin/ directory":
   exec "mkdir -p bin"
-  exec "nim c -d:release --opt:speed -o:bin/abif abif.nim"
-  exec "nim c -d:release --opt:speed -o:bin/abi2fq src/abi2fq.nim"
-  exec "nim c -d:release --opt:speed -o:bin/abimerge src/abimerge.nim"
-  exec "nim c -d:release --opt:speed -o:bin/abimetadata src/abimetadata.nim"
+  exec "nim c -d:release --opt:speed --gc:arc -o:bin/abif abif.nim"
+  exec "nim c -d:release --opt:speed --gc:arc -o:bin/abi2fq src/abi2fq.nim"
+  exec "nim c -d:release --opt:speed --gc:arc -o:bin/abimerge src/abimerge.nim"
+  exec "nim c -d:release --opt:speed --gc:arc -o:bin/abimetadata src/abimetadata.nim"
   echo "Binaries built to bin/ directory"
 
 # Binaries
