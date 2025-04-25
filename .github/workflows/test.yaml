@@ -24,10 +24,10 @@ jobs:
         nim-version: ${{ matrix.nim-version }}
     
     - name: Install dependencies
-      run: nimble install -y
+      run: nimble install -y --verbose
       
     - name: Build
-      run: nimble buildbin
+      run: nimble build
       
     - name: Run tests
       run: nimble test
