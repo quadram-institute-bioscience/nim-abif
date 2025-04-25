@@ -9,13 +9,7 @@ files from DNA sequencing machines, commonly used in Sanger capillary sequencing
 
 - [**API reference**](https://quadram-institute-bioscience.github.io/nim-abif/)
 
-## Features
-
-- Parse `.ab1` and `.fsa` trace files
-- Extract sequence data, quality values, and sample names
-- Supports all standard ABIF data types
-- Export to FASTA and FASTQ formats
-- Correctly handles big-endian binary data
+ 
 
 ## Installation
 
@@ -69,13 +63,9 @@ let rawData = trace.getData("DATA1")  # Raw channel data
 
 The library provides three command-line tools:
 
-#### Basic FASTA export
+ 
 
-```
-abif trace.ab1 output.fa
-```
-
-#### Advanced FASTQ converter with quality trimming
+#### FASTQ converter with quality trimming
 
 ```
 abi2fq trace.ab1 output.fq
@@ -106,6 +96,16 @@ abimerge --score-match=10 --score-mismatch=-8 --score-gap=-10 fwd.ab1 rev.ab1  #
 abimerge --join=10 fwd.ab1 rev.ab1       # Join seqs with 10 Ns if no overlap found
 abimerge --pct-id=90 fwd.ab1 rev.ab1     # Require 90% identity in overlap region
 abimerge --verbose fwd.ab1 rev.ab1       # Show alignment details
+```
+
+#### Render traces
+
+Convert a trace (or part of it) into SVG
+
+![rendered chromas](docs/chromas.png)
+
+```bash
+abichromatogram tests/A_forward.ab1 -o A.svg -s 500 -e 1000 --width 1600
 ```
 
 ## Data Types
