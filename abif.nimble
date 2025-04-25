@@ -6,8 +6,8 @@ description = "ABIF (Applied Biosystems Information Format) parser for DNA seque
 license     = "MIT"
 
 # Dependencies
-requires "nim >= 1.6.0"
-requires "nimsvg >= 0.1.0" # For chromatogram rendering
+requires "nim >= 1.6.0", "nimsvg >= 0.1.0"
+
 srcDir = "src"
 binDir = "bin"
 namedBin = {
