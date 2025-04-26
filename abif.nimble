@@ -90,10 +90,11 @@ let isNim2OrLater = versionAtLeast(nimVersion, 2, 0, 0)
 task docs, "Generate documentation":
  
   if isNim2OrLater:
-    exec "nim doc --project --out:docs src/abif.nim"
-    exec "nim doc --project --out:docs src/abi2fq.nim"
-    exec "nim doc --project --out:docs src/abimerge.nim"
-    exec "nim doc --project --out:docs src/abimetadata.nim"
+    exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --index:on --project --out:docs src/abif.nim"
+    exec "nim doc  --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs src/abi2fq.nim"
+    exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs src/abimerge.nim"
+    exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs src/abimetadata.nim"
+    exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs src/abichromatogram.nim"
 
 task buildbin, "Build all binaries to bin/ directory":
     exec "mkdir -p bin"
