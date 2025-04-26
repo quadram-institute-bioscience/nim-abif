@@ -112,4 +112,4 @@ before install:
   exec "nim c -d:release -d:danger --opt:speed src/abi2fq.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abimerge.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abimetadata.nim"
-  exec "nim c -d:release -d:danger --opt:speed src/demo_svg_from_abi.nim"
+  exec "nim c -d:release -d:danger --opt:speed src/abichromatogram.nim"
