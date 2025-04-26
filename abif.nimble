@@ -14,7 +14,7 @@ namedBin = {
     "abi2fq":          "abi2fq",
     "abimerge":        "abimerge",
     "abimetadata":     "abimetadata",
-    "demo_svg_from_abi": "abichromatogram" 
+    "abichromatogram": "abichromatogram" 
 }.toTable()
 # Skip directories that aren't part of the package
 skipDirs = @["tests"]
@@ -26,6 +26,10 @@ task test, "Run the test suite":
   exec "nim c -r tests/test_abif.nim"
   exec "nim c -r tests/test_abi2fq.nim"
   exec "nim c -r tests/test_abimerge.nim"
+  exec "nim c -r tests/test_edit_smpl.nim"
+
+task test_edit, "Run abimetadata edit tests":
+  exec "nim c -r tests/test_edit_smpl.nim"
 
 task test_abif, "Run core library tests":
   exec "nim c -r tests/test_abif.nim"
@@ -97,7 +101,7 @@ task buildbin, "Build all binaries to bin/ directory":
     exec "nim c -d:release --opt:speed -o:bin/abi2fq         src/abi2fq.nim"
     exec "nim c -d:release --opt:speed -o:bin/abimerge       src/abimerge.nim"
     exec "nim c -d:release --opt:speed -o:bin/abimetadata    src/abimetadata.nim"
-    exec "nim c -d:release --opt:speed -o:bin/abichromatogram  src/demo_svg_from_abi.nim"
+    exec "nim c -d:release --opt:speed -o:bin/abichromatogram  src/abichromatogram.nim"
     echo "Binaries built to bin/ directory"
 
 # Before installing, compile the binaries
