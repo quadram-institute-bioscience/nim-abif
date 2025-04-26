@@ -23,3 +23,4 @@ tests/output*.fa
 .DS_Store
 r/
 paper
+tests/modified_new.ab1
