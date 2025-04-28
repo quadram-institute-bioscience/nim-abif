@@ -102,9 +102,13 @@ proc parseCommandLine*(): Config =
           echo "Error: Window size must be at least 1"
           quit(1)
       of "q", "quality":
-        result.qualityThreshold = parseInt(val)
-        if result.qualityThreshold < 0 or result.qualityThreshold > 60:
-          echo "Error: Quality threshold must be between 0 and 60"
+        if val.len > 0:
+          result.qualityThreshold = parseInt(val)
+          if result.qualityThreshold < 0 or result.qualityThreshold > 60:
+            echo "Error: Quality threshold must be between 0 and 60"
+            quit(1)
+        else:
+          echo "Error: Quality threshold requires a value"
           quit(1)
       of "n", "no-trim":
         result.noTrim = true

@@ -1,9 +1,22 @@
-## ABIF Chromatogram Generator
-## ======================
-## 
 ## This module provides functionality to generate SVG chromatograms from ABIF trace files.
 ## It renders the four fluorescence channels with base calls in a visual format that
 ## resembles the output of DNA sequencing instruments.
+## Command-line usage:
+##
+## .. code-block:: none
+##   abichromatogram <trace_file.ab1> [options]
+##
+## Options:
+##   -o, --output FILE       Output SVG file (default: chromatogram.svg)
+##   -w, --width WIDTH       SVG width in pixels (default: 1200)
+##   --height HEIGHT         SVG height in pixels (default: 600)
+##   -s, --start POS         Start position (default: 0)
+##   -e, --end POS           End position (default: whole trace)
+##   -d, --downsample        FACTOR Downsample factor for visualization (default: 1)
+##   --hide-bases            Hide base calls
+##   --debug                 Show debug information
+##   -h, --help              Show this help message and exit
+##   -v, --version           Show version information and exit
 ##
 ## Example usage:
 ##
