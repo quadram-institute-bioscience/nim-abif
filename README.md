@@ -3,8 +3,8 @@
 # ABIF Parser for Nim
 
 [![ABIF Tests](https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml/badge.svg)](https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml)
-![Conda Version](https://img.shields.io/conda/v/bioconda/nim-abif)
-![Conda Platform](https://img.shields.io/conda/p/bioconda/nim-abif)
+[![Conda Version](https://img.shields.io/conda/v/bioconda/nim-abif)](https://bioconda.github.io/recipes/nim-abif/README.html)
+[![Conda Platform](https://img.shields.io/conda/p/bioconda/nim-abif)](https://bioconda.github.io/recipes/nim-abif/README.html)
 
 
 A Nim library to parse [ABIF](chromatograms.md) (Applied Biosystems Information Format)
@@ -16,14 +16,15 @@ files from DNA sequencing machines, commonly used in Sanger capillary sequencing
 
 ## Installation
 
+To install the CLI packages:
+
+```bash 
+conda install -c bioconda nim-abif
+```
+
+If you have Nim installed, you can install binaries and library with:
 ```
 nimble install abif
-```
-
-Or add to your `.nimble` file:
-
-```
-requires "abif >= 0.1.0"
 ```
 
 ## Usage
