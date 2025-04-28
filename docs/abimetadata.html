@@ -12,10 +12,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.0.8">
+<link rel="stylesheet" type="text/css" href="nimdoc.out.css">
 
 <!-- JS -->
-<script type="text/javascript" src="dochack.js?v=2.0.8"></script>
+<script type="text/javascript" src="dochack.js"></script>
 </head>
 <body>
   <div class="document" id="documentId">
@@ -113,8 +113,14 @@
   <li><a class="reference" href="#printHelp" title="printHelp()">printHelp()</a></li>
 
 </ul>
-<ul class="simple nested-toc-section">testModifyTag
-  <li><a class="reference" href="#testModifyTag%2Cstring%2Cstring" title="testModifyTag(inputFile, outputFile: string)">testModifyTag(inputFile, outputFile: string)</a></li>
+<ul class="simple nested-toc-section">verifyTagUpdate
+  <li><a class="reference" href="#verifyTagUpdate%2Cstring%2Cstring%2Cstring" title="verifyTagUpdate(inputFile, outputFile, tagName: string): bool">verifyTagUpdate(inputFile, outputFile, tagName: string): bool</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">verifyTagUpdateBasic
+  <li><a class="reference" href="#verifyTagUpdateBasic%2Cstring%2Cstring%2Cstring%2Cstring%2Cint" title="verifyTagUpdateBasic(inputFile, outputFile, tagName: string; newValue: string;
+                     offset: int): bool">verifyTagUpdateBasic(inputFile, outputFile, tagName: string; newValue: string;
+                     offset: int): bool</a></li>
 
 </ul>
 
@@ -129,7 +135,9 @@
 
   </div>
   <div class="nine columns" id="content">
-    
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L1" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L1" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
     <div id="tocRoot"></div>
     
     <p class="module-desc"><p>This module provides a command-line tool for displaying and modifying metadata in ABIF files.</p>
@@ -175,11 +183,14 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
   <span class="Identifier">listTags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>            <span class="Comment">## Whether to list all tags (default behavior)</span>
   <span class="Identifier">debug</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>               <span class="Comment">## Whether to show debug information</span>
   <span class="Identifier">limit</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>                <span class="Comment">## Maximum number of tags to display (0 = no limit)</span>
-  <span class="Identifier">showVersion</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>         <span class="Comment">## Whether to show version information</span></pre></dt>
+  <span class="Identifier">showVersion</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>         <span class="Comment">## Whether to show version information</span>
+  </pre></dt>
   <dd>
     
     Configuration for the abimetadata tool. Contains command-line options and settings.
-    
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L40" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L40" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
   </dd>
 </div>
 
@@ -198,7 +209,9 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
 <p>Parameters: tagName: The name of the tag entry: The DirectoryEntry for the tag</p>
 <p>Returns: true if the tag can be displayed, false otherwise</p>
 
-    
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L266" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L266" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
   </dd>
 </div>
 
@@ -212,7 +225,9 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
     <p>Displays the full content of a single tag.</p>
 <p>Parameters: trace: The ABIFTrace containing the tag tagName: The name of the tag to display debug: Whether to show debug information</p>
 
-    
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L428" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L428" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
   </dd>
 </div>
 
@@ -227,7 +242,9 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
 <p>Parameters: tagName: The name of the tag entry: The DirectoryEntry for the tag trace: The ABIFTrace containing the tag</p>
 <p>Returns: The tag's value as a string, possibly truncated for display</p>
 
-    
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L338" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L338" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
   </dd>
 </div>
 
@@ -242,7 +259,9 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
 <p>Parameters: tagName: The name of the tag entry: The DirectoryEntry for the tag trace: The ABIFTrace containing the tag</p>
 <p>Returns: The tag's value as a string, formatted according to its data type</p>
 
-    
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L285" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L285" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
   </dd>
 </div>
 
@@ -257,7 +276,9 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
 <p>Parameters: tagType: The ElementType to check</p>
 <p>Returns: true if the type is human-readable, false otherwise</p>
 
-    
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L246" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L246" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
   </dd>
 </div>
 
@@ -272,7 +293,9 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
     <p>Lists all human-readable metadata fields in the ABIF file.</p>
 <p>Parameters: trace: The ABIFTrace to list metadata from debug: Whether to show debug information limit: Maximum number of tags to display (0 = no limit)</p>
 
-    
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L461" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L461" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
   </dd>
 </div>
 
@@ -280,13 +303,16 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
 <div id="main-procs-all">
   <div id="main">
   <dt><pre><span class="Keyword">proc</span> <a href="#main"><span class="Identifier">main</span></a><span class="Other">(</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">]</span><span class="Other">,</span>
-              <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+              <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">,</span> <span class="Identifier">ExecIOEffect</span><span class="Other">]</span><span class="Other">,</span>
+              <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     <p>Main entry point for the abimetadata program.</p>
 <p>Handles command-line parsing and executes the appropriate action based on the provided options (list, view, or edit tags).</p>
 
-    
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L927" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L927" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
   </dd>
 </div>
 
@@ -295,15 +321,14 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
   <div id="modifyTag,ABIFTrace,string,string,string">
   <dt><pre><span class="Keyword">proc</span> <a href="#modifyTag%2CABIFTrace%2Cstring%2Cstring%2Cstring"><span class="Identifier">modifyTag</span></a><span class="Other">(</span><span class="Identifier">trace</span><span class="Other">:</span> <a href="abif.html#ABIFTrace"><span class="Identifier">ABIFTrace</span></a><span class="Other">;</span> <span class="Identifier">tagName</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">newValue</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span>
                <span class="Identifier">outputFile</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">WriteIOEffect</span><span class="Other">,</span> <span class="Identifier">ExecIOEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    <p>Modifies the value of a tag in an ABIF file.</p>
-<p>Currently only supports modifying string-type tags.</p>
-<p>Parameters: trace: The ABIFTrace containing the tag tagName: The name of the tag to modify newValue: The new value for the tag outputFile: Path to the output file</p>
-<p>Returns: true if the tag was successfully modified, false otherwise</p>
+    Modifies the value of a tag in an ABIF file.
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L719" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L719" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
-    
   </dd>
 </div>
 
@@ -323,7 +348,9 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
 </ul>
 <p>Returns: A Config object with settings based on command-line arguments</p>
 
-    
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L77" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L77" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
   </dd>
 </div>
 
@@ -334,22 +361,41 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
   <dd>
     
     Displays the help message for the abimetadata tool. Exits the program after displaying the message.
-    
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L52" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L52" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
   </dd>
 </div>
 
 </div>
-<div id="testModifyTag-procs-all">
-  <div id="testModifyTag,string,string">
-  <dt><pre><span class="Keyword">proc</span> <a href="#testModifyTag%2Cstring%2Cstring"><span class="Identifier">testModifyTag</span></a><span class="Other">(</span><span class="Identifier">inputFile</span><span class="Other">,</span> <span class="Identifier">outputFile</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+<div id="verifyTagUpdate-procs-all">
+  <div id="verifyTagUpdate,string,string,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#verifyTagUpdate%2Cstring%2Cstring%2Cstring"><span class="Identifier">verifyTagUpdate</span></a><span class="Other">(</span><span class="Identifier">inputFile</span><span class="Other">,</span> <span class="Identifier">outputFile</span><span class="Other">,</span> <span class="Identifier">tagName</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    <p>Special test procedure for modifying the SMPL1 tag.</p>
-<p>This is used for a specific test case with 01_F.ab1.</p>
-<p>Parameters: inputFile: Path to the input ABIF file outputFile: Path to the output file</p>
+    <p>Verifies that a tag was properly updated by comparing original and modified files.</p>
+<p>Parameters: inputFile: Path to the original ABIF file outputFile: Path to the modified ABIF file tagName: The name of the tag that was modified</p>
+<p>Returns: true if the tag was successfully updated, false otherwise</p>
 
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L622" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L622" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="verifyTagUpdateBasic-procs-all">
+  <div id="verifyTagUpdateBasic,string,string,string,string,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#verifyTagUpdateBasic%2Cstring%2Cstring%2Cstring%2Cstring%2Cint"><span class="Identifier">verifyTagUpdateBasic</span></a><span class="Other">(</span><span class="Identifier">inputFile</span><span class="Other">,</span> <span class="Identifier">outputFile</span><span class="Other">,</span> <span class="Identifier">tagName</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span>
+                          <span class="Identifier">newValue</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">offset</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span class="Identifier">discardable</span><span class="Other">,</span>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
     
+    Verifies tag update by directly checking the binary content at the specified offset This simpler method just checks if we can find the expected value at the offset
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimetadata.nim#L561" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimetadata.nim#L561" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
   </dd>
 </div>
 
@@ -370,7 +416,7 @@ abimetadata input.ab1 -t SMPL1 -v &quot;New Sample Name&quot; -o modified.ab1</p
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-04-25 13:57:00 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-04-26 09:58:56 UTC</small>
       </div>
     </div>
   </div>

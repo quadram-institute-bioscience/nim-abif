@@ -1,3 +1,21 @@
+## ABIF Chromatogram Generator
+## ======================
+## 
+## This module provides functionality to generate SVG chromatograms from ABIF trace files.
+## It renders the four fluorescence channels with base calls in a visual format that
+## resembles the output of DNA sequencing instruments.
+##
+## Example usage:
+##
+## .. code-block:: nim
+##   # Generate a chromatogram from a trace file
+##   abichromatogram input.ab1 -o output.svg
+##
+##   # Generate a zoomed view of a specific region with downsampling
+##   abichromatogram input.ab1 -s 500 -e 1000 -d 5
+##
+
+
 import std/[os, strformat, strutils, sequtils, tables, math, algorithm]
 import nimsvg
 
@@ -10,23 +28,37 @@ else:
   import ./abif
 
 type
-  Channel = enum
+  Channel* = enum
+    ## The four channels used in capillary electrophoresis
     A = "A", C = "C", G = "G", T = "T"
   
-  TraceDataPoint = object
-    position: int   # X position
-    values: Table[Channel, int]  # Value for each channel
+  TraceDataPoint* = object
+    ## A single data point in the trace with values for each channel
+    position*: int               ## X position (scan number)
+    values*: Table[Channel, int] ## Intensity value for each channel (scaled 0-1000)
   
-  TraceData = object
-    points: seq[TraceDataPoint]   # Processed trace data points
-    baseOrder: string             # Order of bases in channels
-    peaks: seq[int]               # Peak positions
-    sequence: string              # Called sequence
-    traceLen: int                 # Total length of trace
-    baseColors: Table[Channel, string]  # Color mapping for bases
+  TraceData* = object
+    ## Processed trace data ready for visualization
+    points*: seq[TraceDataPoint]        ## Processed trace data points
+    baseOrder*: string                 ## Order of bases in channels (e.g., "ACGT")
+    peaks*: seq[int]                   ## Base call peak positions
+    sequence*: string                  ## Called sequence
+    traceLen*: int                     ## Total length of trace in data points
+    baseColors*: Table[Channel, string] ## Color mapping for each nucleotide base
+
 
 proc getTraceData(trace: ABIFTrace, debug: bool = false): TraceData =
-  # Function to parse numeric sequence from string representation
+  ## Extracts and processes trace data from an ABIF file
+  ##
+  ## This function processes both raw and analyzed data from the trace file,
+  ## normalizes values for display, and maps the correct channels to bases.
+  ##
+  ## Parameters:
+  ##   trace: The ABIFTrace object
+  ##   debug: Whether to print debug information
+  ##
+  ## Returns:
+  ##   TraceData object containing processed data ready for visualization
   let parseChannel = proc(rawStr: string): seq[int] =
     if rawStr.len < 3: # Empty or too short
       return @[]
@@ -150,6 +182,16 @@ proc getTraceData(trace: ABIFTrace, debug: bool = false): TraceData =
 
 # Process a region of points to get a single value for a downsampling bin
 proc getMaxInBin(points: seq[TraceDataPoint], ch: Channel, start, endPos: int): int =
+  ## Process a region of points to get the maximum value for a downsampling bin
+  ##
+  ## Parameters:
+  ##   points: Sequence of trace data points
+  ##   ch: The channel to get the maximum value for
+  ##   start: Starting position of the bin
+  ##   endPos: Ending position of the bin
+  ##
+  ## Returns:
+  ##   Maximum value in the bin for the specified channel
   for j in start..<endPos:
     if j < points.len:
       let val = points[j].values.getOrDefault(ch, 0)
@@ -157,6 +199,8 @@ proc getMaxInBin(points: seq[TraceDataPoint], ch: Channel, start, endPos: int): 
         result = val
 
 # Generate the trace polyline for a channel
+
+
 proc generatePolyline(
   points: seq[TraceDataPoint],
   ch: Channel, 
@@ -164,6 +208,21 @@ proc generatePolyline(
   padding, topPadding, plotHeight: int,
   xScale: float
 ): string =
+  ## Generate the SVG polyline string for a channel
+  ##
+  ## Parameters:
+  ##   points: Sequence of trace data points
+  ##   ch: The channel to generate a polyline for
+  ##   displayStart: Starting position of the visible area
+  ##   displayEnd: Ending position of the visible area
+  ##   downsample: Factor to downsample the data by
+  ##   padding: Horizontal padding in pixels
+  ##   topPadding: Top padding in pixels
+  ##   plotHeight: Height of the plot area in pixels
+  ##   xScale: Scaling factor for X coordinates
+  ##
+  ## Returns:
+  ##   String containing SVG polyline points
   var line = ""
   for i in countup(displayStart, displayEnd-1, downsample):
     let binEnd = min(i + downsample, displayEnd)
@@ -186,6 +245,20 @@ proc getVisiblePeaks(
   displayStart, displayEnd, padding, width, topPadding: int,
   scaleFn: proc(peakPos: int): int
 ): seq[tuple[x, peakPos: int, baseChar: char]] =
+  ## Filter peak positions to just the ones that are visible in the current view
+  ##
+  ## Parameters:
+  ##   peaks: Sequence of peak positions
+  ##   sequence: The base call sequence
+  ##   displayStart: Starting position of the visible area
+  ##   displayEnd: Ending position of the visible area
+  ##   padding: Horizontal padding in pixels
+  ##   width: Total width of the SVG in pixels
+  ##   topPadding: Top padding in pixels
+  ##   scaleFn: Function to scale peak position to X coordinate
+  ##
+  ## Returns:
+  ##   Sequence of visible peaks with their positions and base calls
   result = @[]
   
   for i in 0..<min(peaks.len, sequence.len):
@@ -212,6 +285,40 @@ proc renderChromatogram(
   endPos: int = -1,
   downsample: int = 1
 ) =
+  ## Generate the SVG chromatogram and save to a file
+  ##
+## Command-line usage:
+##
+## .. code-block:: none
+##   abichromatogram <trace_file.ab1> [options]
+##
+## Options:
+##   -o, --output FILE       Output SVG file (default: chromatogram.svg)
+##   -w, --width WIDTH       SVG width in pixels (default: 1200)
+##       --height HEIGHT     SVG height in pixels (default: 600)
+##   -s, --start POS         Start position (default: 0)
+##   -e, --end POS           End position (default: whole trace)
+##   -d, --downsample FACTOR Downsample factor for visualization (default: 1)
+##       --hide-bases        Hide base calls
+##       --debug             Show debug information
+##   -h, --help              Show this help message and exit
+##   -v, --version           Show version information and exit
+##
+## Examples:
+##
+## .. code-block:: none
+##   # Generate a basic chromatogram
+##   abichromatogram input.ab1
+##
+##   # Specify output file and downsample for smoother display
+##   abichromatogram input.ab1 -o output.svg -d 5
+##
+##   # Generate a zoomed view of a specific region with custom width
+##   abichromatogram input.ab1 -s 500 -e 1000 --width 1600
+##
+##   # Generate a chromatogram without base call markers
+##   abichromatogram input.ab1 --hide-bases
+
   # Calculate dimensions and scaling
   let padding = 50
   let titleHeight = 30

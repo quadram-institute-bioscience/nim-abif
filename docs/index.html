@@ -114,7 +114,7 @@
         <h2>Tools</h2>
         
         <div class="tool-box">
-         <div class="tool-name"><a href="abi2f2.html">abi2fq</a></div>
+         <div class="tool-name"><a href="abi2fq.html">abi2fq</a></div>
          <p>Advanced FASTQ converter with quality trimming capabilities.</p>
          <p>This tool allows you to:</p>
          <ul>
@@ -126,28 +126,18 @@
          
          <h4>Usage Examples:</h4>
          <div class="code-example">
-# Basic conversion
+# Basic conversion<br>
 abi2fq trace.ab1 output.fq
          </div>
 
          <div class="code-example">
-# With quality trimming (window size 15, quality threshold 25)
+# With quality trimming (window size 15, quality threshold 25)<br>
 abi2fq --window=15 --quality=25 trace.ab1 output.fq
          </div>
 
          <div class="code-example">
-# Skip quality trimming
+# Skip quality trimming<br>
 abi2fq --no-trim trace.ab1 output.fq
-         </div>
-
-         <div class="code-example">
-# Show additional information
-abi2fq --verbose trace.ab1
-         </div>
-
-         <div class="code-example">
-# Output to STDOUT
-abi2fq trace.ab1
          </div>
         </div>
        </div>
@@ -155,7 +145,7 @@ abi2fq trace.ab1
 
        <div class="tool-box">
         <div class="tool-name"><a href="abimerge.html">abimerge</a></div>
-        <p>Merge overlapping traces.</p>
+        <p>Merge overlapping traces using Smith-Waterman alignment.</p>
         <div class="code-example">abimerge trace_F.ab1t race_R.ab1</div>
       </div>
 
@@ -168,7 +158,7 @@ abi2fq trace.ab1
       </div>
 
       <div class="tool-box">
-        <div class="tool-name">abimetadata</div>
+        <div class="tool-name"><a href="abimetadata.html">abimetadata</a></div>
         <p>Print tags from traces</p>
         <div class="code-example">abimetadata trace_F.ab1</div>
       </div>
