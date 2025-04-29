@@ -1,7 +1,0 @@
-nimTitle	abi2fq	abi2fq.html	module src/abi2fq		0
-nim	Config	abi2fq.html#Config	object Config		37
-nim	printHelp	abi2fq.html#printHelp	proc printHelp()		48
-nim	parseCommandLine	abi2fq.html#parseCommandLine	proc parseCommandLine(): Config		69
-nim	trimSequence	abi2fq.html#trimSequence,string,seq[int],int,int	proc trimSequence(sequence: string; qualities: seq[int]; windowSize: int;\n             threshold: int): tuple[seq: string, qual: seq[int]]		132
-nim	writeFastq	abi2fq.html#writeFastq,string,seq[int],string,string	proc writeFastq(sequence: string; qualities: seq[int]; name: string;\n           outFile: string = "")		182
-nim	main	abi2fq.html#main	proc main()		206

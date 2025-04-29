@@ -1,8 +1,0 @@
-nimTitle	abichromatogram	abichromatogram.html	module src/abichromatogram		0
-nim	A	abichromatogram.html#A	Channel.A		44
-nim	C	abichromatogram.html#C	Channel.C		44
-nim	G	abichromatogram.html#G	Channel.G		44
-nim	T	abichromatogram.html#T	Channel.T		44
-nim	Channel	abichromatogram.html#Channel	enum Channel		44
-nim	TraceDataPoint	abichromatogram.html#TraceDataPoint	object TraceDataPoint		48
-nim	TraceData	abichromatogram.html#TraceData	object TraceData		53
