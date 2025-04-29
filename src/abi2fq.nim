@@ -1,12 +1,12 @@
 import std/[os, strformat, strutils, parseopt]
 import ./abif
 
-## This module provides a command-line tool for converting ABIF files to FASTQ format
+## This module provides a command-line tool for converting ABIF files to FASTQ or FASTA format
 ## with optional quality trimming.
 ## 
 ## The abi2fq tool extracts sequence and quality data from ABIF files,
 ## applies quality trimming to remove low-quality regions, and outputs
-## in the standard FASTQ format.
+## in the standard FASTQ format or FASTA format (if --fasta is specified).
 ##
 ## Command-line usage:
 ##
@@ -20,6 +20,7 @@ import ./abif
 ##   -n, --no-trim              Disable quality trimming
 ##   -v, --verbose              Print additional information
 ##   --version                  Show version information
+##   --fasta                    Output in FASTA format instead of FASTQ
 ##
 ## Examples:
 ##
@@ -32,6 +33,9 @@ import ./abif
 ##
 ##   # Convert with custom quality parameters
 ##   abi2fq -w 20 -q 30 input.ab1 output.fastq
+##
+##   # Convert to FASTA format
+##   abi2fq --fasta input.ab1 output.fasta
 
 type
   Config* = object
@@ -44,6 +48,7 @@ type
     noTrim*: bool           ## Whether to disable quality trimming
     verbose*: bool          ## Whether to show verbose output
     showVersion*: bool      ## Whether to show version information
+    fasta*: bool            ## Whether to output in FASTA format instead of FASTQ
 
 proc printHelp*() =
   ## Displays the help message for the abi2fq tool.
@@ -61,6 +66,7 @@ Options:
   -n, --no-trim              Disable quality trimming
   -v, --verbose              Print additional information
   --version                  Show version information
+  --fasta                    Output in FASTA format instead of FASTQ
 
 If output file is not specified, FASTQ will be written to STDOUT.
 """
@@ -83,7 +89,8 @@ proc parseCommandLine*(): Config =
     qualityThreshold: 20,
     noTrim: false,
     verbose: false,
-    showVersion: false
+    showVersion: false,
+    fasta: false
   )
   
   var fileArgs: seq[string] = @[]
@@ -116,6 +123,8 @@ proc parseCommandLine*(): Config =
         result.verbose = true
       of "version":
         result.showVersion = true
+      of "fasta":
+        result.fasta = true
       else:
         echo "Unknown option: ", key
         printHelp()
@@ -183,36 +192,43 @@ proc trimSequence*(sequence: string, qualities: seq[int],
   result.seq = sequence[startPos ..< endPos]
   result.qual = qualities[startPos ..< endPos]
 
-proc writeFastq*(sequence: string, qualities: seq[int], name: string, outFile: string = "") =
-  ## Writes sequence and quality data to a FASTQ file.
+proc writeFastq*(sequence: string, qualities: seq[int], name: string, outFile: string = "", fasta: bool = false) =
+  ## Writes sequence and quality data to a FASTQ or FASTA file.
   ##
-  ## If outFile is empty, the FASTQ data is written to stdout.
+  ## If outFile is empty, the data is written to stdout.
+  ## If fasta is true, the output will be in FASTA format instead of FASTQ.
   ##
   ## Parameters:
   ##   sequence: The DNA sequence to write
   ##   qualities: Quality scores for each base in the sequence
-  ##   name: The sample name for the FASTQ header
+  ##   name: The sample name for the header
   ##   outFile: Path to the output file (empty string for stdout)
-  # Convert quality values to Phred+33 format
-  var qualityString = ""
-  for qv in qualities:
-    qualityString.add(chr(qv + 33))
+  ##   fasta: Whether to output in FASTA format instead of FASTQ
   
-  let fastqContent = &"@{name}\n{sequence}\n+\n{qualityString}"
+  var content: string
+  if fasta:
+    # Create FASTA format
+    content = &">{name}\n{sequence}"
+  else:
+    # Create FASTQ format
+    var qualityString = ""
+    for qv in qualities:
+      qualityString.add(chr(qv + 33))
+    content = &"@{name}\n{sequence}\n+\n{qualityString}"
   
   if outFile == "":
     # Write to stdout
-    stdout.write(fastqContent & "\n")
+    stdout.write(content & "\n")
   else:
     # Write to file
-    writeFile(outFile, fastqContent & "\n")
+    writeFile(outFile, content & "\n")
 
 proc main*() =
   ## Main entry point for the abi2fq program.
   ##
   ## Handles command-line parsing, reads the input ABIF file,
   ## performs quality trimming if enabled, and outputs the result
-  ## in FASTQ format.
+  ## in FASTQ or FASTA format (depending on the --fasta option).
   let config = parseCommandLine()
   
   if config.verbose:
@@ -220,6 +236,10 @@ proc main*() =
     echo &"Window size: {config.windowSize}"
     echo &"Quality threshold: {config.qualityThreshold}"
     echo &"Trimming: {not config.noTrim}"
+    if config.fasta:
+      echo "Output format: FASTA"
+    else:
+      echo "Output format: FASTQ"
   
   try:
     let trace = newABIFTrace(config.inFile)
@@ -236,8 +256,54 @@ proc main*() =
       quit(1)
     
     if config.noTrim:
-      # No trimming, use original sequence
-      writeFastq(sequence, qualities, sampleName, config.outFile)
+      # No trimming, but identify sections that would be trimmed and make them lowercase
+      let trimmed = trimSequence(sequence, qualities, config.windowSize, config.qualityThreshold)
+      
+      if config.verbose:
+        if trimmed.seq.len == 0:
+          echo "Warning: Entire sequence was below quality threshold"
+        elif trimmed.seq.len < sequence.len:
+          echo &"Sections that would be trimmed: {sequence.len - trimmed.seq.len} bases"
+          
+      # Get indices for low quality regions
+      var modifiedSeq = ""
+      if trimmed.seq.len == 0:  # All sequence is below threshold
+        modifiedSeq = sequence.toLowerAscii()
+      else:
+        # Find start position (same logic as in trimSequence)
+        var startPos = 0
+        for i in 0 .. (sequence.len - config.windowSize):
+          var windowSum = 0
+          for j in 0 ..< config.windowSize:
+            windowSum += qualities[i + j]
+          
+          let windowAvg = windowSum / config.windowSize
+          if windowAvg >= config.qualityThreshold.float:
+            startPos = i
+            break
+        
+        # Find end position (same logic as in trimSequence)
+        var endPos = sequence.len
+        for i in countdown(sequence.len - config.windowSize, 0):
+          var windowSum = 0
+          for j in 0 ..< config.windowSize:
+            windowSum += qualities[i + j]
+          
+          let windowAvg = windowSum / config.windowSize
+          if windowAvg >= config.qualityThreshold.float:
+            endPos = i + config.windowSize
+            break
+        
+        # Make trimmed regions lowercase
+        if startPos > 0:
+          modifiedSeq.add(sequence[0 ..< startPos].toLowerAscii())
+        
+        modifiedSeq.add(sequence[startPos ..< endPos])
+        
+        if endPos < sequence.len:
+          modifiedSeq.add(sequence[endPos ..< sequence.len].toLowerAscii())
+      
+      writeFastq(modifiedSeq, qualities, sampleName, config.outFile, config.fasta)
     else:
       # Trim low quality ends
       let trimmed = trimSequence(sequence, qualities, config.windowSize, config.qualityThreshold)
@@ -247,7 +313,7 @@ proc main*() =
         if trimmed.seq.len == 0:
           echo "Warning: Entire sequence was below quality threshold"
       
-      writeFastq(trimmed.seq, trimmed.qual, sampleName, config.outFile)
+      writeFastq(trimmed.seq, trimmed.qual, sampleName, config.outFile, config.fasta)
     
     trace.close()
   except:
