@@ -95,7 +95,9 @@ task docs, "Generate documentation":
     exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs src/abimerge.nim"
     exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs src/abimetadata.nim"
     exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs src/abichromatogram.nim"
-
+  else:
+    echo "Nim >=2.0.0 is required to build the docs!"
+    
 task buildbin, "Build all binaries to bin/ directory":
     exec "mkdir -p bin"
     exec "nim c -d:release --opt:speed -o:bin/abif           src/abif.nim"

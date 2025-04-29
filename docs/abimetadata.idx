@@ -1,0 +1,14 @@
+nimTitle	abimetadata	abimetadata.html	module src/abimetadata		0
+nim	Config	abimetadata.html#Config	object Config		40
+nim	printHelp	abimetadata.html#printHelp	proc printHelp()		52
+nim	parseCommandLine	abimetadata.html#parseCommandLine	proc parseCommandLine(): Config		77
+nim	isHumanReadableType	abimetadata.html#isHumanReadableType,ElementType	proc isHumanReadableType(tagType: ElementType): bool		246
+nim	canDisplayTag	abimetadata.html#canDisplayTag,string,DirectoryEntry	proc canDisplayTag(tagName: string; entry: DirectoryEntry): bool		266
+nim	getFullTagValue	abimetadata.html#getFullTagValue,string,DirectoryEntry,ABIFTrace	proc getFullTagValue(tagName: string; entry: DirectoryEntry; trace: ABIFTrace): string		285
+nim	formatTagValue	abimetadata.html#formatTagValue,string,DirectoryEntry,ABIFTrace	proc formatTagValue(tagName: string; entry: DirectoryEntry; trace: ABIFTrace): string		338
+nim	displaySingleTag	abimetadata.html#displaySingleTag,ABIFTrace,string,bool	proc displaySingleTag(trace: ABIFTrace; tagName: string; debug: bool)		428
+nim	listMetadata	abimetadata.html#listMetadata,ABIFTrace,bool,int	proc listMetadata(trace: ABIFTrace; debug: bool; limit: int = 0)		461
+nim	verifyTagUpdateBasic	abimetadata.html#verifyTagUpdateBasic,string,string,string,string,int	proc verifyTagUpdateBasic(inputFile, outputFile, tagName: string; newValue: string;\n                     offset: int): bool		561
+nim	verifyTagUpdate	abimetadata.html#verifyTagUpdate,string,string,string	proc verifyTagUpdate(inputFile, outputFile, tagName: string): bool		622
+nim	modifyTag	abimetadata.html#modifyTag,ABIFTrace,string,string,string	proc modifyTag(trace: ABIFTrace; tagName: string; newValue: string;\n          outputFile: string): bool		719
+nim	main	abimetadata.html#main	proc main()		927
