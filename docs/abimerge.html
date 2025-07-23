@@ -69,7 +69,8 @@
   windowSize*: int
   qualityThreshold*: int
   noTrim*: bool
-  showVersion*: bool">Config</a></li>
+  showVersion*: bool
+  fasta*: bool">Config</a></li>
 <li><a class="reference" href="#swAlignment" title="swAlignment = object
   top*: string               ## The first sequence in the alignment
   bottom*: string            ## The second sequence in the alignment
@@ -156,11 +157,12 @@
 <div class="option-list-item"><div class="option-list-label"><tt><span class="option">-m, --min-overlap INT</span></tt></div><div class="option-list-description">Minimum overlap length for merging (default: 20)</div></div>
 <div class="option-list-item odd"><div class="option-list-label"><tt><span class="option">-o, --output STRING</span></tt></div><div class="option-list-description">Output file name (default: STDOUT)</div></div>
 <div class="option-list-item"><div class="option-list-label"><tt><span class="option">-j, --join INT</span></tt></div><div class="option-list-description">Join with gap of INT Ns if no overlap detected</div></div>
-<div class="option-list-item odd"><div class="option-list-label"><tt><span class="option">--score-match INT</span></tt></div><div class="option-list-description">Score for a match (default: 10)</div></div>
-<div class="option-list-item"><div class="option-list-label"><tt><span class="option">--score-mismatch INT</span></tt></div><div class="option-list-description">Score for a mismatch (default: -8)</div></div>
-<div class="option-list-item odd"><div class="option-list-label"><tt><span class="option">--score-gap INT</span></tt></div><div class="option-list-description">Score for a gap (default: -10)</div></div>
-<div class="option-list-item"><div class="option-list-label"><tt><span class="option">--min-score INT</span></tt></div><div class="option-list-description">Minimum alignment score (default: 80)</div></div>
-<div class="option-list-item odd"><div class="option-list-label"><tt><span class="option">--pct-id FLOAT</span></tt></div><div class="option-list-description">Minimum percentage identity (default: 85)</div></div>
+<div class="option-list-item odd"><div class="option-list-label"><tt><span class="option">--fasta</span></tt></div><div class="option-list-description">Output in FASTA format instead of FASTQ</div></div>
+<div class="option-list-item"><div class="option-list-label"><tt><span class="option">--score-match INT</span></tt></div><div class="option-list-description">Score for a match (default: 10)</div></div>
+<div class="option-list-item odd"><div class="option-list-label"><tt><span class="option">--score-mismatch INT</span></tt></div><div class="option-list-description">Score for a mismatch (default: -8)</div></div>
+<div class="option-list-item"><div class="option-list-label"><tt><span class="option">--score-gap INT</span></tt></div><div class="option-list-description">Score for a gap (default: -10)</div></div>
+<div class="option-list-item odd"><div class="option-list-label"><tt><span class="option">--min-score INT</span></tt></div><div class="option-list-description">Minimum alignment score (default: 80)</div></div>
+<div class="option-list-item"><div class="option-list-label"><tt><span class="option">--pct-id FLOAT</span></tt></div><div class="option-list-description">Minimum percentage identity (default: 85)</div></div>
 </div><p>Examples:</p>
 <pre class="listing"># Merge two ABIF files with default settings
 abimerge forward.ab1 reverse.ab1 merged.fastq
@@ -169,7 +171,10 @@ abimerge forward.ab1 reverse.ab1 merged.fastq
 abimerge --min-overlap 30 --score-match 12 forward.ab1 reverse.ab1 merged.fastq
 
 # Join sequences with N gap if no overlap
-abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
+abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq
+
+# Output in FASTA format instead of FASTQ
+abimerge --fasta forward.ab1 reverse.ab1 merged.fasta</pre></p>
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
@@ -195,12 +200,13 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
   <span class="Identifier">windowSize</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
   <span class="Identifier">qualityThreshold</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
   <span class="Identifier">noTrim</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>
-  <span class="Identifier">showVersion</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
+  <span class="Identifier">showVersion</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>
+  <span class="Identifier">fasta</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L257" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L257" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L261" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L261" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -216,8 +222,8 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
   <dd>
     
     Represents a Smith-Waterman alignment between two sequences.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L40" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L40" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L44" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L44" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -231,8 +237,8 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
   <dd>
     
     Scoring parameters for Smith-Waterman alignment.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L51" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L51" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L55" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L55" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -248,8 +254,8 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
   <dd>
     
     
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L60" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L60" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L64" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L64" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -265,8 +271,8 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
   <dd>
     
     
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L71" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L71" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L75" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L75" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -278,8 +284,8 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
   <dd>
     
     
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L216" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L216" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L220" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L220" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -293,8 +299,8 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
   <dd>
     
     
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L434" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L434" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L443" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L443" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -306,8 +312,8 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
   <dd>
     
     
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L250" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L250" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L254" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L254" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -319,8 +325,8 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
   <dd>
     
     
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L69" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L69" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L73" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L73" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -333,8 +339,8 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
   <dd>
     
     
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L85" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L85" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L89" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L89" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -346,8 +352,8 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
   <dd>
     
     
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L204" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L204" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abimerge.nim#L208" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abimerge.nim#L208" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -363,7 +369,7 @@ abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq</pre></p>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-04-29 10:45:01 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-07-23 15:08:17 UTC</small>
       </div>
     </div>
   </div>
