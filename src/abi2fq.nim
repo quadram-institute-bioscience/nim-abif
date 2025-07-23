@@ -1,4 +1,4 @@
-import std/[os, strformat, strutils, parseopt]
+import std/[os, strformat, strutils, parseopt, tables]
 import ./abif
 
 ## This module provides a command-line tool for converting ABIF files to FASTQ or FASTA format
@@ -21,6 +21,7 @@ import ./abif
 ##   -v, --verbose              Print additional information
 ##   --version                  Show version information
 ##   --fasta                    Output in FASTA format instead of FASTQ
+##   -s, --split                Split ambiguous bases into two sequences
 ##
 ## Examples:
 ##
@@ -36,6 +37,9 @@ import ./abif
 ##
 ##   # Convert to FASTA format
 ##   abi2fq --fasta input.ab1 output.fasta
+##
+##   # Split ambiguous bases into two sequences
+##   abi2fq -s input.ab1 output.fastq
 
 type
   Config* = object
@@ -49,6 +53,7 @@ type
     verbose*: bool          ## Whether to show verbose output
     showVersion*: bool      ## Whether to show version information
     fasta*: bool            ## Whether to output in FASTA format instead of FASTQ
+    split*: bool            ## Whether to split ambiguous bases into two sequences
 
 proc printHelp*() =
   ## Displays the help message for the abi2fq tool.
@@ -67,6 +72,7 @@ Options:
   -v, --verbose              Print additional information
   --version                  Show version information
   --fasta                    Output in FASTA format instead of FASTQ
+  -s, --split                Split ambiguous bases into two sequences
 
 If output file is not specified, FASTQ will be written to STDOUT.
 """
@@ -90,7 +96,8 @@ proc parseCommandLine*(): Config =
     noTrim: false,
     verbose: false,
     showVersion: false,
-    fasta: false
+    fasta: false,
+    split: false
   )
   
   var fileArgs: seq[string] = @[]
@@ -125,6 +132,8 @@ proc parseCommandLine*(): Config =
         result.showVersion = true
       of "fasta":
         result.fasta = true
+      of "s", "split":
+        result.split = true
       else:
         echo "Unknown option: ", key
         printHelp()
@@ -192,29 +201,41 @@ proc trimSequence*(sequence: string, qualities: seq[int],
   result.seq = sequence[startPos ..< endPos]
   result.qual = qualities[startPos ..< endPos]
 
-proc writeFastq*(sequence: string, qualities: seq[int], name: string, outFile: string = "", fasta: bool = false) =
+proc writeFastq*(sequence: string, qualities: seq[int], name: string, outFile: string = "", fasta: bool = false, splitSeq1: string = "", splitSeq2: string = "") =
   ## Writes sequence and quality data to a FASTQ or FASTA file.
   ##
   ## If outFile is empty, the data is written to stdout.
   ## If fasta is true, the output will be in FASTA format instead of FASTQ.
+  ## If splitSeq1 and splitSeq2 are not empty, writes them as two separate records.
   ##
   ## Parameters:
-  ##   sequence: The DNA sequence to write
+  ##   sequence: The DNA sequence to write (used when not splitting)
   ##   qualities: Quality scores for each base in the sequence
   ##   name: The sample name for the header
   ##   outFile: Path to the output file (empty string for stdout)
   ##   fasta: Whether to output in FASTA format instead of FASTQ
+  ##   splitSeq1: First sequence when splitting ambiguous bases
+  ##   splitSeq2: Second sequence when splitting ambiguous bases
   
   var content: string
-  if fasta:
-    # Create FASTA format
-    content = &">{name}\n{sequence}"
+  
+  # Create quality string
+  var qualityString = ""
+  for qv in qualities:
+    qualityString.add(chr(qv + 33))
+  
+  if splitSeq1 != "" and splitSeq2 != "":
+    # Output split sequences
+    if fasta:
+      content = &">{name}_1\n{splitSeq1}\n>{name}_2\n{splitSeq2}"
+    else:
+      content = &"@{name}_1\n{splitSeq1}\n+\n{qualityString}\n@{name}_2\n{splitSeq2}\n+\n{qualityString}"
   else:
-    # Create FASTQ format
-    var qualityString = ""
-    for qv in qualities:
-      qualityString.add(chr(qv + 33))
-    content = &"@{name}\n{sequence}\n+\n{qualityString}"
+    # Output single sequence
+    if fasta:
+      content = &">{name}\n{sequence}"
+    else:
+      content = &"@{name}\n{sequence}\n+\n{qualityString}"
   
   if outFile == "":
     # Write to stdout
@@ -222,6 +243,49 @@ proc writeFastq*(sequence: string, qualities: seq[int], name: string, outFile: s
   else:
     # Write to file
     writeFile(outFile, content & "\n")
+
+proc splitAmbiguousBases*(sequence: string): tuple[seq1: string, seq2: string] =
+  ## Splits ambiguous bases into two sequences.
+  ##
+  ## Splits sequence at every ambiguous base that represents exactly 2 alternatives.
+  ## IUPAC ambiguity codes:
+  ## - R = A or G
+  ## - Y = C or T
+  ## - S = G or C
+  ## - W = A or T
+  ## - K = G or T
+  ## - M = A or C
+  ##
+  ## Parameters:
+  ##   sequence: The DNA sequence to split
+  ##
+  ## Returns:
+  ##   A tuple containing the two split sequences
+  
+  # Define mapping of ambiguity codes to their nucleotide options
+  let ambiguityMap = {
+    'R': @['A', 'G'],
+    'Y': @['C', 'T'],
+    'S': @['G', 'C'],
+    'W': @['A', 'T'],
+    'K': @['G', 'T'],
+    'M': @['A', 'C']
+  }.toTable
+  
+  var seq1 = ""
+  var seq2 = ""
+  
+  for base in sequence:
+    if base in ambiguityMap and ambiguityMap[base].len == 2:
+      # Ambiguous base with exactly 2 options
+      seq1.add(ambiguityMap[base][0])
+      seq2.add(ambiguityMap[base][1])
+    else:
+      # Non-ambiguous or other ambiguous base
+      seq1.add(base)
+      seq2.add(base)
+  
+  return (seq1, seq2)
 
 proc main*() =
   ## Main entry point for the abi2fq program.
@@ -236,6 +300,7 @@ proc main*() =
     echo &"Window size: {config.windowSize}"
     echo &"Quality threshold: {config.qualityThreshold}"
     echo &"Trimming: {not config.noTrim}"
+    echo &"Split ambiguous bases: {config.split}"
     if config.fasta:
       echo "Output format: FASTA"
     else:
@@ -303,7 +368,13 @@ proc main*() =
         if endPos < sequence.len:
           modifiedSeq.add(sequence[endPos ..< sequence.len].toLowerAscii())
       
-      writeFastq(modifiedSeq, qualities, sampleName, config.outFile, config.fasta)
+      if config.split:
+        let split = splitAmbiguousBases(modifiedSeq)
+        if config.verbose:
+          echo "Splitting ambiguous bases into two sequences"
+        writeFastq(modifiedSeq, qualities, sampleName, config.outFile, config.fasta, split.seq1, split.seq2)
+      else:
+        writeFastq(modifiedSeq, qualities, sampleName, config.outFile, config.fasta)
     else:
       # Trim low quality ends
       let trimmed = trimSequence(sequence, qualities, config.windowSize, config.qualityThreshold)
@@ -313,7 +384,13 @@ proc main*() =
         if trimmed.seq.len == 0:
           echo "Warning: Entire sequence was below quality threshold"
       
-      writeFastq(trimmed.seq, trimmed.qual, sampleName, config.outFile, config.fasta)
+      if config.split:
+        let split = splitAmbiguousBases(trimmed.seq)
+        if config.verbose:
+          echo "Splitting ambiguous bases into two sequences"
+        writeFastq(trimmed.seq, trimmed.qual, sampleName, config.outFile, config.fasta, split.seq1, split.seq2)
+      else:
+        writeFastq(trimmed.seq, trimmed.qual, sampleName, config.outFile, config.fasta)
     
     trace.close()
   except:
