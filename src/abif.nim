@@ -103,10 +103,14 @@ proc readInt32BE(s: Stream): int =
   var val: uint32 = s.readUint32()
   var res: uint32
   bigEndian32(addr res, addr val)
-  result = cast[int32](res).int
-  # Adjust for negative values
-  if result > 2147483647:
-    result -= 4294967296.int
+
+  when sizeof(int) >= sizeof(uint32):
+    result = res.int
+  else:
+    if res <= uint32(high(int)):
+      result = res.int
+    else:
+      raise newException(OverflowDefect, "32-bit value exceeds Nim int range")
 
 proc readStringBE(s: Stream, len: int): string =
   ## Reads a string of specified length from the stream.
