@@ -1,5 +1,6 @@
 import unittest
 import strutils, os, streams
+import std/tables
 import ../src/abif
 
 proc runTests() =
