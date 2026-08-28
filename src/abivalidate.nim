@@ -57,6 +57,7 @@ type
     alignment: string
     refAligned: string
     abiAligned: string
+    isReverseComplement: bool
 
   Variant = object
     chrom: string
@@ -262,44 +263,60 @@ proc reverseComplement(seq: string): string =
     of 'G': result.add('C')
     else: result.add('N')  # For ambiguous bases
 
-proc findBestAlignment(abiSeq: string, references: seq[RefSequence], config: Config): (RefSequence, AlignmentResult) =
+proc findBestAlignment(abiSeq: string, abiQual: seq[int], references: seq[RefSequence], config: Config): (RefSequence, AlignmentResult, seq[int]) =
+  ## Finds the best alignment of an ABI sequence against reference sequences.
+  ##
+  ## Tries forward orientation first, then reverse complement if no good
+  ## alignment is found. Returns the best reference, alignment result, and
+  ## the quality scores in the same orientation as the aligned sequence
+  ## (reversed if reverse complement was used).
   var bestRef: RefSequence
   var bestAlignment: AlignmentResult
   var bestScore = -1
-  
+  var bestQual: seq[int] = abiQual
+
   # Try forward orientation first
   for refSeq in references:
-    let alignment = smithWaterman(refSeq.sequence, abiSeq, 
+    let alignment = smithWaterman(refSeq.sequence, abiSeq,
                                  config.scoreMatch, config.scoreMismatch, config.scoreGap)
-    
-    if alignment.score > bestScore and 
-       alignment.identity >= config.minIdentity and 
+
+    if alignment.score > bestScore and
+       alignment.identity >= config.minIdentity and
        alignment.coverage >= config.minCoverage:
       bestScore = alignment.score
       bestRef = refSeq
       bestAlignment = alignment
       bestAlignment.refName = refSeq.name
-  
+      bestAlignment.isReverseComplement = false
+      bestQual = abiQual
+
   # If no good alignment found, try reverse complement
   if bestScore == -1:
     let revCompSeq = reverseComplement(abiSeq)
-    
+
+    # Reverse quality scores to match the reverse-complemented sequence
+    var revQual = newSeq[int](abiQual.len)
+    for i in 0..<abiQual.len:
+      revQual[i] = abiQual[abiQual.high - i]
+
     for refSeq in references:
-      let alignment = smithWaterman(refSeq.sequence, revCompSeq, 
+      let alignment = smithWaterman(refSeq.sequence, revCompSeq,
                                    config.scoreMatch, config.scoreMismatch, config.scoreGap)
-      
-      if alignment.score > bestScore and 
-         alignment.identity >= config.minIdentity and 
+
+      if alignment.score > bestScore and
+         alignment.identity >= config.minIdentity and
          alignment.coverage >= config.minCoverage:
         bestScore = alignment.score
         bestRef = refSeq
         bestAlignment = alignment
         bestAlignment.refName = refSeq.name
-  
+        bestAlignment.isReverseComplement = true
+        bestQual = revQual
+
   if bestScore == -1:
     raise newException(ValueError, "No suitable alignment found")
-  
-  (bestRef, bestAlignment)
+
+  (bestRef, bestAlignment, bestQual)
 
 proc isAmbiguousBaseCompatible(ambiguousBase: char, refBase: char): bool =
   ## Check if an ambiguous base from ABI is compatible with reference base
@@ -321,41 +338,57 @@ proc isValidNucleotide(base: char): bool =
   ## Check if base is a valid nucleotide (A, T, G, C)
   base.toUpperAscii in {'A', 'T', 'G', 'C'}
 
-proc callVariants(alignment: AlignmentResult, sampleName: string): seq[Variant] =
+proc callVariants(alignment: AlignmentResult, abiQual: seq[int], sampleName: string): seq[Variant] =
+  ## Calls variants from an alignment, using quality scores where available.
+  ##
+  ## Parameters:
+  ##   alignment: The alignment result (refAligned/abiAligned are the aligned strings)
+  ##   abiQual: Quality scores in the same orientation as abiAligned
+  ##   sampleName: Name of the sample for the variant records
+  ##
+  ## Returns:
+  ##   Sequence of variants found in the alignment
   result = @[]
   var refPos = alignment.refStart
-  
+  var abiPos = alignment.abiStart
+
   # Simple approach: only call SNVs, skip complex indels for now
   for i in 0..<alignment.refAligned.len:
     let refBase = alignment.refAligned[i]
     let abiBase = alignment.abiAligned[i]
-    
+
     if refBase != '-' and abiBase != '-':
       # Both bases present - check for SNV
       let refUpper = refBase.toUpperAscii
       let abiUpper = abiBase.toUpperAscii
-      
+
       # Only process valid nucleotides
       if isValidNucleotide(refUpper) and isValidNucleotide(abiUpper):
         if refUpper != abiUpper:
           # Check if it's an ambiguous base that's compatible
           if not isAmbiguousBaseCompatible(abiUpper, refUpper):
             # Real SNV - not compatible ambiguous base
+            # Use quality score from the ABI read if available
+            let qual = if abiPos < abiQual.len: abiQual[abiPos].float
+                       else: 0.0
             result.add(Variant(
               chrom: alignment.refName,
               pos: refPos + 1,  # VCF is 1-based
               refAllele: $refUpper,
               altAllele: $abiUpper,
-              quality: 60.0,
+              quality: qual,
               sample: sampleName
             ))
-      
+
       # Always increment reference position for non-gap reference bases
       inc refPos
+      inc abiPos
     elif refBase != '-':
       # Reference has base, ABI has gap - still increment ref position
       inc refPos
-    # For ABI insertions (refBase == '-'), don't increment refPos
+    else:
+      # ABI insertion (refBase == '-'), advance ABI position only
+      inc abiPos
 
 proc writeVCF(variants: seq[Variant], outputFile: string, referenceFile: string) =
   var file = open(outputFile, fmWrite)
@@ -375,21 +408,24 @@ proc writeVCF(variants: seq[Variant], outputFile: string, referenceFile: string)
   let samples = variants.mapIt(it.sample).deduplicate().sorted()
   
   # Group variants by position and alleles to avoid duplicates
-  var variantMap: seq[tuple[chrom: string, pos: int, refAllele: string, altAllele: string, samples: seq[string]]] = @[]
-  
+  var variantMap: seq[tuple[chrom: string, pos: int, refAllele: string, altAllele: string, quality: float, samples: seq[string]]] = @[]
+
   for variant in variants:
     let key = (variant.chrom, variant.pos, variant.refAllele, variant.altAllele)
     var found = false
-    
+
     for i in 0..<variantMap.len:
-      if variantMap[i].chrom == key[0] and variantMap[i].pos == key[1] and 
+      if variantMap[i].chrom == key[0] and variantMap[i].pos == key[1] and
          variantMap[i].refAllele == key[2] and variantMap[i].altAllele == key[3]:
         variantMap[i].samples.add(variant.sample)
+        # Keep the highest quality score for this variant
+        if variant.quality > variantMap[i].quality:
+          variantMap[i].quality = variant.quality
         found = true
         break
-    
+
     if not found:
-      variantMap.add((key[0], key[1], key[2], key[3], @[variant.sample]))
+      variantMap.add((key[0], key[1], key[2], key[3], variant.quality, @[variant.sample]))
   
   # Write header line
   let headerCols = @["#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT"] & samples
@@ -403,7 +439,7 @@ proc writeVCF(variants: seq[Variant], outputFile: string, referenceFile: string)
       ".",  # ID
       varEntry.refAllele,
       varEntry.altAllele,
-      "60.0",
+      fmt"{varEntry.quality:.1f}",
       "PASS",  # FILTER
       ".",     # INFO
       "GT:DP"  # FORMAT
@@ -423,23 +459,25 @@ proc processABIFile(filename: string, references: seq[RefSequence], config: Conf
   try:
     let trace = newABIFTrace(filename)
     defer: trace.close()
-    
+
     let sequence = trace.getSequence()
+    let qualities = trace.getQualityValues()
     let sampleName = extractFilename(filename).replace(".ab1", "")
-    
+
     if config.verbose:
       echo fmt"Processing {sampleName}: {sequence.len} bp"
-    
-    let (bestRef, alignment) = findBestAlignment(sequence, references, config)
-    
+
+    let (bestRef, alignment, qual) = findBestAlignment(sequence, qualities, references, config)
+
     if config.verbose:
-      echo fmt"  Best match: {bestRef.name} (identity: {alignment.identity:.3f}, coverage: {alignment.coverage:.3f})"
-    
-    result = callVariants(alignment, sampleName)
-    
+      let orient = if alignment.isReverseComplement: "reverse complement" else: "forward"
+      echo fmt"  Best match: {bestRef.name} (identity: {alignment.identity:.3f}, coverage: {alignment.coverage:.3f}, orientation: {orient})"
+
+    result = callVariants(alignment, qual, sampleName)
+
     if config.verbose:
       echo fmt"  Found {result.len} variants"
-    
+
   except Exception as e:
     echo fmt"Error processing {filename}: {e.msg}"
     result = @[]
