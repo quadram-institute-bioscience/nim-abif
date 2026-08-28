@@ -1,0 +1,12 @@
+nimTitle	aligner	aligner.html	module src/aligner		0
+nim	RefSequence	aligner.html#RefSequence	object RefSequence		11
+nim	AlignmentResult	aligner.html#AlignmentResult	object AlignmentResult		15
+nim	AlignConfig	aligner.html#AlignConfig	object AlignConfig		29
+nim	defaultAlignConfig	aligner.html#defaultAlignConfig	proc defaultAlignConfig(): AlignConfig		36
+nim	loadReference	aligner.html#loadReference,string	proc loadReference(filename: string): seq[RefSequence]		40
+nim	smithWaterman	aligner.html#smithWaterman,string,string,int,int,int	proc smithWaterman(seq1, seq2: string; matchScore, mismatchScore, gapScore: int): AlignmentResult		46
+nim	reverseComplement	aligner.html#reverseComplement,string	proc reverseComplement(sequence: string): string		126
+nim	findBestAlignment	aligner.html#findBestAlignment,string,seq[int],seq[RefSequence],AlignConfig	proc findBestAlignment(abiSeq: string; abiQual: seq[int];\n                  references: seq[RefSequence]; config: AlignConfig): (\n    RefSequence, AlignmentResult, seq[int])		137
+nim	iupacAlleles	aligner.html#iupacAlleles,char	proc iupacAlleles(base: char): set[char]		193
+nim	isAmbiguousBaseCompatible	aligner.html#isAmbiguousBaseCompatible,char,char	proc isAmbiguousBaseCompatible(ambiguousBase: char; refBase: char): bool		214
+nim	isValidNucleotide	aligner.html#isValidNucleotide,char	proc isValidNucleotide(base: char): bool		218

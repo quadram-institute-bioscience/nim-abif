@@ -25,7 +25,7 @@
   <div class="document" id="documentId">
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="abi2fq.html">abi2fq</a>, <a href="abichromatogram.html">abichromatogram</a>, <a href="abif.html">abif</a>, <a href="abimerge.html">abimerge</a>, <a href="abimetadata.html">abimetadata</a>, <a href="qualitytrim.html">qualitytrim</a>.<br/><p /><h2>API symbols</h2>
+      Modules: <a href="abi2fq.html">abi2fq</a>, <a href="abichromatogram.html">abichromatogram</a>, <a href="abif.html">abif</a>, <a href="abimerge.html">abimerge</a>, <a href="abimetadata.html">abimetadata</a>, <a href="abiscreen.html">abiscreen</a>, <a href="aligner.html">aligner</a>, <a href="qualitytrim.html">qualitytrim</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="A" href="#A"><span>A:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abichromatogram: Channel.A" href="abichromatogram.html#A">abichromatogram: Channel.A</a></li>
@@ -37,6 +37,14 @@
 <dt><a name="abifVersion" href="#abifVersion"><span>abifVersion:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abif: proc abifVersion(): string" href="abif.html#abifVersion">abif: proc abifVersion(): string</a></li>
+          </ul></dd>
+<dt><a name="AlignConfig" href="#AlignConfig"><span>AlignConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aligner: object AlignConfig" href="aligner.html#AlignConfig">aligner: object AlignConfig</a></li>
+          </ul></dd>
+<dt><a name="AlignmentResult" href="#AlignmentResult"><span>AlignmentResult:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aligner: object AlignmentResult" href="aligner.html#AlignmentResult">aligner: object AlignmentResult</a></li>
           </ul></dd>
 <dt><a name="C" href="#C"><span>C:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -61,6 +69,10 @@
           data-doc-search-tag="abimerge: object Config" href="abimerge.html#Config">abimerge: object Config</a></li>
           <li><a class="reference external"
           data-doc-search-tag="abimetadata: object Config" href="abimetadata.html#Config">abimetadata: object Config</a></li>
+          </ul></dd>
+<dt><a name="defaultAlignConfig" href="#defaultAlignConfig"><span>defaultAlignConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aligner: proc defaultAlignConfig(): AlignConfig" href="aligner.html#defaultAlignConfig">aligner: proc defaultAlignConfig(): AlignConfig</a></li>
           </ul></dd>
 <dt><a name="DirectoryEntry" href="#DirectoryEntry"><span>DirectoryEntry:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -158,6 +170,14 @@
 <li><a class="reference external"
           data-doc-search-tag="abif: proc exportFastq(trace: ABIFTrace; outFile: string = &quot;&quot;)" href="abif.html#exportFastq%2CABIFTrace%2Cstring">abif: proc exportFastq(trace: ABIFTrace; outFile: string = &quot;&quot;)</a></li>
           </ul></dd>
+<dt><a name="findBestAlignment" href="#findBestAlignment"><span>findBestAlignment:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aligner: proc findBestAlignment(abiSeq: string; abiQual: seq[int];
+                  references: seq[RefSequence]; config: AlignConfig): (
+    RefSequence, AlignmentResult, seq[int])" href="aligner.html#findBestAlignment%2Cstring%2Cseq%5Bint%5D%2Cseq%5BRefSequence%5D%2CAlignConfig">aligner: proc findBestAlignment(abiSeq: string; abiQual: seq[int];
+                  references: seq[RefSequence]; config: AlignConfig): (
+    RefSequence, AlignmentResult, seq[int])</a></li>
+          </ul></dd>
 <dt><a name="formatTagValue" href="#formatTagValue"><span>formatTagValue:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abimetadata: proc formatTagValue(tagName: string; entry: DirectoryEntry; trace: ABIFTrace): string" href="abimetadata.html#formatTagValue%2Cstring%2CDirectoryEntry%2CABIFTrace">abimetadata: proc formatTagValue(tagName: string; entry: DirectoryEntry; trace: ABIFTrace): string</a></li>
@@ -190,13 +210,33 @@
 <li><a class="reference external"
           data-doc-search-tag="abif: proc getTagNames(trace: ABIFTrace): seq[string]" href="abif.html#getTagNames%2CABIFTrace">abif: proc getTagNames(trace: ABIFTrace): seq[string]</a></li>
           </ul></dd>
+<dt><a name="getTraceData" href="#getTraceData"><span>getTraceData:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abichromatogram: proc getTraceData(trace: ABIFTrace; debug: bool = false): TraceData" href="abichromatogram.html#getTraceData%2CABIFTrace%2Cbool">abichromatogram: proc getTraceData(trace: ABIFTrace; debug: bool = false): TraceData</a></li>
+          </ul></dd>
+<dt><a name="isAmbiguousBaseCompatible" href="#isAmbiguousBaseCompatible"><span>isAmbiguousBaseCompatible:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aligner: proc isAmbiguousBaseCompatible(ambiguousBase: char; refBase: char): bool" href="aligner.html#isAmbiguousBaseCompatible%2Cchar%2Cchar">aligner: proc isAmbiguousBaseCompatible(ambiguousBase: char; refBase: char): bool</a></li>
+          </ul></dd>
 <dt><a name="isHumanReadableType" href="#isHumanReadableType"><span>isHumanReadableType:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abimetadata: proc isHumanReadableType(tagType: ElementType): bool" href="abimetadata.html#isHumanReadableType%2CElementType">abimetadata: proc isHumanReadableType(tagType: ElementType): bool</a></li>
           </ul></dd>
+<dt><a name="isValidNucleotide" href="#isValidNucleotide"><span>isValidNucleotide:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aligner: proc isValidNucleotide(base: char): bool" href="aligner.html#isValidNucleotide%2Cchar">aligner: proc isValidNucleotide(base: char): bool</a></li>
+          </ul></dd>
+<dt><a name="iupacAlleles" href="#iupacAlleles"><span>iupacAlleles:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aligner: proc iupacAlleles(base: char): set[char]" href="aligner.html#iupacAlleles%2Cchar">aligner: proc iupacAlleles(base: char): set[char]</a></li>
+          </ul></dd>
 <dt><a name="listMetadata" href="#listMetadata"><span>listMetadata:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abimetadata: proc listMetadata(trace: ABIFTrace; debug: bool; limit: int = 0)" href="abimetadata.html#listMetadata%2CABIFTrace%2Cbool%2Cint">abimetadata: proc listMetadata(trace: ABIFTrace; debug: bool; limit: int = 0)</a></li>
+          </ul></dd>
+<dt><a name="loadReference" href="#loadReference"><span>loadReference:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aligner: proc loadReference(filename: string): seq[RefSequence]" href="aligner.html#loadReference%2Cstring">aligner: proc loadReference(filename: string): seq[RefSequence]</a></li>
           </ul></dd>
 <dt><a name="main" href="#main"><span>main:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -242,9 +282,25 @@
           <li><a class="reference external"
           data-doc-search-tag="abimetadata: proc printHelp()" href="abimetadata.html#printHelp">abimetadata: proc printHelp()</a></li>
           </ul></dd>
+<dt><a name="RefSequence" href="#RefSequence"><span>RefSequence:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aligner: object RefSequence" href="aligner.html#RefSequence">aligner: object RefSequence</a></li>
+          </ul></dd>
+<dt><a name="renderChromatogramSvg" href="#renderChromatogramSvg"><span>renderChromatogramSvg:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abichromatogram: proc renderChromatogramSvg(data: TraceData; sampleName: string; width: int = 1200;
+                      height: int = 600; showBaseCalls: bool = true;
+                      startPos: int = 0; endPos: int = -1; downsample: int = 1): string" href="abichromatogram.html#renderChromatogramSvg%2CTraceData%2Cstring%2Cint%2Cint%2Cbool%2Cint%2Cint%2Cint">abichromatogram: proc renderChromatogramSvg(data: TraceData; sampleName: string; width: int = 1200;
+                      height: int = 600; showBaseCalls: bool = true;
+                      startPos: int = 0; endPos: int = -1; downsample: int = 1): string</a></li>
+          </ul></dd>
 <dt><a name="revcompl" href="#revcompl"><span>revcompl:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abimerge: proc revcompl(s: string): string" href="abimerge.html#revcompl%2Cstring">abimerge: proc revcompl(s: string): string</a></li>
+          </ul></dd>
+<dt><a name="reverseComplement" href="#reverseComplement"><span>reverseComplement:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aligner: proc reverseComplement(sequence: string): string" href="aligner.html#reverseComplement%2Cstring">aligner: proc reverseComplement(sequence: string): string</a></li>
           </ul></dd>
 <dt><a name="reverseString" href="#reverseString"><span>reverseString:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -253,6 +309,10 @@
 <dt><a name="simpleSmithWaterman" href="#simpleSmithWaterman"><span>simpleSmithWaterman:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abimerge: proc simpleSmithWaterman(alpha, beta: string; weights: swWeights): swAlignment" href="abimerge.html#simpleSmithWaterman%2Cstring%2Cstring%2CswWeights">abimerge: proc simpleSmithWaterman(alpha, beta: string; weights: swWeights): swAlignment</a></li>
+          </ul></dd>
+<dt><a name="smithWaterman" href="#smithWaterman"><span>smithWaterman:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aligner: proc smithWaterman(seq1, seq2: string; matchScore, mismatchScore, gapScore: int): AlignmentResult" href="aligner.html#smithWaterman%2Cstring%2Cstring%2Cint%2Cint%2Cint">aligner: proc smithWaterman(seq1, seq2: string; matchScore, mismatchScore, gapScore: int): AlignmentResult</a></li>
           </ul></dd>
 <dt><a name="splitAmbiguousBases" href="#splitAmbiguousBases"><span>splitAmbiguousBases:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -314,7 +374,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-28 08:32:47 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-28 18:32:54 UTC</small>
       </div>
     </div>
   </div>
