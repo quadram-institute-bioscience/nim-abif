@@ -1,6 +1,6 @@
 import std/[os, strformat, strutils, parseopt, sequtils, times, algorithm]
-import readfx
 import ./abif
+import ./aligner
 
 ## This module provides a command-line tool for validating ABI sequences against
 ## a reference FASTA file using Smith-Waterman alignment and variant calling.
@@ -40,24 +40,6 @@ type
     scoreGap: int
     verbose: bool
     summaryTable: bool
-
-  RefSequence = object
-    name: string
-    sequence: string
-
-  AlignmentResult = object
-    refName: string
-    refStart: int
-    refEnd: int
-    abiStart: int
-    abiEnd: int
-    score: int
-    identity: float
-    coverage: float
-    alignment: string
-    refAligned: string
-    abiAligned: string
-    isReverseComplement: bool
 
   Variant = object
     chrom: string
@@ -164,179 +146,6 @@ proc parseArgs(): Config =
   if result.abiFiles.len == 0:
     echo "Error: At least one ABI file is required"
     quit(1)
-
-proc loadReference(filename: string): seq[RefSequence] =
-  result = @[]
-  for record in readFQ(filename):
-    result.add(RefSequence(name: record.name, sequence: record.sequence))
-
-proc smithWaterman(seq1, seq2: string, matchScore, mismatchScore, gapScore: int): AlignmentResult =
-  let m = seq1.len
-  let n = seq2.len
-  
-  # Initialize scoring matrix
-  var matrix = newSeqWith(m + 1, newSeq[int](n + 1))
-  var maxScore = 0
-  var maxI = 0
-  var maxJ = 0
-  
-  # Fill scoring matrix
-  for i in 1..m:
-    for j in 1..n:
-      let match = if seq1[i-1] == seq2[j-1]: matchScore else: mismatchScore
-      let diagonal = matrix[i-1][j-1] + match
-      let up = matrix[i-1][j] + gapScore
-      let left = matrix[i][j-1] + gapScore
-      
-      matrix[i][j] = max(0, max(diagonal, max(up, left)))
-      
-      if matrix[i][j] > maxScore:
-        maxScore = matrix[i][j]
-        maxI = i
-        maxJ = j
-  
-  # Traceback to get alignment
-  var alignedSeq1 = ""
-  var alignedSeq2 = ""
-  var alignment = ""
-  var i = maxI
-  var j = maxJ
-  var matches = 0
-  var alignLen = 0
-  
-  while i > 0 and j > 0 and matrix[i][j] > 0:
-    let current = matrix[i][j]
-    let diagonal = if i > 0 and j > 0: matrix[i-1][j-1] else: 0
-    let up = if i > 0: matrix[i-1][j] else: 0
-    let left = if j > 0: matrix[i][j-1] else: 0
-    
-    let match = if seq1[i-1] == seq2[j-1]: matchScore else: mismatchScore
-    
-    if i > 0 and j > 0 and current == diagonal + match:
-      alignedSeq1 = seq1[i-1] & alignedSeq1
-      alignedSeq2 = seq2[j-1] & alignedSeq2
-      if seq1[i-1] == seq2[j-1]:
-        alignment = "|" & alignment
-        inc matches
-      else:
-        alignment = "." & alignment
-      inc alignLen
-      dec i
-      dec j
-    elif i > 0 and current == up + gapScore:
-      alignedSeq1 = seq1[i-1] & alignedSeq1
-      alignedSeq2 = "-" & alignedSeq2
-      alignment = " " & alignment
-      inc alignLen
-      dec i
-    else:
-      alignedSeq1 = "-" & alignedSeq1
-      alignedSeq2 = seq2[j-1] & alignedSeq2
-      alignment = " " & alignment
-      inc alignLen
-      dec j
-  
-  let identity = if alignLen > 0: matches.float / alignLen.float else: 0.0
-  let coverage = alignedSeq2.replace("-", "").len.float / seq2.len.float
-  
-  result = AlignmentResult(
-    refStart: i,
-    refEnd: maxI - 1,
-    abiStart: j,
-    abiEnd: maxJ - 1,
-    score: maxScore,
-    identity: identity,
-    coverage: coverage,
-    alignment: alignment,
-    refAligned: alignedSeq1,
-    abiAligned: alignedSeq2
-  )
-
-proc reverseComplement(seq: string): string =
-  ## Simple reverse complement function
-  result = ""
-  for i in countdown(seq.len - 1, 0):
-    case seq[i].toUpperAscii:
-    of 'A': result.add('T')
-    of 'T': result.add('A')
-    of 'C': result.add('G')
-    of 'G': result.add('C')
-    else: result.add('N')  # For ambiguous bases
-
-proc findBestAlignment(abiSeq: string, abiQual: seq[int], references: seq[RefSequence], config: Config): (RefSequence, AlignmentResult, seq[int]) =
-  ## Finds the best alignment of an ABI sequence against reference sequences.
-  ##
-  ## Tries forward orientation first, then reverse complement if no good
-  ## alignment is found. Returns the best reference, alignment result, and
-  ## the quality scores in the same orientation as the aligned sequence
-  ## (reversed if reverse complement was used).
-  var bestRef: RefSequence
-  var bestAlignment: AlignmentResult
-  var bestScore = -1
-  var bestQual: seq[int] = abiQual
-
-  # Try forward orientation first
-  for refSeq in references:
-    let alignment = smithWaterman(refSeq.sequence, abiSeq,
-                                 config.scoreMatch, config.scoreMismatch, config.scoreGap)
-
-    if alignment.score > bestScore and
-       alignment.identity >= config.minIdentity and
-       alignment.coverage >= config.minCoverage:
-      bestScore = alignment.score
-      bestRef = refSeq
-      bestAlignment = alignment
-      bestAlignment.refName = refSeq.name
-      bestAlignment.isReverseComplement = false
-      bestQual = abiQual
-
-  # If no good alignment found, try reverse complement
-  if bestScore == -1:
-    let revCompSeq = reverseComplement(abiSeq)
-
-    # Reverse quality scores to match the reverse-complemented sequence
-    var revQual = newSeq[int](abiQual.len)
-    for i in 0..<abiQual.len:
-      revQual[i] = abiQual[abiQual.high - i]
-
-    for refSeq in references:
-      let alignment = smithWaterman(refSeq.sequence, revCompSeq,
-                                   config.scoreMatch, config.scoreMismatch, config.scoreGap)
-
-      if alignment.score > bestScore and
-         alignment.identity >= config.minIdentity and
-         alignment.coverage >= config.minCoverage:
-        bestScore = alignment.score
-        bestRef = refSeq
-        bestAlignment = alignment
-        bestAlignment.refName = refSeq.name
-        bestAlignment.isReverseComplement = true
-        bestQual = revQual
-
-  if bestScore == -1:
-    raise newException(ValueError, "No suitable alignment found")
-
-  (bestRef, bestAlignment, bestQual)
-
-proc isAmbiguousBaseCompatible(ambiguousBase: char, refBase: char): bool =
-  ## Check if an ambiguous base from ABI is compatible with reference base
-  case ambiguousBase.toUpperAscii:
-  of 'R': refBase.toUpperAscii in {'A', 'G'}  # A or G
-  of 'Y': refBase.toUpperAscii in {'C', 'T'}  # C or T
-  of 'S': refBase.toUpperAscii in {'G', 'C'}  # G or C
-  of 'W': refBase.toUpperAscii in {'A', 'T'}  # A or T
-  of 'K': refBase.toUpperAscii in {'G', 'T'}  # G or T
-  of 'M': refBase.toUpperAscii in {'A', 'C'}  # A or C
-  of 'B': refBase.toUpperAscii in {'C', 'G', 'T'}  # not A
-  of 'D': refBase.toUpperAscii in {'A', 'G', 'T'}  # not C
-  of 'H': refBase.toUpperAscii in {'A', 'C', 'T'}  # not G
-  of 'V': refBase.toUpperAscii in {'A', 'C', 'G'}  # not T
-  of 'N': true  # N matches anything
-  else: false
-
-proc isValidNucleotide(base: char): bool =
-  ## Check if base is a valid nucleotide (A, T, G, C)
-  base.toUpperAscii in {'A', 'T', 'G', 'C'}
 
 proc callVariants(alignment: AlignmentResult, abiQual: seq[int], sampleName: string): seq[Variant] =
   ## Calls variants from an alignment, using quality scores where available.
@@ -455,6 +264,11 @@ proc writeVCF(variants: seq[Variant], outputFile: string, referenceFile: string)
     
     file.writeLine((cols & gtCols).join("\t"))
 
+proc toAlignConfig(config: Config): AlignConfig =
+  AlignConfig(minIdentity: config.minIdentity, minCoverage: config.minCoverage,
+              scoreMatch: config.scoreMatch, scoreMismatch: config.scoreMismatch,
+              scoreGap: config.scoreGap)
+
 proc processABIFile(filename: string, references: seq[RefSequence], config: Config): seq[Variant] =
   try:
     let trace = newABIFTrace(filename)
@@ -467,7 +281,7 @@ proc processABIFile(filename: string, references: seq[RefSequence], config: Conf
     if config.verbose:
       echo fmt"Processing {sampleName}: {sequence.len} bp"
 
-    let (bestRef, alignment, qual) = findBestAlignment(sequence, qualities, references, config)
+    let (bestRef, alignment, qual) = findBestAlignment(sequence, qualities, references, toAlignConfig(config))
 
     if config.verbose:
       let orient = if alignment.isReverseComplement: "reverse complement" else: "forward"

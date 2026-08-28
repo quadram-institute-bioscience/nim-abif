@@ -60,7 +60,7 @@ type
     baseColors*: Table[Channel, string] ## Color mapping for each nucleotide base
 
 
-proc getTraceData(trace: ABIFTrace, debug: bool = false): TraceData =
+proc getTraceData*(trace: ABIFTrace, debug: bool = false): TraceData =
   ## Extracts and processes trace data from an ABIF file
   ##
   ## This function processes both raw and analyzed data from the trace file,
@@ -253,11 +253,11 @@ proc generatePolyline(
 
 # Filter peak positions to just the ones that are visible
 proc getVisiblePeaks(
-  peaks: seq[int], 
-  sequence: string, 
+  peaks: seq[int],
+  sequence: string,
   displayStart, displayEnd, padding, width, topPadding: int,
-  scaleFn: proc(peakPos: int): int
-): seq[tuple[x, peakPos: int, baseChar: char]] =
+  scaleFn: proc(peakPos: int): int {.gcsafe.}
+): seq[tuple[x, peakPos: int, baseChar: char]] {.gcsafe.} =
   ## Filter peak positions to just the ones that are visible in the current view
   ##
   ## Parameters:
@@ -287,18 +287,19 @@ proc getVisiblePeaks(
         let baseChar = sequence[i]
         result.add((x, peakPos, baseChar))
 
-# Generate the SVG chromatogram and save to a file
-proc renderChromatogram(
-  data: TraceData, 
-  outFile: string, 
-  width: int = 1200, 
+proc renderChromatogramSvg*(
+  data: TraceData,
+  sampleName: string,
+  width: int = 1200,
   height: int = 600,
   showBaseCalls: bool = true,
-  startPos: int = 0, 
+  startPos: int = 0,
   endPos: int = -1,
   downsample: int = 1
-) =
-  ## Generate the SVG chromatogram and save to a file
+): string {.gcsafe.} =
+  ## Renders the chromatogram as an in-memory SVG string (for embedding in
+  ## reports, e.g. `abiscreen`'s HTML evidence panels) rather than writing
+  ## directly to a file. Returns "" if the requested range has no data.
   ##
 ## Command-line usage:
 ##
@@ -337,8 +338,8 @@ proc renderChromatogram(
   let titleHeight = 30
   let topPadding = padding + titleHeight
   let plotHeight = height - padding - topPadding
-  let sample_name = outFile.extractFilename.changeFileExt("")
-  
+  let sample_name = sampleName
+
   # Calculate the range to display
   let dataLen = data.traceLen
   let displayStart = max(0, startPos)
@@ -346,10 +347,9 @@ proc renderChromatogram(
   let displayLen = displayEnd - displayStart
   let effectiveLen = (displayLen + downsample - 1) div downsample  # Ceiling division
   let xScale = (width - (2 * padding)).float / effectiveLen.float
-  
+
   if displayLen <= 0:
-    echo "Error: Invalid range selected, no data to display"
-    return
+    return ""
   
   # Helper to calculate the x coordinate for a peak position
   proc getXCoordinate(peakPos: int): int =
@@ -374,8 +374,8 @@ proc renderChromatogram(
       getXCoordinate
     )
   
-  # Build the SVG file
-  buildSvgFile(outFile):
+  # Build the SVG document in memory
+  let nodes = buildSvg:
     svg(width=width, height=height):
       # Title
       text(x=width div 2, y=titleHeight, `text-anchor`="middle", 
@@ -458,6 +458,32 @@ proc renderChromatogram(
         text(x=x+40, y=legendY+5, `text-anchor`="start", fill=color,
              `font-family`="Arial", `font-size`=14, `font-weight`="bold"):
           t $ch
+
+  nodes.render()
+
+proc renderChromatogram(
+  data: TraceData,
+  outFile: string,
+  width: int = 1200,
+  height: int = 600,
+  showBaseCalls: bool = true,
+  startPos: int = 0,
+  endPos: int = -1,
+  downsample: int = 1
+) =
+  ## Generates the SVG chromatogram and writes it to `outFile`. Thin wrapper
+  ## around `renderChromatogramSvg` kept for CLI/back-compat use.
+  let sampleName = outFile.extractFilename.changeFileExt("")
+  let svgText = renderChromatogramSvg(data, sampleName, width, height,
+                                       showBaseCalls, startPos, endPos, downsample)
+  if svgText.len == 0:
+    echo "Error: Invalid range selected, no data to display"
+    return
+
+  let parent = outFile.parentDir
+  if parent != "":
+    createDir(parent)
+  writeFile(outFile, svgText)
 
 proc getVersion(): string =
   let ver = abifVersion()

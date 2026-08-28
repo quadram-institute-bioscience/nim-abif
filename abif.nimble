@@ -6,7 +6,7 @@ description = "ABIF (Applied Biosystems Information Format) parser for DNA seque
 license     = "MIT"
 
 # Dependencies
-requires "nim >= 2.2.0", "nimsvg >= 0.1.0", "readfx"
+requires "nim >= 2.2.0", "nimsvg >= 0.1.0", "readfx", "malebolgia"
 
 srcDir = "src"
 binDir = "bin"
@@ -15,7 +15,8 @@ namedBin = {
     "abimerge":        "abimerge",
     "abimetadata":     "abimetadata",
     "abichromatogram": "abichromatogram",
-    "abivalidate":     "abivalidate"
+    "abivalidate":     "abivalidate",
+    "abiscreen":       "abiscreen"
 }.toTable()
 # Skip directories that aren't part of the package
 skipDirs = @["tests"]
@@ -28,6 +29,7 @@ task test, "Run the test suite":
   exec "nim c -r tests/test_abi2fq.nim"
   exec "nim c -r tests/test_abimerge.nim"
   exec "nim c -r tests/test_edit_smpl.nim"
+  exec "nim c -r --threads:on tests/test_abiscreen.nim"
 
 task test_edit, "Run abimetadata edit tests":
   exec "nim c -r tests/test_edit_smpl.nim"
@@ -42,6 +44,10 @@ task test_abi2fq, "Run abi2fq tool tests":
 task test_abimerge, "Run abimerge tool tests":
   exec "nimble buildbin"
   exec "nim c -r tests/test_abimerge.nim"
+
+task test_abiscreen, "Run abiscreen tool tests":
+  exec "nimble buildbin"
+  exec "nim c -r --threads:on tests/test_abiscreen.nim"
 
 # Get Nim version by executing a nim command
 proc getNimVersionStr(): string =
@@ -96,6 +102,8 @@ task docs, "Generate documentation":
     exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs src/abimerge.nim"
     exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs src/abimetadata.nim"
     exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs src/abichromatogram.nim"
+    exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs src/aligner.nim"
+    exec "nim doc --git.url:https://github.com/quadram-institute-bioscience/nim-abif/ --git.commit:main --project --out:docs --threads:on src/abiscreen.nim"
   else:
     echo "Nim >=2.0.0 is required to build the docs!"
     
@@ -107,6 +115,7 @@ task buildbin, "Build all binaries to bin/ directory":
     exec "nim c -d:release --opt:speed -o:bin/abimetadata    src/abimetadata.nim"
     exec "nim c -d:release --opt:speed -o:bin/abichromatogram  src/abichromatogram.nim"
     exec "nim c -d:release --opt:speed -o:bin/abivalidate    src/abivalidate.nim"
+    exec "nim c -d:release --opt:speed --threads:on -o:bin/abiscreen src/abiscreen.nim"
     echo "Binaries built to bin/ directory"
 
 # Before installing, compile the binaries
@@ -114,9 +123,11 @@ before install:
   # Install dependencies first to ensure they're available
   exec "nimble install -y nimsvg"
   exec "nimble install -y readfx"
+  exec "nimble install -y malebolgia"
   exec "nim c -d:release -d:danger --opt:speed src/abif.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abi2fq.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abimerge.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abimetadata.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abichromatogram.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abivalidate.nim"
+  exec "nim c -d:release -d:danger --opt:speed --threads:on src/abiscreen.nim"
