@@ -1,5 +1,6 @@
 import std/[os, strformat, strutils, parseopt]
 import ./abif
+import ./qualitytrim
 
 ## This module provides a command-line tool for merging two ABI trace files 
 ## (forward and reverse) into a single sequence.
@@ -305,43 +306,6 @@ Options:
    --version                 Show version information
 """
   quit(0)
-
-proc trimSequence(sequence: string, qualities: seq[int], 
-                  windowSize: int, threshold: int): tuple[seq: string, qual: seq[int]] =
-  # Check if sequence is too short for trimming
-  if sequence.len < windowSize or qualities.len < windowSize:
-    return (sequence, qualities)
-  
-  var startPos, endPos = 0
-  
-  # Find start position (trim low quality from beginning)
-  for i in 0 .. (sequence.len - windowSize):
-    var windowSum = 0
-    for j in 0 ..< windowSize:
-      windowSum += qualities[i + j]
-    
-    let windowAvg = windowSum / windowSize
-    if windowAvg >= threshold.float:
-      startPos = i
-      break
-  
-  # Find end position (trim low quality from end)
-  for i in countdown(sequence.len - windowSize, 0):
-    var windowSum = 0
-    for j in 0 ..< windowSize:
-      windowSum += qualities[i + j]
-    
-    let windowAvg = windowSum / windowSize
-    if windowAvg >= threshold.float:
-      endPos = i + windowSize
-      break
-  
-  # Handle case where entire sequence is below threshold
-  if endPos <= startPos:
-    return ("", @[])
-  
-  result.seq = sequence[startPos ..< endPos]
-  result.qual = qualities[startPos ..< endPos]
 
 proc parseCommandLine(): Config =
   var p = initOptParser(commandLineParams())

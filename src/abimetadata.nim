@@ -1,4 +1,4 @@
-import std/[os, tables, strutils, streams, algorithm, endians]
+import std/[os, tables, strutils, algorithm]
 import ./abif
 export abif
 ## This module provides a command-line tool for displaying and modifying metadata in ABIF files.
@@ -718,119 +718,32 @@ proc getActualDataSize(elemType: ElementType, data: string): int =
 
 proc modifyTag*(trace: ABIFTrace, tagName: string, newValue: string, outputFile: string): bool =
   ## Modifies the value of a tag in an ABIF file.
+  ##
+  ## Only string-type tags (etChar, etPString, etCString) can be modified.
+  ## The new value must fit within the original data allocation.
+  ##
+  ## Parameters:
+  ##   trace: The ABIFTrace containing the tag
+  ##   tagName: The name of the tag to modify
+  ##   newValue: The new value for the tag
+  ##   outputFile: Path to the output file (must already contain a copy of the input)
+  ##
+  ## Returns:
+  ##   true if the tag was modified successfully, false otherwise
   if not trace.tags.hasKey(tagName):
     echo "Error: Tag ", tagName, " not found in file"
     return false
-    
+
   let entry = trace.tags[tagName]
   let elemType = entry.elemType
-  
+
   # Currently only support string-based types
   if not (elemType in {etChar, etPString, etCString}):
     echo "Error: Only string-type tags can be modified in this version"
     return false
-    
+
   try:
-    # Let's approach this completely differently - use a shell script for the whole operation
-    echo "Using shell commands for tag modification..."
-    
-    # Create a shell command that will:
-    # 1. Copy the file
-    # 2. Use hexdump to verify the copy
-    # 3. Use dd to write the modified tag directly
-    # 4. Use hexdump to verify the modification
-    
-    # Get values for shell script 
-    let lengthByte = ord(char(newValue.len))
-    let paddingSize = entry.dataSize - (1 + newValue.len)
-    
-    # Create shell script with variables properly substituted
-    var shellScript = "#!/bin/bash\n" &
-      "# Copy the file\n" &
-      "cp \"" & trace.fileName & "\" \"" & outputFile & "\"\n" &
-      "if [ $? -ne 0 ]; then\n" &
-      "  echo \"Error copying file\"\n" &
-      "  exit 1\n" &
-      "fi\n" &
-      "\n" &
-      "# Verify the copy sizes match\n" &
-      "original_size=$(stat -f%z \"" & trace.fileName & "\")\n" &
-      "copy_size=$(stat -f%z \"" & outputFile & "\")\n" &
-      "echo \"Original size: $original_size bytes\"\n" &
-      "echo \"Copy size: $copy_size bytes\"\n" &
-      "if [ $original_size -ne $copy_size ]; then\n" &
-      "  echo \"File sizes don't match!\"\n" &
-      "  exit 2\n" &
-      "fi\n" &
-      "\n" &
-      "# Create a hex string for the length byte (PString format)\n" &
-      "printf \"\\x" & toHex(lengthByte, 2) & "\" > /tmp/tag_data.bin\n" &
-      "\n" &
-      "# Append the string data\n" &
-      "printf \"" & newValue & "\" >> /tmp/tag_data.bin\n" &
-      "\n" &
-      "# Pad with zeros if needed\n" &
-      "if [ " & $paddingSize & " -gt 0 ]; then\n" &
-      "  dd if=/dev/zero bs=1 count=" & $paddingSize & " >> /tmp/tag_data.bin\n" &
-      "fi\n" &
-      "\n" &
-      "# Check the size of our packed data\n" &
-      "packed_size=$(stat -f%z /tmp/tag_data.bin)\n" &
-      "echo \"Packed data size: $packed_size bytes (should be " & $entry.dataSize & ")\"\n" &
-      "\n" &
-      "# Write the data at the correct offset\n" &
-      "dd if=/tmp/tag_data.bin of=\"" & outputFile & "\" bs=1 seek=" & $entry.dataOffset & " conv=notrunc\n" &
-      "if [ $? -ne 0 ]; then\n" &
-      "  echo \"Error writing tag data\"\n" &
-      "  exit 3\n" &
-      "fi\n" &
-      "\n" &
-      "# Verify the data was written\n" &
-      "echo \"Verifying tag modification...\"\n" &
-      "hexdump -C \"" & outputFile & "\" | grep -A 2 \"$(printf \"%08x\" " & $entry.dataOffset & ")\"\n" &
-      "\n" &
-      "# Clean up\n" &
-      "rm /tmp/tag_data.bin\n" &
-      "\n" &
-      "exit 0\n"
-    
-    # Save the script to a temporary file
-    let scriptFile = "/tmp/modify_tag.sh"
-    try:
-      var scriptStream = open(scriptFile, fmWrite)
-      scriptStream.write(shellScript)
-      scriptStream.close()
-      
-      # Make the script executable
-      discard execShellCmd("chmod +x " & scriptFile)
-      
-      # Run the script
-      let exitCode = execShellCmd(scriptFile)
-      if exitCode != 0:
-        echo "Error: Shell script failed with exit code ", exitCode
-        return false
-      
-      # Check if the output file exists
-      if not fileExists(outputFile):
-        echo "Error: Output file not created"
-        return false
-      
-      # Verify file size matches original
-      let srcSize = getFileSize(trace.fileName)
-      let dstSize = getFileSize(outputFile)
-      
-      if srcSize != dstSize:
-        echo "Error: File sizes don't match! Source: ", srcSize, ", Destination: ", dstSize, " bytes"
-        return false
-      
-      # Success!
-      return true
-      
-    except Exception as e:
-      echo "Error executing shell script: ", e.msg
-      return false
-    
-    # Pack the data according to its type - following ABIF format specifications
+    # Pack the data according to its type, following ABIF format specifications
     var packedData: string
     case elemType:
     of etChar:
@@ -846,80 +759,58 @@ proc modifyTag*(trace: ABIFTrace, tagName: string, newValue: string, outputFile:
       packedData = char(newValue.len) & newValue
     else:
       raise newException(ValueError, "Unsupported data type for packing: " & $elemType)
-    
+
     let newDataSize = packedData.len
-    
-    # Open the output file for reading and writing in binary mode
-    var outFile = open(outputFile, fmReadWrite)
-    if outFile == nil:
-      echo "Error: Could not reopen output file for writing"
-      return false
-    
-    # We'll close the file manually before verification
-    
-    echo "Debug: Working with tag: ", tagName, " (", elemType, ")"
-    echo "Debug: Data offset: ", entry.dataOffset, ", size: ", entry.dataSize
-    
+
     # Handle inline data (4 bytes or less)
     if entry.dataSize <= 4 and entry.dataOffset == 0:
       echo "Error: Tag data is stored inline in the directory entry, not modifying"
       return false
-    
-    # Data fits in original location, just write it there
-    if newDataSize <= entry.dataSize:
-      echo "Data fits in original location, writing at offset: ", entry.dataOffset
-      
-      # Go directly to the data offset and write the data
-      outFile.setFilePos(entry.dataOffset)
-      
-      # Write the packed data directly to the file
-      if outFile.writeBuffer(addr packedData[0], packedData.len) != packedData.len:
-        echo "Error: Failed to write packed data"
-        return false
-      
-      # If we wrote less data than the original size, pad with zeros
-      if newDataSize < entry.dataSize:
-        echo "Debug: Padding with ", entry.dataSize - newDataSize, " bytes of zeros"
-        var padding = newString(entry.dataSize - newDataSize)
-        for i in 0 ..< padding.len:
-          padding[i] = '\0'
-        
-        if outFile.writeBuffer(addr padding[0], padding.len) != padding.len:
-          echo "Error: Failed to write padding"
-          return false
-      
-      # Ensure changes are written to disk
-      outFile.flushFile()
-      
-      # Close the file before verification
-      outFile.close()
-      
-      # Skip verification for now - just check if the file exists and is not empty
-      if fileExists(outputFile) and getFileSize(outputFile) > 0:
-        echo "Successfully modified tag: ", tagName, " at offset: ", entry.dataOffset
-        # Let's log the file details
-        echo "File details:"
-        echo "  Original size: ", getFileSize(trace.fileName), " bytes"
-        echo "  Modified size: ", getFileSize(outputFile), " bytes"
-        
-        # Run an external command to check the file
-        let checkCmd = "hexdump -C \"" & outputFile & "\" | head -20"
-        discard execShellCmd(checkCmd)
-        
-        return true
-      else:
-        echo "Warning: Output file is missing or empty"
-        return false
-    else:
-      # New data is larger than original - this requires more complex handling
-      # Per the Haskell code, we would need to:
-      # 1. Adjust all the offsets in directory entries
-      # 2. Rewrite all data sections
-      # 3. Update the root directory with new counts
+
+    # Data must fit in the original allocated space
+    if newDataSize > entry.dataSize:
       echo "Error: New data size (", newDataSize, " bytes) exceeds original size (", entry.dataSize, " bytes)"
       echo "Resizing tags is not supported in this version"
       return false
-    
+
+    # Open the output file for reading and writing in binary mode
+    # (fmReadWriteExisting keeps existing file data; fmReadWrite would truncate)
+    var outFile = open(outputFile, fmReadWriteExisting)
+    if outFile == nil:
+      echo "Error: Could not open output file for writing"
+      return false
+
+    # Go directly to the data offset and write the packed data
+    outFile.setFilePos(entry.dataOffset)
+
+    if outFile.writeBuffer(addr packedData[0], packedData.len) != packedData.len:
+      echo "Error: Failed to write packed data"
+      outFile.close()
+      return false
+
+    # If we wrote less data than the original size, pad with zeros
+    if newDataSize < entry.dataSize:
+      let paddingLen = entry.dataSize - newDataSize
+      var padding = newString(paddingLen)
+      for i in 0 ..< paddingLen:
+        padding[i] = '\0'
+
+      if outFile.writeBuffer(addr padding[0], padding.len) != padding.len:
+        echo "Error: Failed to write padding"
+        outFile.close()
+        return false
+
+    # Ensure changes are written to disk
+    outFile.flushFile()
+    outFile.close()
+
+    # Verify the output file exists and is not empty
+    if not fileExists(outputFile) or getFileSize(outputFile) == 0:
+      echo "Warning: Output file is missing or empty"
+      return false
+
+    return true
+
   except Exception as e:
     echo "Error in modifyTag: ", e.msg
     return false
