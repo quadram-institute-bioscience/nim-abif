@@ -112,6 +112,24 @@ Convert a trace (or part of it) into SVG
 abichromatogram tests/A_forward.ab1 -o A.svg -s 500 -e 1000 --width 1600
 ```
 
+#### Batch hotspot mutation screening
+
+Screen many traces against a panel of hotspot mutations, producing CSV, VCF, and an interactive HTML report with per-call chromatogram evidence.
+
+```
+abiscreen -i traces/ -p targets.tsv -r refs.fa -o results/
+```
+
+Files are aligned against the reference panel (orientation auto-detected) and the state at each hotspot position is classified as Reference, Variant, Heterozygous, Ambiguous, or FailedQC.
+
+```
+abiscreen --help                                     # Show help message
+abiscreen -i traces/ -p targets.tsv -r refs.fa -o results/                # Default: emit CSV, VCF, and HTML
+abiscreen --report csv,vcf -i traces/ -p targets.tsv -r refs.fa -o out/   # Emit only CSV and VCF
+abiscreen --min-q 20 --min-identity 0.65 -i traces/ -p targets.tsv -r refs.fa -o out/  # Custom QC thresholds
+abiscreen --threads 4 -i traces/ -p targets.tsv -r refs.fa -o out/        # Limit worker threads
+```
+
 ## Data Types
 
 The ABIF format supports various data types, all of which are properly handled by this parser:
