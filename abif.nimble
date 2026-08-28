@@ -1,12 +1,12 @@
 # Package information
 packageName = "abif"
-version     = "0.2.0"
+version     = "0.3.0"
 author      = "Andrea Telatin, Claude AI"
 description = "ABIF (Applied Biosystems Information Format) parser for DNA sequencing data"
 license     = "MIT"
 
 # Dependencies
-requires "nim >= 1.6.0", "nimsvg >= 0.1.0"
+requires "nim >= 1.6.0", "nimsvg >= 0.1.0", "readfx"
 
 srcDir = "src"
 binDir = "bin"
@@ -14,7 +14,8 @@ namedBin = {
     "abi2fq":          "abi2fq",
     "abimerge":        "abimerge",
     "abimetadata":     "abimetadata",
-    "abichromatogram": "abichromatogram" 
+    "abichromatogram": "abichromatogram",
+    "abivalidate":     "abivalidate"
 }.toTable()
 # Skip directories that aren't part of the package
 skipDirs = @["tests"]
@@ -105,14 +106,17 @@ task buildbin, "Build all binaries to bin/ directory":
     exec "nim c -d:release --opt:speed -o:bin/abimerge       src/abimerge.nim"
     exec "nim c -d:release --opt:speed -o:bin/abimetadata    src/abimetadata.nim"
     exec "nim c -d:release --opt:speed -o:bin/abichromatogram  src/abichromatogram.nim"
+    exec "nim c -d:release --opt:speed -o:bin/abivalidate    src/abivalidate.nim"
     echo "Binaries built to bin/ directory"
 
 # Before installing, compile the binaries
 before install:
-  # Install nimsvg dependency first to ensure it's available
+  # Install dependencies first to ensure they're available
   exec "nimble install -y nimsvg"
+  exec "nimble install -y readfx"
   exec "nim c -d:release -d:danger --opt:speed src/abif.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abi2fq.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abimerge.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abimetadata.nim"
   exec "nim c -d:release -d:danger --opt:speed src/abichromatogram.nim"
+  exec "nim c -d:release -d:danger --opt:speed src/abivalidate.nim"
