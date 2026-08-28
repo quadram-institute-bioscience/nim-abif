@@ -1,8 +1,7 @@
 nimTitle	abi2fq	abi2fq.html	module src/abi2fq		0
-nim	Config	abi2fq.html#Config	object Config		45
-nim	printHelp	abi2fq.html#printHelp	proc printHelp()		58
-nim	parseCommandLine	abi2fq.html#parseCommandLine	proc parseCommandLine(): Config		81
-nim	trimSequence	abi2fq.html#trimSequence,string,seq[int],int,int	proc trimSequence(sequence: string; qualities: seq[int]; windowSize: int;\n             threshold: int): tuple[seq: string, qual: seq[int]]		154
-nim	writeFastq	abi2fq.html#writeFastq,string,seq[int],string,string,bool,string,string	proc writeFastq(sequence: string; qualities: seq[int]; name: string;\n           outFile: string = ""; fasta: bool = false; splitSeq1: string = "";\n           splitSeq2: string = "")		204
-nim	splitAmbiguousBases	abi2fq.html#splitAmbiguousBases,string	proc splitAmbiguousBases(sequence: string): tuple[seq1: string, seq2: string]		247
-nim	main	abi2fq.html#main	proc main()		290
+nim	Config	abi2fq.html#Config	object Config		46
+nim	printHelp	abi2fq.html#printHelp	proc printHelp()		59
+nim	parseCommandLine	abi2fq.html#parseCommandLine	proc parseCommandLine(): Config		82
+nim	writeFastq	abi2fq.html#writeFastq,string,seq[int],string,string,bool,string,string	proc writeFastq(sequence: string; qualities: seq[int]; name: string;\n           outFile: string = ""; fasta: bool = false; splitSeq1: string = "";\n           splitSeq2: string = "")		155
+nim	splitAmbiguousBases	abi2fq.html#splitAmbiguousBases,string	proc splitAmbiguousBases(sequence: string): tuple[seq1: string, seq2: string]		198
+nim	main	abi2fq.html#main	proc main()		241
