@@ -6,7 +6,7 @@ description = "ABIF (Applied Biosystems Information Format) parser for DNA seque
 license     = "MIT"
 
 # Dependencies
-requires "nim >= 1.6.0", "nimsvg >= 0.1.0", "readfx"
+requires "nim >= 2.2.0", "nimsvg >= 0.1.0", "readfx"
 
 srcDir = "src"
 binDir = "bin"
