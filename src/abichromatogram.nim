@@ -13,6 +13,7 @@
 ##   -s, --start POS         Start position (default: 0)
 ##   -e, --end POS           End position (default: whole trace)
 ##   -d, --downsample        FACTOR Downsample factor for visualization (default: 1)
+##   --highlight START-END   Highlight a trace scan region; repeat or comma-separate
 ##   --hide-bases            Hide base calls
 ##   --debug                 Show debug information
 ##   -h, --help              Show this help message and exit
@@ -40,6 +41,8 @@ else:
   # When running directly from source directory
   import ./abif
 
+const DefaultHighlightFill* = "#fff6a6"
+
 type
   Channel* = enum
     ## The four channels used in capillary electrophoresis
@@ -58,6 +61,19 @@ type
     sequence*: string                  ## Called sequence
     traceLen*: int                     ## Total length of trace in data points
     baseColors*: Table[Channel, string] ## Color mapping for each nucleotide base
+
+  HighlightRegion* = object
+    ## A highlighted trace scan region to draw behind the chromatogram.
+    startPos*, endPos*: int            ## Inclusive trace scan coordinates
+    fill*: string                      ## SVG fill color; defaults to light yellow
+    label*: string                     ## Optional label shown inside the highlight
+
+
+proc newHighlightRegion*(startPos, endPos: int,
+                         fill: string = DefaultHighlightFill,
+                         label: string = ""): HighlightRegion =
+  ## Convenience constructor for chromatogram highlight regions.
+  HighlightRegion(startPos: startPos, endPos: endPos, fill: fill, label: label)
 
 
 proc getTraceData*(trace: ABIFTrace, debug: bool = false): TraceData =
@@ -295,7 +311,8 @@ proc renderChromatogramSvg*(
   showBaseCalls: bool = true,
   startPos: int = 0,
   endPos: int = -1,
-  downsample: int = 1
+  downsample: int = 1,
+  highlights: seq[HighlightRegion] = @[]
 ): string {.gcsafe.} =
   ## Renders the chromatogram as an in-memory SVG string (for embedding in
   ## reports, e.g. `abiscreen`'s HTML evidence panels) rather than writing
@@ -313,6 +330,8 @@ proc renderChromatogramSvg*(
 ##   -s, --start POS         Start position (default: 0)
 ##   -e, --end POS           End position (default: whole trace)
 ##   -d, --downsample FACTOR Downsample factor for visualization (default: 1)
+##       --highlight START-END
+##                            Highlight a trace scan region; repeat or comma-separate
 ##       --hide-bases        Hide base calls
 ##       --debug             Show debug information
 ##   -h, --help              Show this help message and exit
@@ -329,6 +348,9 @@ proc renderChromatogramSvg*(
 ##
 ##   # Generate a zoomed view of a specific region with custom width
 ##   abichromatogram input.ab1 -s 500 -e 1000 --width 1600
+##
+##   # Highlight one or more scan regions
+##   abichromatogram input.ab1 --highlight 540-620,780-830
 ##
 ##   # Generate a chromatogram without base call markers
 ##   abichromatogram input.ab1 --hide-bases
@@ -382,9 +404,31 @@ proc renderChromatogramSvg*(
            `font-family`="Arial", `font-size`=20, `font-weight`="bold"):
         t &"Chromatogram: {sample_name}"
       
-      # White background with border
-      rect(x=padding, y=topPadding, width=width-(2*padding), height=plotHeight, 
-           fill="white", stroke="black", `stroke-width`=1)
+      # White background
+      rect(x=padding, y=topPadding, width=width-(2*padding), height=plotHeight,
+           fill="white", stroke="none")
+
+      # Draw highlighted trace scan regions under the grid and signal lines
+      for region in highlights:
+        let regionStart = max(displayStart, min(region.startPos, region.endPos))
+        let regionEnd = min(displayEnd, max(region.startPos, region.endPos) + 1)
+        if regionEnd > regionStart:
+          let x1 = padding + (((regionStart - displayStart).float / downsample.float) * xScale).int
+          let x2 = padding + (((regionEnd - displayStart).float / downsample.float) * xScale).int
+          let rectX = max(padding, x1)
+          let rectWidth = max(1, min(width - padding, x2) - rectX)
+          let fill = if region.fill.len > 0: region.fill else: DefaultHighlightFill
+          rect(x=rectX, y=topPadding, width=rectWidth, height=plotHeight,
+               fill=fill, `fill-opacity`="0.65", stroke="none")
+          if region.label.len > 0:
+            text(x=rectX + (rectWidth div 2), y=topPadding + 16,
+                 `text-anchor`="middle", fill="#6b5b00",
+                 `font-family`="Arial", `font-size`=12):
+              t region.label
+
+      # Plot border
+      rect(x=padding, y=topPadding, width=width-(2*padding), height=plotHeight,
+           fill="none", stroke="black", `stroke-width`=1)
       
       # Draw grid lines
       let gridStep = 100
@@ -469,13 +513,15 @@ proc renderChromatogram(
   showBaseCalls: bool = true,
   startPos: int = 0,
   endPos: int = -1,
-  downsample: int = 1
+  downsample: int = 1,
+  highlights: seq[HighlightRegion] = @[]
 ) =
   ## Generates the SVG chromatogram and writes it to `outFile`. Thin wrapper
   ## around `renderChromatogramSvg` kept for CLI/back-compat use.
   let sampleName = outFile.extractFilename.changeFileExt("")
   let svgText = renderChromatogramSvg(data, sampleName, width, height,
-                                       showBaseCalls, startPos, endPos, downsample)
+                                       showBaseCalls, startPos, endPos,
+                                       downsample, highlights)
   if svgText.len == 0:
     echo "Error: Invalid range selected, no data to display"
     return
@@ -484,6 +530,33 @@ proc renderChromatogram(
   if parent != "":
     createDir(parent)
   writeFile(outFile, svgText)
+
+proc parseHighlightRegions(spec: string): seq[HighlightRegion] =
+  ## Parses CLI highlight specs like "100-200" or "100-200,350-375".
+  for rawPart in spec.split(","):
+    let part = rawPart.strip()
+    if part.len == 0:
+      continue
+
+    let bounds =
+      if ".." in part:
+        part.split("..", maxsplit = 1)
+      elif ":" in part:
+        part.split(":", maxsplit = 1)
+      else:
+        part.split("-", maxsplit = 1)
+
+    if bounds.len != 2 or bounds[0].strip().len == 0 or bounds[1].strip().len == 0:
+      raise newException(ValueError, "expected START-END highlight region, got '" & part & "'")
+
+    let startPos = parseInt(bounds[0].strip())
+    let endPos = parseInt(bounds[1].strip())
+    if startPos < 0 or endPos < 0:
+      raise newException(ValueError, "highlight coordinates must be non-negative: '" & part & "'")
+    if endPos < startPos:
+      raise newException(ValueError, "highlight end is before start: '" & part & "'")
+
+    result.add(newHighlightRegion(startPos, endPos))
 
 proc getVersion(): string =
   let ver = abifVersion()
@@ -511,6 +584,8 @@ proc showHelp() =
   stderr.writeLine("  -s, --start POS         Start position (default: 0)")
   stderr.writeLine("  -e, --end POS           End position (default: whole trace)")
   stderr.writeLine("  -d, --downsample FACTOR Downsample factor for smoother visualization (default: 1)")
+  stderr.writeLine("      --highlight START-END")
+  stderr.writeLine("                          Highlight a trace scan region; repeat or comma-separate")
   stderr.writeLine("      --hide-bases        Hide base calls")
   stderr.writeLine("      --debug             Show debug information")
   stderr.writeLine("  -h, --help              Show this help message and exit")
@@ -520,6 +595,7 @@ proc showHelp() =
   stderr.writeLine("  abichromatogram input.ab1")
   stderr.writeLine("  abichromatogram input.ab1 -o output.svg -d 5")
   stderr.writeLine("  abichromatogram input.ab1 -s 500 -e 1000 --width 1600")
+  stderr.writeLine("  abichromatogram input.ab1 --highlight 540-620,780-830")
   quit(0)
 
 when isMainModule:
@@ -546,6 +622,7 @@ when isMainModule:
     downsample = 1
     showBases = true
     debug = false
+    highlights: seq[HighlightRegion] = @[]
   
   # Parse remaining arguments
   var i = 2
@@ -622,6 +699,18 @@ when isMainModule:
         else:
           stderr.writeLine("Error: Missing value for downsample factor")
           quit(1)
+
+      of "--highlight":
+        if i+1 <= paramCount():
+          try:
+            highlights.add(parseHighlightRegions(paramStr(i+1)))
+            i += 2
+          except ValueError:
+            stderr.writeLine("Error: ", getCurrentExceptionMsg())
+            quit(1)
+        else:
+          stderr.writeLine("Error: Missing value for highlight region")
+          quit(1)
       
       of "--hide-bases":
         showBases = false
@@ -686,7 +775,8 @@ when isMainModule:
       showBaseCalls=showBases,
       startPos=startPos, 
       endPos=endPos,
-      downsample=downsample
+      downsample=downsample,
+      highlights=highlights
     )
     
     echo "Exported SVG chromatogram to: ", outFile

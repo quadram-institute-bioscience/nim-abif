@@ -548,39 +548,99 @@ tr.Variant { background: #fff4e5; }
 tr.Heterozygous { background: #fff0f0; }
 tr.Ambiguous { background: #f0f0ff; }
 tr.FailedQC { background: #f0f0f0; color: #888; }
-.summary { display: flex; gap: 1.5rem; margin: 1rem 0; }
-.stat { border: 1px solid #ddd; border-radius: 6px; padding: 0.5rem 1rem; }
+tr.evidence-open td { border-bottom-color: #fff; }
+tr.evidence-row td { background: #fff; border-top: 0; padding: 1rem; }
+[hidden] { display: none !important; }
+.summary { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
+.stat { background: #fff; border: 1px solid #ddd; border-radius: 6px; color: inherit; cursor: pointer; font: inherit; padding: 0.5rem 1rem; text-align: left; }
 .stat b { display: block; font-size: 1.3rem; }
-details summary { cursor: pointer; }
+.stat.active, .stat:hover { border-color: #666; }
+.evidence-toggle { background: #fff; border: 1px solid #bbb; border-radius: 4px; cursor: pointer; padding: 0.25rem 0.5rem; }
+.evidence-panel svg { display: block; height: auto; width: 100%; }
 </style></head><body>
 """
-  body.add fmt"<h1>abiscreen report</h1><p>{outcomes.len} samples, {totalCalls} calls</p>"
-  body.add "<div class=\"summary\">"
-  for cat in ["Reference", "Variant", "Heterozygous", "Ambiguous", "FailedQC"]:
-    body.add fmt"""<div class="stat"><b>{counts.getOrDefault(cat, 0)}</b>{cat}</div>"""
   let failedCount = outcomes.filterIt(not it.ok).len
-  body.add fmt"""<div class="stat"><b>{failedCount}</b>Failed samples</div>"""
+  let allRows = totalCalls + failedCount
+  body.add fmt"<h1>abiscreen report</h1><p>{outcomes.len} samples, {totalCalls} calls</p>"
+  body.add "<div class=\"summary\" role=\"toolbar\" aria-label=\"Filter calls by category\">"
+  body.add fmt"""<button type="button" class="stat active" data-filter="all" aria-pressed="true"><b>{allRows}</b>All rows</button>"""
+  for cat in ["Reference", "Variant", "Heterozygous", "Ambiguous", "FailedQC"]:
+    body.add fmt"""<button type="button" class="stat" data-filter="{cat}" aria-pressed="false"><b>{counts.getOrDefault(cat, 0)}</b>{cat}</button>"""
+  body.add fmt"""<button type="button" class="stat" data-filter="Failed sample" aria-pressed="false"><b>{failedCount}</b>Failed samples</button>"""
   body.add "</div>"
 
   body.add "<table><tr><th>Sample</th><th>Assay</th><th>Gene / Tag</th><th>Position</th>" &
            "<th>Ref &gt; Alt</th><th>Observed</th><th>Call</th><th>Confidence</th>" &
            "<th>Quality</th><th>Orientation</th><th>Evidence</th></tr>"
 
+  var evidenceId = 0
   for o in outcomes:
     if not o.ok:
-      body.add fmt"""<tr class="FailedQC"><td>{htmlEscape(o.sample)}</td><td colspan="9">Failed: {htmlEscape(o.failReason)}</td></tr>"""
+      body.add fmt"""<tr class="call-row FailedQC" data-category="Failed sample"><td>{htmlEscape(o.sample)}</td><td colspan="10">Failed: {htmlEscape(o.failReason)}</td></tr>"""
       continue
     for c in o.calls:
-      body.add fmt"""<tr class="{c.category}">"""
+      let hasEvidence = c.evidenceSvg.len > 0
+      let panelId = if hasEvidence: "evidence-" & $evidenceId else: ""
+      body.add fmt"""<tr class="call-row {c.category}" data-category="{c.category}">"""
       body.add fmt"<td>{htmlEscape(c.sample)}</td><td>{htmlEscape(c.assayId)}</td>"
       body.add fmt"<td>{htmlEscape(c.gene)} / {htmlEscape(c.tag)}</td><td>{c.position}</td>"
       body.add fmt"<td>{c.refBase} &gt; {c.altBase}</td><td>{htmlEscape(c.observed)}</td>"
       body.add fmt"<td>{c.category}</td><td>{c.confidence:.2f}</td><td>{c.quality}</td>"
       body.add fmt"<td>{htmlEscape(c.orientation)}</td><td>"
-      if c.evidenceSvg.len > 0:
-        body.add fmt"<details><summary>view</summary>{c.evidenceSvg}</details>"
+      if hasEvidence:
+        body.add fmt"""<button type="button" class="evidence-toggle" aria-expanded="false" aria-controls="{panelId}">view</button>"""
       body.add "</td></tr>"
-  body.add "</table></body></html>"
+      if hasEvidence:
+        body.add fmt"""<tr id="{panelId}" class="evidence-row" data-category="{c.category}" hidden><td colspan="11"><div class="evidence-panel">{c.evidenceSvg}</div></td></tr>"""
+        inc evidenceId
+  body.add """
+</table>
+<script>
+(() => {
+  const filterButtons = Array.from(document.querySelectorAll('.stat[data-filter]'));
+  const callRows = Array.from(document.querySelectorAll('tr.call-row'));
+  const evidenceButtons = Array.from(document.querySelectorAll('.evidence-toggle'));
+
+  function rowMatches(row, filter) {
+    return filter === 'all' || row.dataset.category === filter;
+  }
+
+  function applyFilter(filter) {
+    filterButtons.forEach(button => {
+      const active = button.dataset.filter === filter;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    callRows.forEach(row => {
+      row.hidden = !rowMatches(row, filter);
+      const button = row.querySelector('.evidence-toggle');
+      if (!button) return;
+      const panel = document.getElementById(button.getAttribute('aria-controls'));
+      if (!panel) return;
+      panel.hidden = row.hidden || button.getAttribute('aria-expanded') !== 'true';
+    });
+  }
+
+  evidenceButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const row = button.closest('tr');
+      const panel = document.getElementById(button.getAttribute('aria-controls'));
+      if (!row || !panel) return;
+      const open = button.getAttribute('aria-expanded') !== 'true';
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+      button.textContent = open ? 'hide' : 'view';
+      row.classList.toggle('evidence-open', open);
+      panel.hidden = !open || row.hidden;
+    });
+  });
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => applyFilter(button.dataset.filter));
+  });
+})();
+</script>
+</body></html>"""
   writeFile(path, body)
 
 # ---------------------------------------------------------------------------

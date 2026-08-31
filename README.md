@@ -110,6 +110,7 @@ Convert a trace (or part of it) into SVG
 
 ```bash
 abichromatogram tests/A_forward.ab1 -o A.svg -s 500 -e 1000 --width 1600
+abichromatogram tests/A_forward.ab1 -o highlighted.svg --highlight 620-680,820-860
 ```
 
 #### Batch hotspot mutation screening
@@ -162,4 +163,3 @@ This library is licensed under the MIT License - see the [LICENSE](LICENSE) file
 This Nim implementation is based on:
 - Co-authored with [Claude code](CLAUDE.md)
 - Inspired by Python implementation: [abifpy](https://github.com/bow/abifpy) and a Perl implementation: [Bio::Trace::ABIF](https://metacpan.org/pod/Bio::Trace::ABIF) from CPAN
-
