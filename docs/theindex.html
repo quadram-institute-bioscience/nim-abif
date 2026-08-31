@@ -74,6 +74,10 @@
 <li><a class="reference external"
           data-doc-search-tag="aligner: proc defaultAlignConfig(): AlignConfig" href="aligner.html#defaultAlignConfig">aligner: proc defaultAlignConfig(): AlignConfig</a></li>
           </ul></dd>
+<dt><a name="DefaultHighlightFill" href="#DefaultHighlightFill"><span>DefaultHighlightFill:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abichromatogram: const DefaultHighlightFill" href="abichromatogram.html#DefaultHighlightFill">abichromatogram: const DefaultHighlightFill</a></li>
+          </ul></dd>
 <dt><a name="DirectoryEntry" href="#DirectoryEntry"><span>DirectoryEntry:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abif: object DirectoryEntry" href="abif.html#DirectoryEntry">abif: object DirectoryEntry</a></li>
@@ -214,6 +218,10 @@
 <li><a class="reference external"
           data-doc-search-tag="abichromatogram: proc getTraceData(trace: ABIFTrace; debug: bool = false): TraceData" href="abichromatogram.html#getTraceData%2CABIFTrace%2Cbool">abichromatogram: proc getTraceData(trace: ABIFTrace; debug: bool = false): TraceData</a></li>
           </ul></dd>
+<dt><a name="HighlightRegion" href="#HighlightRegion"><span>HighlightRegion:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abichromatogram: object HighlightRegion" href="abichromatogram.html#HighlightRegion">abichromatogram: object HighlightRegion</a></li>
+          </ul></dd>
 <dt><a name="isAmbiguousBaseCompatible" href="#isAmbiguousBaseCompatible"><span>isAmbiguousBaseCompatible:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="aligner: proc isAmbiguousBaseCompatible(ambiguousBase: char; refBase: char): bool" href="aligner.html#isAmbiguousBaseCompatible%2Cchar%2Cchar">aligner: proc isAmbiguousBaseCompatible(ambiguousBase: char; refBase: char): bool</a></li>
@@ -270,6 +278,12 @@
 <li><a class="reference external"
           data-doc-search-tag="abif: proc newABIFTrace(filename: string; trimming: bool = false): ABIFTrace" href="abif.html#newABIFTrace%2Cstring%2Cbool">abif: proc newABIFTrace(filename: string; trimming: bool = false): ABIFTrace</a></li>
           </ul></dd>
+<dt><a name="newHighlightRegion" href="#newHighlightRegion"><span>newHighlightRegion:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abichromatogram: proc newHighlightRegion(startPos, endPos: int; fill: string = DefaultHighlightFill;
+                   label: string = &quot;&quot;): HighlightRegion" href="abichromatogram.html#newHighlightRegion%2Cint%2Cint%2Cstring%2Cstring">abichromatogram: proc newHighlightRegion(startPos, endPos: int; fill: string = DefaultHighlightFill;
+                   label: string = &quot;&quot;): HighlightRegion</a></li>
+          </ul></dd>
 <dt><a name="parseCommandLine" href="#parseCommandLine"><span>parseCommandLine:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abi2fq: proc parseCommandLine(): Config" href="abi2fq.html#parseCommandLine">abi2fq: proc parseCommandLine(): Config</a></li>
@@ -290,9 +304,11 @@
 <li><a class="reference external"
           data-doc-search-tag="abichromatogram: proc renderChromatogramSvg(data: TraceData; sampleName: string; width: int = 1200;
                       height: int = 600; showBaseCalls: bool = true;
-                      startPos: int = 0; endPos: int = -1; downsample: int = 1): string" href="abichromatogram.html#renderChromatogramSvg%2CTraceData%2Cstring%2Cint%2Cint%2Cbool%2Cint%2Cint%2Cint">abichromatogram: proc renderChromatogramSvg(data: TraceData; sampleName: string; width: int = 1200;
+                      startPos: int = 0; endPos: int = -1; downsample: int = 1;
+                      highlights: seq[HighlightRegion] = @[]): string" href="abichromatogram.html#renderChromatogramSvg%2CTraceData%2Cstring%2Cint%2Cint%2Cbool%2Cint%2Cint%2Cint%2Cseq%5BHighlightRegion%5D">abichromatogram: proc renderChromatogramSvg(data: TraceData; sampleName: string; width: int = 1200;
                       height: int = 600; showBaseCalls: bool = true;
-                      startPos: int = 0; endPos: int = -1; downsample: int = 1): string</a></li>
+                      startPos: int = 0; endPos: int = -1; downsample: int = 1;
+                      highlights: seq[HighlightRegion] = @[]): string</a></li>
           </ul></dd>
 <dt><a name="revcompl" href="#revcompl"><span>revcompl:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -374,7 +390,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-28 18:32:54 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-31 15:49:40 UTC</small>
       </div>
     </div>
   </div>

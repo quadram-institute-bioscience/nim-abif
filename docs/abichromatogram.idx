@@ -1,10 +1,13 @@
 nimTitle	abichromatogram	abichromatogram.html	module src/abichromatogram		0
-nim	A	abichromatogram.html#A	Channel.A		44
-nim	C	abichromatogram.html#C	Channel.C		44
-nim	G	abichromatogram.html#G	Channel.G		44
-nim	T	abichromatogram.html#T	Channel.T		44
-nim	Channel	abichromatogram.html#Channel	enum Channel		44
-nim	TraceDataPoint	abichromatogram.html#TraceDataPoint	object TraceDataPoint		48
-nim	TraceData	abichromatogram.html#TraceData	object TraceData		53
-nim	getTraceData	abichromatogram.html#getTraceData,ABIFTrace,bool	proc getTraceData(trace: ABIFTrace; debug: bool = false): TraceData		63
-nim	renderChromatogramSvg	abichromatogram.html#renderChromatogramSvg,TraceData,string,int,int,bool,int,int,int	proc renderChromatogramSvg(data: TraceData; sampleName: string; width: int = 1200;\n                      height: int = 600; showBaseCalls: bool = true;\n                      startPos: int = 0; endPos: int = -1; downsample: int = 1): string		290
+nim	DefaultHighlightFill	abichromatogram.html#DefaultHighlightFill	const DefaultHighlightFill		44
+nim	A	abichromatogram.html#A	Channel.A		47
+nim	C	abichromatogram.html#C	Channel.C		47
+nim	G	abichromatogram.html#G	Channel.G		47
+nim	T	abichromatogram.html#T	Channel.T		47
+nim	Channel	abichromatogram.html#Channel	enum Channel		47
+nim	TraceDataPoint	abichromatogram.html#TraceDataPoint	object TraceDataPoint		51
+nim	TraceData	abichromatogram.html#TraceData	object TraceData		56
+nim	HighlightRegion	abichromatogram.html#HighlightRegion	object HighlightRegion		65
+nim	newHighlightRegion	abichromatogram.html#newHighlightRegion,int,int,string,string	proc newHighlightRegion(startPos, endPos: int; fill: string = DefaultHighlightFill;\n                   label: string = ""): HighlightRegion		72
+nim	getTraceData	abichromatogram.html#getTraceData,ABIFTrace,bool	proc getTraceData(trace: ABIFTrace; debug: bool = false): TraceData		79
+nim	renderChromatogramSvg	abichromatogram.html#renderChromatogramSvg,TraceData,string,int,int,bool,int,int,int,seq[HighlightRegion]	proc renderChromatogramSvg(data: TraceData; sampleName: string; width: int = 1200;\n                      height: int = 600; showBaseCalls: bool = true;\n                      startPos: int = 0; endPos: int = -1; downsample: int = 1;\n                      highlights: seq[HighlightRegion] = @[]): string		306
