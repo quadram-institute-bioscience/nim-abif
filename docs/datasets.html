@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="https://www.w3.org/1999/xhtml" xml:lang="en" lang="en" data-theme="auto">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validation datasets</title>
+
+  <link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.0.8">
+  <style>
+   .project-container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 20px 34px;
+   }
+   .dataset-list {
+    display: grid;
+    gap: 16px;
+    margin-top: 24px;
+   }
+   .dataset-link {
+    background-color: var(--secondary-background);
+    border: 1px solid var(--third-background);
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    color: var(--text);
+    display: block;
+    padding: 18px;
+    text-decoration: none;
+   }
+   .dataset-link:link,
+   .dataset-link:visited,
+   .dataset-link:hover,
+   .dataset-link:focus,
+   .dataset-link:active,
+   .dataset-link * {
+    text-decoration: none;
+   }
+   .dataset-link:hover {
+    border-color: var(--anchor);
+   }
+   .dataset-link strong {
+    color: var(--strong);
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+   }
+   .dataset-link span {
+    display: block;
+   }
+   @media (max-width: 720px) {
+    .project-container {
+     padding: 20px 14px 28px;
+    }
+   }
+  </style>
+
+  <script type="text/javascript" src="dochack.js?v=2.0.8"></script>
+ </head>
+ <body>
+  <div class="document">
+   <div class="container">
+    <div class="row">
+     <div class="three columns">
+      <div class="theme-select-wrapper">
+       <label for="theme-select">Theme:&nbsp;</label>
+       <select id="theme-select" onchange="setTheme(this.value)">
+        <option value="auto">Match OS</option>
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+       </select>
+      </div>
+     </div>
+     <div class="nine columns">
+      <div class="project-container">
+       <h1 class="title">Validation datasets</h1>
+       <p>
+        This page lists datasets used to test the <code>nim-abif</code> suite.
+        These datasets contain real sequencing traces and expected results.
+        They help check parsing, conversion, alignment, reporting, and
+        regression behavior.
+       </p>
+
+       <div class="dataset-list">
+        <a class="dataset-link" href="dataset-5865470.html">
+         <strong>Dataset 5865470</strong>
+         <span>Sanger AB1 traces from the SangeR paper, used to test hotspot screening with <code>abiscreen</code>.</span>
+        </a>
+        <a class="dataset-link" href="dataset-4968940.html">
+         <strong>Dataset 4968940</strong>
+         <span>AB1 traces from Zenodo record 4968940, used by the test suite for trace parsing and command-line behavior.</span>
+        </a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>
