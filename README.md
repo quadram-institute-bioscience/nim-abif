@@ -161,5 +161,5 @@ This library is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 This Nim implementation is based on:
-- Co-authored with [Claude code](CLAUDE.md)
-- Inspired by Python implementation: [abifpy](https://github.com/bow/abifpy) and a Perl implementation: [Bio::Trace::ABIF](https://metacpan.org/pod/Bio::Trace::ABIF) from CPAN
+- Inspired by the Perl implementation: [Bio::Trace::ABIF](https://metacpan.org/pod/Bio::Trace::ABIF) and my own [FASTX::Abi](https://metacpan.org/pod/FASTX::Abi) from CPAN
+- Co-authored with [Claude code](CLAUDE.md) and OpenCode using mixed models, mainly DeepSeek v4 (Light and Pro)
