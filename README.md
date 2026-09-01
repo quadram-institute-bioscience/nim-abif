@@ -7,7 +7,7 @@
 [![Conda Platform](https://img.shields.io/conda/p/bioconda/nim-abif)](https://bioconda.github.io/recipes/nim-abif/README.html)
 
 
-A Nim library to parse [ABIF](chromatograms.md) (Applied Biosystems Information Format)
+A Nim library to parse [ABIF](docs/chromatogram-specs.md) (Applied Biosystems Information Format)
 files from DNA sequencing machines, commonly used in Sanger capillary sequencing.
 
 - [**API reference**](https://quadram-institute-bioscience.github.io/nim-abif/)
