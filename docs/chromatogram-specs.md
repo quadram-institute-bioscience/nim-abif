@@ -75,7 +75,7 @@ All integers in the format are stored in big-endian byte order (high-order byte 
 
 # Chromatogram Generation
 
-The abif library now includes functionality to generate SVG chromatograms from ABIF trace files. The chromatogram visualizer renders trace data with professional features like color-coding, base calls, and position markers.
+The abif library includes functionality to generate SVG chromatograms and portable interactive HTML viewers from ABIF trace files. The chromatogram visualizer renders trace data with color-coding, base calls, highlighted regions, and position markers.
 
 ## Usage
 
@@ -88,11 +88,13 @@ Where:
 
 Options:
 - `-o, --output FILE` - Output SVG file (default: chromatogram.svg)
+- `--html FILE` - Output a portable HTML report with embedded trace data
 - `-w, --width WIDTH` - SVG width in pixels (default: 1200)
-- `-h, --height HEIGHT` - SVG height in pixels (default: 600)
+- `--height HEIGHT` - SVG height in pixels (default: 600)
 - `-s, --start POS` - Start position for region display (default: 0)
 - `-e, --end POS` - End position for region display (default: whole trace)
 - `-d, --downsample FACTOR` - Downsample factor to reduce data density (default: 1)
+- `--highlight START-END` - Highlight a trace scan region; repeat the option or comma-separate ranges
 - `--hide-bases` - Hide base calls
 - `--debug` - Show debug information
 
@@ -109,8 +111,10 @@ The chromatogram visualization shows:
    - G: black
    - T: red
 5. Position markers and grid lines for navigation
-6. Trace channel legend 
-7. Base count summary
+6. Optional highlighted trace scan regions
+7. Trace channel legend
+8. Base count summary
+9. Interactive HTML navigation with zooming, scrolling, metadata, and sequence-to-trace recentering
 
 ## Technical Implementation
 
@@ -135,14 +139,24 @@ With downsampling for smoother visualization:
 abichromatogram tests/3730.ab1 -o output.svg -d 5
 ```
 
+Portable HTML viewer:
+```
+abichromatogram tests/3730.ab1 --html trace.html
+```
+
 Viewing a specific region:
 ```
 abichromatogram tests/3730.ab1 -o region.svg -s 500 -e 1000
 ```
 
+Highlighting one or more scan regions:
+```
+abichromatogram tests/3730.ab1 -o highlighted.svg --highlight 620-680,820-860
+```
+
 Changing dimensions:
 ```
-abichromatogram tests/3730.ab1 -w 1600 -h 800
+abichromatogram tests/3730.ab1 -w 1600 --height 800
 ```
 
 Debugging mode:
@@ -162,11 +176,8 @@ The chromatogram generator is integrated into the abif library build system:
 
 Potential future improvements:
 
-1. Zooming capability to focus on specific regions
-2. Quality score visualization
-3. Interactive web-based visualization
-4. Export as PNG/PDF
-5. Additional annotations and metrics
-6. Region highlighting for areas of interest
+1. Export as PNG/PDF
+2. Additional annotations and metrics
+3. Richer quality-score overlays
 
 > Made by Claude Code (Sonnet 3.7), summarising the original ABIF format documentation

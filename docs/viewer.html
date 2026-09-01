@@ -1,0 +1,1296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AB1 chromatogram viewer</title>
+<style>
+:root{
+  --bg:#101414;
+  --panel:#181c1b;
+  --panel-2:#202625;
+  --panel-3:#131817;
+  --line:#2f3836;
+  --line-strong:#46504d;
+  --text:#e9efec;
+  --muted:#8b9893;
+  --amber:#dfa84b;
+  --bad:#e0636f;
+  --A:#58b875;
+  --C:#4b91d1;
+  --G:#d9dfdd;
+  --T:#d95662;
+  --trace-pane-height:34%;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  overflow:hidden;
+}
+body.resizing{cursor:row-resize;user-select:none}
+body.dragging #drop-zone{border-color:var(--amber);background:rgba(223,168,75,.08)}
+.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace}
+#app{
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  min-width:0;
+}
+header{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:0 18px;
+  height:54px;
+  flex-shrink:0;
+  background:var(--panel);
+  border-bottom:1px solid var(--line);
+  min-width:0;
+}
+.filename{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:120px;
+  max-width:min(36vw,440px);
+  font-size:14px;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.filename .dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  flex:0 0 auto;
+  background:var(--muted);
+}
+#app.has-trace .filename .dot{background:var(--A)}
+.stat{
+  font-size:12.5px;
+  color:var(--muted);
+  white-space:nowrap;
+}
+.stat b{color:var(--text);font-weight:600}
+.legend{
+  display:flex;
+  gap:10px;
+  margin-left:auto;
+}
+.legend span{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:12px;
+  color:var(--muted);
+}
+.legend i{
+  width:9px;
+  height:9px;
+  border-radius:2px;
+  display:inline-block;
+}
+.zoom-wrap{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.zoom-wrap label{
+  font-size:11.5px;
+  color:var(--muted);
+}
+input[type=range]{
+  -webkit-appearance:none;
+  width:116px;
+  height:2px;
+  background:var(--line-strong);
+  border-radius:2px;
+  outline:none;
+}
+input[type=range]:disabled{opacity:.42}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:var(--amber);
+  cursor:pointer;
+  border:2px solid var(--bg);
+}
+input[type=range]::-moz-range-thumb{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:var(--amber);
+  cursor:pointer;
+  border:2px solid var(--bg);
+}
+.icon-btn,.text-btn{
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  color:var(--text);
+  height:32px;
+  border-radius:6px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:inherit;
+  transition:border-color .15s,color .15s,background .15s,opacity .15s;
+}
+.icon-btn{
+  width:32px;
+  flex:0 0 auto;
+  font-size:13px;
+  font-weight:700;
+}
+.text-btn{
+  padding:0 11px;
+  font-size:11.5px;
+}
+.icon-btn:hover,.text-btn:hover{border-color:var(--muted)}
+.icon-btn:disabled,.text-btn:disabled{cursor:default;opacity:.5}
+.icon-btn.active{border-color:var(--amber);color:var(--amber)}
+#file-input{display:none}
+#workspace{
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  min-height:0;
+}
+#viewer-region{
+  flex:0 0 var(--trace-pane-height);
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:160px;
+  padding:12px 0 0;
+  position:relative;
+  background:var(--bg);
+}
+#scroller{
+  overflow-x:auto;
+  overflow-y:hidden;
+  flex:1;
+  min-height:0;
+  position:relative;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  opacity:.3;
+  pointer-events:none;
+}
+#app.has-trace #scroller{
+  opacity:1;
+  pointer-events:auto;
+}
+#scroller::-webkit-scrollbar{height:9px}
+#scroller::-webkit-scrollbar-track{background:var(--panel)}
+#scroller::-webkit-scrollbar-thumb{background:#48534f;border-radius:5px}
+#track{
+  position:relative;
+  height:100%;
+}
+#ruler{
+  position:sticky;
+  top:0;
+  height:22px;
+  display:block;
+  z-index:2;
+}
+#trace-canvas{display:block}
+#bases-row{
+  position:relative;
+  height:26px;
+}
+.base-cell{
+  appearance:none;
+  background:transparent;
+  border:0;
+  border-top:1px solid transparent;
+  padding:0;
+  font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  position:absolute;
+  top:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:26px;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  transform:translateX(-50%);
+}
+.base-cell.selected{
+  background:rgba(223,168,75,.16);
+  border-top-color:var(--amber);
+}
+#crosshair,#selection-marker{
+  position:absolute;
+  top:22px;
+  bottom:26px;
+  width:1px;
+  pointer-events:none;
+  display:none;
+}
+#crosshair{background:rgba(223,168,75,.5)}
+#selection-marker{
+  background:var(--amber);
+  box-shadow:0 0 0 1px rgba(223,168,75,.28);
+}
+#tooltip{
+  position:absolute;
+  top:2px;
+  transform:translateX(-50%);
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:3px 7px;
+  font-size:11px;
+  white-space:nowrap;
+  pointer-events:none;
+  display:none;
+  z-index:4;
+}
+.viewport-status{
+  min-height:25px;
+  padding:6px 18px 7px;
+  font-size:11px;
+  color:var(--muted);
+  flex-shrink:0;
+}
+#drop-zone{
+  position:absolute;
+  inset:24px 18px 48px;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px dashed var(--line-strong);
+  background:rgba(24,28,27,.9);
+  transition:border-color .15s,background .15s;
+}
+#app.has-trace #drop-zone{display:none}
+.drop-inner{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  text-align:center;
+  padding:22px;
+}
+.drop-title{
+  font-size:14px;
+  font-weight:700;
+}
+.drop-detail{
+  color:var(--muted);
+  font-size:12px;
+  max-width:360px;
+  line-height:1.5;
+}
+.drop-error{
+  display:none;
+  color:var(--bad);
+  font-size:12px;
+  max-width:460px;
+  line-height:1.45;
+}
+#drop-zone.error .drop-error{display:block}
+#drop-zone.error .drop-detail{display:none}
+#splitter{
+  height:12px;
+  flex:0 0 12px;
+  cursor:row-resize;
+  background:var(--panel);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  outline:none;
+}
+#splitter::before{
+  content:"";
+  width:48px;
+  height:3px;
+  border-radius:3px;
+  background:var(--line-strong);
+}
+#splitter:hover::before,#splitter:focus-visible::before{background:var(--amber)}
+#seq-panel{
+  flex:1 1 auto;
+  background:var(--panel);
+  padding:12px 18px 16px;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:160px;
+}
+.seq-head{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:8px;
+  min-width:0;
+}
+.seq-head h2{
+  font-size:12px;
+  font-weight:700;
+  margin:0;
+  color:var(--muted);
+  font-family:inherit;
+  white-space:nowrap;
+}
+.seq-head .count{color:var(--text);font-weight:700}
+#seq-mini-status{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--muted);
+  font-size:11px;
+}
+#copy-btn{margin-left:auto;flex:0 0 auto}
+#seq-text{
+  flex:1;
+  min-height:0;
+  font-size:13px;
+  line-height:1.9;
+  letter-spacing:0;
+  overflow:auto;
+  user-select:text;
+  word-break:break-all;
+  padding:4px 0 8px;
+  color:var(--muted);
+}
+#app.has-trace #seq-text{color:var(--text)}
+.seq-base{
+  display:inline-block;
+  min-width:1ch;
+  border-radius:2px;
+  cursor:pointer;
+  text-align:center;
+  border-bottom:2px solid transparent;
+}
+.seq-base:hover{background:rgba(233,239,236,.1)}
+.seq-base.in-view{
+  background:rgba(223,168,75,.19);
+  border-bottom-color:rgba(223,168,75,.72);
+}
+.seq-base.selected-base{
+  background:var(--amber);
+  color:#151614;
+  border-bottom-color:var(--amber);
+  font-weight:700;
+}
+.base-A{color:var(--A)}
+.base-C{color:var(--C)}
+.base-G{color:var(--G)}
+.base-T{color:var(--T)}
+.base-other{color:var(--muted)}
+#drawer{
+  position:fixed;
+  top:0;
+  right:0;
+  height:100%;
+  width:320px;
+  background:var(--panel);
+  border-left:1px solid var(--line);
+  transform:translateX(100%);
+  transition:transform .22s ease;
+  z-index:10;
+  padding:18px;
+  overflow-y:auto;
+}
+#drawer.open{transform:translateX(0)}
+#drawer h3{
+  font-size:13px;
+  margin:0 0 16px;
+  color:var(--text);
+}
+.meta-row{
+  padding:9px 0;
+  border-bottom:1px solid var(--line);
+}
+.meta-row .k{
+  font-size:10.5px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.meta-row .v{
+  font-size:13px;
+  margin-top:3px;
+  overflow-wrap:anywhere;
+}
+#scrim{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.35);
+  z-index:9;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s;
+}
+#scrim.open{
+  opacity:1;
+  pointer-events:auto;
+}
+@media (max-width:760px){
+  header{
+    gap:10px;
+    padding:0 12px;
+  }
+  .filename{max-width:34vw}
+  .legend,.stat{display:none}
+  input[type=range]{width:86px}
+  #seq-mini-status{display:none}
+  #drawer{width:min(320px,88vw)}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="filename"><span class="dot" aria-hidden="true"></span><span id="file-name">No file loaded</span></div>
+    <div class="stat"><b id="stat-len">0</b> bp</div>
+    <div class="stat">Q avg <b id="stat-q">-</b></div>
+    <div class="legend">
+      <span><i style="background:var(--A)"></i>A</span>
+      <span><i style="background:var(--C)"></i>C</span>
+      <span><i style="background:var(--G)"></i>G</span>
+      <span><i style="background:var(--T)"></i>T</span>
+    </div>
+    <button class="text-btn" id="open-btn" type="button">Open AB1</button>
+    <input type="file" id="file-input" accept=".ab1,.abi,.fsa,application/octet-stream">
+    <div class="zoom-wrap">
+      <label for="zoom">Zoom</label>
+      <input type="range" id="zoom" min="0.18" max="3" step="0.02" value="0.75" disabled>
+    </div>
+    <button class="icon-btn" id="meta-toggle" type="button" title="Metadata" aria-label="Metadata" disabled>i</button>
+  </header>
+
+  <main id="workspace">
+    <section id="viewer-region" aria-label="Chromatogram">
+      <div id="drop-zone">
+        <div class="drop-inner">
+          <div class="drop-title">Drop an AB1 file</div>
+          <div class="drop-detail">The file stays in this browser. Open a chromatogram to inspect traces, sequence calls, qualities, and metadata.</div>
+          <div class="drop-error" id="drop-error"></div>
+          <button class="text-btn" id="drop-open-btn" type="button">Open AB1 file</button>
+        </div>
+      </div>
+      <div id="scroller">
+        <div id="track">
+          <canvas id="ruler"></canvas>
+          <canvas id="trace-canvas"></canvas>
+          <div id="bases-row"></div>
+          <div id="selection-marker"></div>
+          <div id="crosshair"></div>
+          <div id="tooltip"></div>
+        </div>
+      </div>
+      <div class="viewport-status" id="viewport-status">No chromatogram loaded</div>
+    </section>
+
+    <div id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize trace panel" tabindex="0"></div>
+
+    <section id="seq-panel" aria-label="Sequence">
+      <div class="seq-head">
+        <h2>SEQUENCE | <span class="count" id="seq-count">0</span> bp</h2>
+        <div id="seq-mini-status">Waiting for an AB1 file</div>
+        <button class="text-btn" id="copy-btn" type="button" disabled>Copy sequence</button>
+      </div>
+      <div id="seq-text" class="mono"></div>
+    </section>
+  </main>
+</div>
+
+<div id="scrim"></div>
+<aside id="drawer" aria-label="Trace metadata">
+  <h3>Trace metadata</h3>
+  <div id="meta-rows"></div>
+</aside>
+
+<script>
+const BASES = ['A','C','G','T'];
+const COLORS = { A:'#58b875', C:'#4b91d1', G:'#d9dfdd', T:'#d95662' };
+const RULER_HEIGHT = 22;
+const BASE_ROW_HEIGHT = 26;
+const ABIF_TYPES = {
+  BYTE: 1,
+  CHAR: 2,
+  WORD: 3,
+  SHORT: 4,
+  LONG: 5,
+  RATIONAL: 6,
+  FLOAT: 7,
+  DOUBLE: 8,
+  DATE: 10,
+  TIME: 11,
+  PSTRING: 18,
+  CSTRING: 19
+};
+
+let currentTrace = null;
+let sequence = [];
+let quality = [];
+let peaks = [];
+let traces = { A: [], C: [], G: [], T: [] };
+let traceScanLength = 1;
+let pxPerScan = 0.75;
+let selectedBaseIndex = null;
+let scrollRaf = null;
+let baseCells = [];
+const sequenceEls = [];
+
+const app = document.getElementById('app');
+const workspace = document.getElementById('workspace');
+const viewerRegion = document.getElementById('viewer-region');
+const splitter = document.getElementById('splitter');
+const scroller = document.getElementById('scroller');
+const track = document.getElementById('track');
+const rulerCv = document.getElementById('ruler');
+const traceCv = document.getElementById('trace-canvas');
+const basesRow = document.getElementById('bases-row');
+const crosshair = document.getElementById('crosshair');
+const selectionMarker = document.getElementById('selection-marker');
+const tooltip = document.getElementById('tooltip');
+const seqText = document.getElementById('seq-text');
+const viewportStatus = document.getElementById('viewport-status');
+const seqMiniStatus = document.getElementById('seq-mini-status');
+const zoomInput = document.getElementById('zoom');
+const fileInput = document.getElementById('file-input');
+const dropZone = document.getElementById('drop-zone');
+const dropError = document.getElementById('drop-error');
+const metaToggle = document.getElementById('meta-toggle');
+const copyBtn = document.getElementById('copy-btn');
+
+function clamp(value, min, max){
+  return Math.min(max, Math.max(min, value));
+}
+
+function readAscii(bytes, offset, length){
+  let out = '';
+  const end = Math.min(bytes.length, offset + Math.max(0, length));
+  for(let i = offset; i < end; i++) out += String.fromCharCode(bytes[i]);
+  return out.replace(/\0+$/g, '');
+}
+
+function parseAbif(buffer, fileName){
+  const bytes = new Uint8Array(buffer);
+  const view = new DataView(buffer);
+  if(bytes.length < 34 || readAscii(bytes, 0, 4) !== 'ABIF'){
+    throw new Error('This does not look like an ABIF/AB1 file.');
+  }
+
+  const version = view.getInt16(4, false);
+  const numElements = view.getUint32(18, false);
+  const directoryOffset = view.getUint32(26, false);
+  if(directoryOffset + numElements * 28 > bytes.length){
+    throw new Error('The ABIF directory points beyond the end of the file.');
+  }
+
+  const tags = new Map();
+  for(let i = 0; i < numElements; i++){
+    const entryOffset = directoryOffset + i * 28;
+    const name = readAscii(bytes, entryOffset, 4);
+    const number = view.getInt32(entryOffset + 4, false);
+    const entry = {
+      key: `${name}${number}`,
+      name,
+      number,
+      type: view.getInt16(entryOffset + 8, false),
+      elemSize: view.getInt16(entryOffset + 10, false),
+      elemNum: view.getUint32(entryOffset + 12, false),
+      dataSize: view.getUint32(entryOffset + 16, false),
+      dataOffset: view.getUint32(entryOffset + 20, false),
+      dataHandle: view.getUint32(entryOffset + 24, false),
+      entryOffset
+    };
+    tags.set(entry.key, entry);
+  }
+
+  function entryData(entry){
+    const offset = entry.dataSize <= 4 ? entry.entryOffset + 20 : entry.dataOffset;
+    if(offset < 0 || offset + entry.dataSize > bytes.length){
+      throw new Error(`Tag ${entry.key} points outside the file.`);
+    }
+    return { offset, size: entry.dataSize };
+  }
+
+  function readCString(offset, size){
+    let out = '';
+    const end = Math.min(bytes.length, offset + size);
+    for(let i = offset; i < end; i++){
+      if(bytes[i] === 0) break;
+      out += String.fromCharCode(bytes[i]);
+    }
+    return out;
+  }
+
+  function readPString(offset, size){
+    if(size <= 0) return '';
+    const length = Math.min(bytes[offset], Math.max(0, size - 1));
+    return readAscii(bytes, offset + 1, length);
+  }
+
+  function readArray(entry, getter, itemSize){
+    const data = entryData(entry);
+    const count = Math.min(entry.elemNum, Math.floor(data.size / itemSize));
+    const values = new Array(count);
+    for(let i = 0; i < count; i++) values[i] = getter(data.offset + i * itemSize);
+    return values;
+  }
+
+  function tagValue(key){
+    const entry = tags.get(key);
+    if(!entry) return null;
+    const data = entryData(entry);
+    switch(entry.type){
+      case ABIF_TYPES.BYTE:
+        return Array.from(bytes.slice(data.offset, data.offset + Math.min(entry.elemNum, data.size)));
+      case ABIF_TYPES.CHAR:
+        return readAscii(bytes, data.offset, data.size).trimEnd();
+      case ABIF_TYPES.WORD:
+        return readArray(entry, offset => view.getUint16(offset, false), 2);
+      case ABIF_TYPES.SHORT:
+        return readArray(entry, offset => view.getInt16(offset, false), 2);
+      case ABIF_TYPES.LONG:
+        return readArray(entry, offset => view.getInt32(offset, false), 4);
+      case ABIF_TYPES.FLOAT:
+        return readArray(entry, offset => view.getFloat32(offset, false), 4);
+      case ABIF_TYPES.DOUBLE:
+        return readArray(entry, offset => view.getFloat64(offset, false), 8);
+      case ABIF_TYPES.DATE: {
+        if(data.size < 4) return '';
+        const year = view.getUint16(data.offset, false);
+        const month = String(bytes[data.offset + 2]).padStart(2, '0');
+        const day = String(bytes[data.offset + 3]).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+      case ABIF_TYPES.TIME: {
+        if(data.size < 4) return '';
+        const hour = String(bytes[data.offset]).padStart(2, '0');
+        const minute = String(bytes[data.offset + 1]).padStart(2, '0');
+        const second = String(bytes[data.offset + 2]).padStart(2, '0');
+        const hundredths = String(bytes[data.offset + 3]).padStart(2, '0');
+        return `${hour}:${minute}:${second}.${hundredths}`;
+      }
+      case ABIF_TYPES.PSTRING:
+        return readPString(data.offset, data.size).trimEnd();
+      case ABIF_TYPES.CSTRING:
+        return readCString(data.offset, data.size).trimEnd();
+      default:
+        return readAscii(bytes, data.offset, data.size).trimEnd();
+    }
+  }
+
+  function stringTag(key){
+    const value = tagValue(key);
+    if(value == null) return '';
+    if(Array.isArray(value)) return value.join(', ');
+    return String(value).trim();
+  }
+
+  function numericTag(key){
+    const value = tagValue(key);
+    if(value == null) return [];
+    if(Array.isArray(value)) return value.map(Number).filter(Number.isFinite);
+    return Array.from(String(value), char => char.charCodeAt(0));
+  }
+
+  function byteTag(key){
+    const value = tagValue(key);
+    if(value == null) return [];
+    if(Array.isArray(value)) return value.map(v => Number(v) & 255);
+    return Array.from(String(value), char => char.charCodeAt(0) & 255);
+  }
+
+  function pushMetadata(rows, label, value){
+    const text = value == null ? '' : String(value).trim();
+    if(text.length > 0) rows.push([label, text]);
+  }
+
+  function combinedDateTime(dateKey, timeKey){
+    const date = stringTag(dateKey);
+    const time = stringTag(timeKey);
+    return [date, time].filter(Boolean).join(' ');
+  }
+
+  const sequenceText = stringTag('PBAS2').toUpperCase().replace(/[^A-Z.-]/g, '');
+  const qualities = byteTag('PCON2');
+  const calledPeaks = numericTag('PLOC2');
+  if(sequenceText.length === 0) throw new Error('No PBAS2 sequence calls were found.');
+  if(calledPeaks.length === 0) throw new Error('No PLOC2 peak locations were found.');
+
+  const processedChannelNames = ['DATA9','DATA10','DATA11','DATA12'];
+  const rawChannelNames = ['DATA1','DATA2','DATA3','DATA4'];
+  let channelNames = tags.has('DATA9') ? processedChannelNames : rawChannelNames;
+  let rawChannels = channelNames.map(numericTag);
+  if(rawChannels.every(channel => channel.length === 0) && channelNames === processedChannelNames){
+    channelNames = rawChannelNames;
+    rawChannels = channelNames.map(numericTag);
+  }
+  if(rawChannels.every(channel => channel.length === 0)){
+    throw new Error('No DATA1-DATA4 or DATA9-DATA12 trace channels were found.');
+  }
+
+  const channelOrderText = stringTag('FWO_1').toUpperCase() || 'ACGT';
+  const fallbackOrder = 'ACGT';
+  const maxLen = rawChannels.reduce((best, channel) => Math.max(best, channel.length), 0);
+  const channelMap = {
+    A: new Array(maxLen).fill(0),
+    C: new Array(maxLen).fill(0),
+    G: new Array(maxLen).fill(0),
+    T: new Array(maxLen).fill(0)
+  };
+
+  for(let i = 0; i < rawChannels.length; i++){
+    const base = (channelOrderText[i] || fallbackOrder[i] || '').toUpperCase();
+    if(!Object.prototype.hasOwnProperty.call(channelMap, base)) continue;
+    const source = rawChannels[i];
+    let maxValue = 1;
+    for(const value of source) if(value > maxValue) maxValue = value;
+    for(let j = 0; j < source.length; j++){
+      const value = source[j];
+      channelMap[base][j] = value > 0 ? Math.round((value / maxValue) * 1000) : 0;
+    }
+  }
+
+  const sampleName = stringTag('SMPL1') || fileName.replace(/\.[^.]+$/, '');
+  const meanQuality = qualities.length === 0
+    ? 'n/a'
+    : String(Math.round(qualities.reduce((sum, value) => sum + value, 0) / qualities.length));
+  const channelSource = channelNames[0] === 'DATA9'
+    ? 'DATA9-DATA12 (processed)'
+    : 'DATA1-DATA4 (raw)';
+  const metadata = [];
+  pushMetadata(metadata, 'File', fileName);
+  pushMetadata(metadata, 'Sample name', sampleName);
+  pushMetadata(metadata, 'ABIF version', version);
+  pushMetadata(metadata, 'Instrument model', stringTag('MODL1'));
+  pushMetadata(metadata, 'Well', stringTag('TUBE1'));
+  pushMetadata(metadata, 'Dye set', stringTag('DySN1'));
+  pushMetadata(metadata, 'Polymer', stringTag('GTyp1'));
+  pushMetadata(metadata, 'Run started', combinedDateTime('RUND1', 'RUNT1'));
+  pushMetadata(metadata, 'Run finished', combinedDateTime('RUND4', 'RUNT4'));
+  pushMetadata(metadata, 'Base order (FWO_1)', channelOrderText);
+  pushMetadata(metadata, 'Trace channels', channelSource);
+  pushMetadata(metadata, 'Read length', `${sequenceText.length} bp`);
+  pushMetadata(metadata, 'Trace samples', maxLen);
+  pushMetadata(metadata, 'Mean quality (PCON2)', meanQuality);
+
+  return {
+    fileName,
+    sampleName,
+    abifVersion: version,
+    sequence: sequenceText,
+    qualities,
+    meanQuality,
+    peaks: calledPeaks,
+    baseOrder: channelOrderText,
+    channels: channelMap,
+    metadata,
+    traceStart: 0,
+    traceEnd: maxLen,
+    traceLen: maxLen,
+    traceStep: 1,
+    showBases: true,
+    highlights: []
+  };
+}
+
+function baseClass(base){
+  return BASES.includes(base) ? `base-${base}` : 'base-other';
+}
+
+function baseInRange(index){
+  if(!currentTrace) return false;
+  const peak = peaks[index];
+  return Number.isFinite(peak) && peak >= currentTrace.traceStart && peak < currentTrace.traceEnd;
+}
+
+function peakToX(index){
+  return (peaks[index] - currentTrace.traceStart) * pxPerScan;
+}
+
+function scanAtX(x){
+  return currentTrace.traceStart + x / pxPerScan;
+}
+
+function channelAtScan(base, scan){
+  const arr = traces[base] || [];
+  const idx = clamp(Math.round((scan - currentTrace.traceStart) / currentTrace.traceStep), 0, Math.max(0, arr.length - 1));
+  return arr[idx] || 0;
+}
+
+function nearestBaseIndex(scan){
+  let best = -1;
+  let bestDistance = Infinity;
+  for(let i = 0; i < peaks.length; i++){
+    if(!baseInRange(i)) continue;
+    const distance = Math.abs(peaks[i] - scan);
+    if(distance < bestDistance){
+      best = i;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
+function niceStep(raw){
+  if(raw <= 0) return 100;
+  const power = Math.pow(10, Math.floor(Math.log10(raw)));
+  const fraction = raw / power;
+  const nice = fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
+  return nice * power;
+}
+
+function setControlState(enabled){
+  zoomInput.disabled = !enabled;
+  metaToggle.disabled = !enabled;
+  copyBtn.disabled = !enabled;
+}
+
+function buildMetadata(){
+  const rows = document.getElementById('meta-rows');
+  const frag = document.createDocumentFragment();
+  const data = currentTrace ? currentTrace.metadata : [];
+  for(const [key, value] of data){
+    const row = document.createElement('div');
+    row.className = 'meta-row';
+    const k = document.createElement('div');
+    k.className = 'k';
+    k.textContent = key;
+    const v = document.createElement('div');
+    v.className = 'v mono';
+    v.textContent = value;
+    row.append(k, v);
+    frag.appendChild(row);
+  }
+  rows.replaceChildren(frag);
+}
+
+function buildSequencePanel(){
+  seqText.replaceChildren();
+  sequenceEls.length = 0;
+  if(!currentTrace) return;
+  const frag = document.createDocumentFragment();
+  for(let i = 0; i < sequence.length; i++){
+    const b = sequence[i].toUpperCase();
+    const el = document.createElement('span');
+    el.className = `seq-base ${baseClass(b)}`;
+    el.dataset.i = String(i);
+    el.textContent = b;
+    el.title = `${i + 1} ${b} Q${quality[i] ?? 0}`;
+    sequenceEls[i] = el;
+    frag.appendChild(el);
+  }
+  seqText.appendChild(frag);
+}
+
+function tracePaneLimits(){
+  const h = workspace.clientHeight;
+  return {
+    min: Math.min(220, Math.max(140, h * 0.22)),
+    max: Math.max(180, h - 170)
+  };
+}
+
+function setTracePaneHeight(nextHeight){
+  const limits = tracePaneLimits();
+  const height = clamp(nextHeight, limits.min, limits.max);
+  viewerRegion.style.flexBasis = `${height}px`;
+  splitter.setAttribute('aria-valuenow', String(Math.round(height)));
+  splitter.setAttribute('aria-valuemin', String(Math.round(limits.min)));
+  splitter.setAttribute('aria-valuemax', String(Math.round(limits.max)));
+  layout();
+}
+
+function layout(){
+  if(!currentTrace) return;
+  const width = Math.max(scroller.clientWidth, Math.ceil(traceScanLength * pxPerScan));
+  const traceHeight = Math.max(scroller.clientHeight - RULER_HEIGHT - BASE_ROW_HEIGHT, 60);
+  track.style.width = `${width}px`;
+  track.style.height = `${RULER_HEIGHT + traceHeight + BASE_ROW_HEIGHT}px`;
+
+  rulerCv.width = width;
+  rulerCv.height = RULER_HEIGHT;
+  rulerCv.style.width = `${width}px`;
+  rulerCv.style.height = `${RULER_HEIGHT}px`;
+
+  traceCv.width = width;
+  traceCv.height = traceHeight;
+  traceCv.style.width = `${width}px`;
+  traceCv.style.height = `${traceHeight}px`;
+
+  drawRuler();
+  drawTrace();
+  buildBasesRow();
+  updateHighlight();
+  updateSelectionMarker();
+}
+
+function drawRuler(){
+  const ctx = rulerCv.getContext('2d');
+  ctx.fillStyle = '#181c1b';
+  ctx.fillRect(0, 0, rulerCv.width, rulerCv.height);
+  ctx.strokeStyle = '#2f3836';
+  ctx.fillStyle = '#8b9893';
+  ctx.font = "11px ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace";
+  const step = niceStep(130 / pxPerScan);
+  const first = Math.ceil(currentTrace.traceStart / step) * step;
+  for(let scan = first; scan <= currentTrace.traceEnd; scan += step){
+    const x = (scan - currentTrace.traceStart) * pxPerScan;
+    ctx.beginPath();
+    ctx.moveTo(x + 0.5, 14);
+    ctx.lineTo(x + 0.5, RULER_HEIGHT);
+    ctx.stroke();
+    ctx.fillText(String(scan), x + 3, 12);
+  }
+}
+
+function drawTrace(){
+  const ctx = traceCv.getContext('2d');
+  const w = traceCv.width;
+  const h = traceCv.height;
+  const pad = 6;
+  const plotH = h - pad * 2;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#101414';
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.strokeStyle = 'rgba(47,56,54,.48)';
+  const gridStep = niceStep(100 / pxPerScan);
+  const firstGrid = Math.ceil(currentTrace.traceStart / gridStep) * gridStep;
+  for(let scan = firstGrid; scan <= currentTrace.traceEnd; scan += gridStep){
+    const x = (scan - currentTrace.traceStart) * pxPerScan;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+  }
+
+  for(const b of BASES){
+    const arr = traces[b] || [];
+    if(arr.length === 0) continue;
+    ctx.beginPath();
+    ctx.strokeStyle = COLORS[b];
+    ctx.lineWidth = 1.55;
+    for(let s = 0; s < arr.length; s++){
+      const x = s * currentTrace.traceStep * pxPerScan;
+      const y = h - pad - (arr[s] / 1000) * plotH;
+      if(s === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+}
+
+function buildBasesRow(){
+  basesRow.replaceChildren();
+  baseCells = [];
+  if(!currentTrace || !currentTrace.showBases) return;
+  const frag = document.createDocumentFragment();
+  for(let i = 0; i < sequence.length; i++){
+    if(!baseInRange(i)) continue;
+    const b = sequence[i].toUpperCase();
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'base-cell';
+    el.style.left = `${peakToX(i)}px`;
+    el.style.width = `${Math.max(12, Math.min(22, pxPerScan * 22))}px`;
+    el.style.color = COLORS[b] || '#8b9893';
+    el.textContent = pxPerScan >= 0.28 ? b : '';
+    el.dataset.i = String(i);
+    if(i === selectedBaseIndex) el.classList.add('selected');
+    baseCells[i] = el;
+    frag.appendChild(el);
+  }
+  basesRow.appendChild(frag);
+}
+
+function visibleScanRange(){
+  return [scanAtX(scroller.scrollLeft), scanAtX(scroller.scrollLeft + scroller.clientWidth)];
+}
+
+function visibleBaseRange(scanLo, scanHi){
+  let first = -1;
+  let last = -1;
+  for(let i = 0; i < peaks.length; i++){
+    if(peaks[i] >= scanLo && peaks[i] <= scanHi){
+      if(first < 0) first = i;
+      last = i;
+    }
+  }
+  return [first, last];
+}
+
+function updateSequenceHighlight(scanLo, scanHi){
+  for(let i = 0; i < sequenceEls.length; i++){
+    const inView = peaks[i] >= scanLo && peaks[i] <= scanHi;
+    sequenceEls[i].classList.toggle('in-view', inView);
+    sequenceEls[i].classList.toggle('selected-base', i === selectedBaseIndex);
+  }
+  for(let i = 0; i < baseCells.length; i++){
+    if(baseCells[i]) baseCells[i].classList.toggle('selected', i === selectedBaseIndex);
+  }
+}
+
+function updateHighlight(){
+  if(!currentTrace) return;
+  const [scanLo, scanHi] = visibleScanRange();
+  const [firstBase, lastBase] = visibleBaseRange(scanLo, scanHi);
+  updateSequenceHighlight(scanLo, scanHi);
+  const shown = firstBase < 0 ? 'no called bases' : `bases ${firstBase + 1}-${lastBase + 1}`;
+  const selectedText = selectedBaseIndex === null ? '' :
+    ` | selected ${selectedBaseIndex + 1} ${sequence[selectedBaseIndex]} Q${quality[selectedBaseIndex] ?? 0}`;
+  viewportStatus.textContent = `${shown} | scans ${Math.round(scanLo)}-${Math.round(scanHi)} of ${currentTrace.traceLen}${selectedText}`;
+  seqMiniStatus.textContent = `Visible ${shown}${selectedText}`;
+}
+
+function updateSelectionMarker(){
+  if(selectedBaseIndex === null || !baseInRange(selectedBaseIndex)){
+    selectionMarker.style.display = 'none';
+    return;
+  }
+  selectionMarker.style.display = 'block';
+  selectionMarker.style.left = `${peakToX(selectedBaseIndex)}px`;
+}
+
+function centerOnBase(index, behavior = 'smooth'){
+  if(!currentTrace) return;
+  selectedBaseIndex = index;
+  if(!baseInRange(index)){
+    updateHighlight();
+    updateSelectionMarker();
+    return;
+  }
+  const target = peakToX(index) - scroller.clientWidth / 2;
+  const maxScroll = Math.max(0, track.offsetWidth - scroller.clientWidth);
+  scroller.scrollTo({ left: clamp(target, 0, maxScroll), behavior });
+  updateSelectionMarker();
+  updateHighlight();
+}
+
+function resetViewerChrome(){
+  crosshair.style.display = 'none';
+  tooltip.style.display = 'none';
+  selectionMarker.style.display = 'none';
+  selectedBaseIndex = null;
+}
+
+function loadTrace(trace){
+  currentTrace = trace;
+  sequence = trace.sequence.split('');
+  quality = trace.qualities || [];
+  peaks = trace.peaks || [];
+  traces = trace.channels || { A: [], C: [], G: [], T: [] };
+  traceScanLength = Math.max(1, trace.traceEnd - trace.traceStart);
+  pxPerScan = clamp((Math.max(sequence.length, 1) * 12) / traceScanLength, 0.18, 3);
+
+  app.classList.add('has-trace');
+  dropZone.classList.remove('error');
+  dropError.textContent = '';
+  resetViewerChrome();
+  setControlState(true);
+  document.getElementById('file-name').textContent = trace.sampleName || trace.fileName || 'chromatogram';
+  document.getElementById('stat-len').textContent = sequence.length;
+  document.getElementById('stat-q').textContent = trace.meanQuality;
+  document.getElementById('seq-count').textContent = sequence.length;
+  zoomInput.value = String(pxPerScan);
+
+  buildMetadata();
+  buildSequencePanel();
+  scroller.scrollLeft = 0;
+  setTracePaneHeight(workspace.clientHeight * 0.34);
+  layout();
+}
+
+function showLoadError(message){
+  app.classList.remove('has-trace');
+  setControlState(false);
+  currentTrace = null;
+  resetViewerChrome();
+  dropZone.classList.add('error');
+  dropError.textContent = message;
+  document.getElementById('file-name').textContent = 'No file loaded';
+  document.getElementById('stat-len').textContent = '0';
+  document.getElementById('stat-q').textContent = '-';
+  document.getElementById('seq-count').textContent = '0';
+  viewportStatus.textContent = 'Could not load chromatogram';
+  seqMiniStatus.textContent = 'Waiting for an AB1 file';
+  seqText.replaceChildren();
+  buildMetadata();
+}
+
+async function openFile(file){
+  if(!file) return;
+  viewportStatus.textContent = `Loading ${file.name}`;
+  try{
+    const buffer = await file.arrayBuffer();
+    loadTrace(parseAbif(buffer, file.name));
+  }catch(error){
+    showLoadError(error && error.message ? error.message : String(error));
+  }
+}
+
+scroller.addEventListener('scroll', () => {
+  if(scrollRaf) return;
+  scrollRaf = requestAnimationFrame(() => {
+    updateHighlight();
+    scrollRaf = null;
+  });
+});
+
+zoomInput.addEventListener('input', (event) => {
+  if(!currentTrace) return;
+  const oldPx = pxPerScan;
+  const centerScan = currentTrace.traceStart + (scroller.scrollLeft + scroller.clientWidth / 2) / oldPx;
+  pxPerScan = parseFloat(event.target.value);
+  layout();
+  scroller.scrollLeft = (centerScan - currentTrace.traceStart) * pxPerScan - scroller.clientWidth / 2;
+  updateHighlight();
+});
+
+traceCv.addEventListener('mousemove', (event) => {
+  if(!currentTrace) return;
+  const rect = traceCv.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const scan = scanAtX(x);
+  const idx = nearestBaseIndex(scan);
+  crosshair.style.display = 'block';
+  crosshair.style.left = `${x}px`;
+  tooltip.style.display = 'block';
+  tooltip.style.left = `${x}px`;
+  if(idx >= 0){
+    const values = BASES.map(b => `${b}:${channelAtScan(b, scan)}`).join(' ');
+    tooltip.textContent = `scan ${Math.round(scan)} | ${idx + 1} ${sequence[idx]} Q${quality[idx] ?? 0} | ${values}`;
+  }else{
+    tooltip.textContent = `scan ${Math.round(scan)}`;
+  }
+});
+
+traceCv.addEventListener('mouseleave', () => {
+  crosshair.style.display = 'none';
+  tooltip.style.display = 'none';
+});
+
+seqText.addEventListener('click', (event) => {
+  const base = event.target.closest('.seq-base');
+  if(!base) return;
+  centerOnBase(parseInt(base.dataset.i, 10));
+});
+
+basesRow.addEventListener('click', (event) => {
+  const base = event.target.closest('.base-cell');
+  if(!base) return;
+  centerOnBase(parseInt(base.dataset.i, 10));
+});
+
+copyBtn.addEventListener('click', async () => {
+  if(!currentTrace) return;
+  const original = copyBtn.textContent;
+  try{
+    await navigator.clipboard.writeText(currentTrace.sequence);
+    copyBtn.textContent = 'Copied';
+  }catch(_error){
+    copyBtn.textContent = 'Copy failed';
+  }
+  setTimeout(() => copyBtn.textContent = original, 1200);
+});
+
+let dragStartY = 0;
+let dragStartHeight = 0;
+function startResize(event){
+  dragStartY = event.clientY;
+  dragStartHeight = viewerRegion.getBoundingClientRect().height;
+  document.body.classList.add('resizing');
+  splitter.setPointerCapture(event.pointerId);
+}
+
+function moveResize(event){
+  if(!document.body.classList.contains('resizing')) return;
+  setTracePaneHeight(dragStartHeight + event.clientY - dragStartY);
+}
+
+function stopResize(event){
+  if(!document.body.classList.contains('resizing')) return;
+  document.body.classList.remove('resizing');
+  if(splitter.hasPointerCapture(event.pointerId)) splitter.releasePointerCapture(event.pointerId);
+}
+
+splitter.addEventListener('pointerdown', startResize);
+splitter.addEventListener('pointermove', moveResize);
+splitter.addEventListener('pointerup', stopResize);
+splitter.addEventListener('pointercancel', stopResize);
+splitter.addEventListener('keydown', (event) => {
+  const current = viewerRegion.getBoundingClientRect().height;
+  if(event.key === 'ArrowUp'){
+    setTracePaneHeight(current - 24);
+    event.preventDefault();
+  }else if(event.key === 'ArrowDown'){
+    setTracePaneHeight(current + 24);
+    event.preventDefault();
+  }
+});
+
+function openDrawer(){
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('scrim').classList.add('open');
+  metaToggle.classList.add('active');
+}
+
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('scrim').classList.remove('open');
+  metaToggle.classList.remove('active');
+}
+
+metaToggle.addEventListener('click', () => {
+  if(document.getElementById('drawer').classList.contains('open')) closeDrawer();
+  else openDrawer();
+});
+document.getElementById('scrim').addEventListener('click', closeDrawer);
+
+document.getElementById('open-btn').addEventListener('click', () => fileInput.click());
+document.getElementById('drop-open-btn').addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files && fileInput.files[0];
+  if(file) openFile(file);
+  fileInput.value = '';
+});
+
+document.addEventListener('dragover', (event) => {
+  event.preventDefault();
+  document.body.classList.add('dragging');
+});
+document.addEventListener('dragleave', (event) => {
+  if(event.clientX <= 0 || event.clientY <= 0 ||
+      event.clientX >= window.innerWidth || event.clientY >= window.innerHeight){
+    document.body.classList.remove('dragging');
+  }
+});
+document.addEventListener('drop', (event) => {
+  event.preventDefault();
+  document.body.classList.remove('dragging');
+  const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+  if(file) openFile(file);
+});
+
+window.addEventListener('resize', () => {
+  if(!currentTrace) return;
+  setTracePaneHeight(viewerRegion.getBoundingClientRect().height);
+});
+
+setControlState(false);
+buildMetadata();
+</script>
+</body>
+</html>

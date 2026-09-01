@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns="https://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html xmlns="https://www.w3.org/1999/xhtml" xml:lang="en" lang="en" data-theme="auto">
  <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ABIF Parser for Nim</title>
+  <title>ABIF tools for Nim</title>
   
   <!-- Favicon -->
   <link rel="shortcut icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAAAAAUAAAAF////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAAAAAIAAABbAAAAlQAAAKIAAACbAAAAmwAAAKIAAACVAAAAWwAAAAL///8A////AP///wD///8A////AAAAABQAAADAAAAAYwAAAA3///8A////AP///wD///8AAAAADQAAAGMAAADAAAAAFP///wD///8A////AP///wAAAACdAAAAOv///wD///8A////AP///wD///8A////AP///wD///8AAAAAOgAAAJ3///8A////AP///wAAAAAnAAAAcP///wAAAAAoAAAASv///wD///8A////AP///wAAAABKAAAAKP///wAAAABwAAAAJ////wD///8AAAAAgQAAABwAAACIAAAAkAAAAJMAAACtAAAAFQAAABUAAACtAAAAkwAAAJAAAACIAAAAHAAAAIH///8A////AAAAAKQAAACrAAAAaP///wD///8AAAAARQAAANIAAADSAAAARf///wD///8AAAAAaAAAAKsAAACk////AAAAADMAAACcAAAAnQAAABj///8A////AP///wAAAAAYAAAAGP///wD///8A////AAAAABgAAACdAAAAnAAAADMAAAB1AAAAwwAAAP8AAADpAAAAsQAAAE4AAAAb////AP///wAAAAAbAAAATgAAALEAAADpAAAA/wAAAMMAAAB1AAAAtwAAAOkAAAD/AAAA/wAAAP8AAADvAAAA3gAAAN4AAADeAAAA3gAAAO8AAAD/AAAA/wAAAP8AAADpAAAAtwAAAGUAAAA/AAAA3wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAD/AAAA/wAAAP/AAAA/wAAAP8AAADfAAAAPwAAAGX///8A////AAAAAEgAAADtAAAAvwAAAL0AAADGAAAA7wAAAO8AAADGAAAAvQAAAL8AAADtAAAASP///wD///8A////AP///wD///8AAAAAO////wD///8A////AAAAAIcAAACH////AP///wD///8AAAAAO////wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A//8AAP//AAD4HwAA7/cAAN/7AAD//wAAoYUAAJ55AACf+QAAh+EAAAAAAADAAwAA4AcAAP5/AAD//wAA//8AAA=="/>
@@ -12,53 +12,83 @@
   <link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.0.8">
   <style>
    .project-container {
-    max-width: 800px;
+    max-width: 860px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 28px 20px 34px;
    }
    .project-section {
     margin-bottom: 30px;
    }
-   .tool-box {
-    background-color: var(--box-background-color);
-    border: 1px solid var(--third-background-color);
+   .intro {
+    font-size: 1.05rem;
+   }
+   .badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 22px;
+   }
+   .quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+   }
+   .quick-links a {
+    background-color: var(--secondary-background);
+    border: 1px solid var(--third-background);
     border-radius: 5px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 7px 12px;
+    text-decoration: none;
+   }
+   .tool-box {
+    background-color: var(--secondary-background);
+    border: 1px solid var(--third-background);
+    border-radius: 6px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
    }
    .tool-name {
+    font-size: 1.1rem;
     font-weight: bold;
     margin-bottom: 10px;
-    color: var(--headsections-color);
+    color: var(--strong);
+   }
+   .tool-name a {
+    text-decoration: none;
    }
    .code-example {
-    background-color: var(--third-background-color);
-    padding: 15px;
+    background-color: var(--third-background);
+    padding: 12px 14px;
     border-radius: 5px;
     overflow-x: auto;
     font-family: 'Source Code Pro', monospace;
-    margin: 15px 0;
+    font-size: 0.92rem;
+    margin: 12px 0;
+    white-space: nowrap;
+   }
+   .tool-image {
+    border: 1px solid var(--third-background);
+    border-radius: 5px;
+    height: auto;
+    margin: 10px 0;
+    max-width: 100%;
    }
    .footer {
     text-align: center;
     margin-top: 40px;
-    border-top: 1px solid var(--third-background-color);
-    padding-top: 10px;
+    border-top: 1px solid var(--third-background);
+    padding-top: 14px;
    }
-   .library-button {
-    display: inline-block;
-    background-color: var(--headsections-color);
-    color: white;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    margin-top: 20px;
-    font-weight: bold;
-    transition: background-color 0.2s;
-   }
-   .library-button:hover {
-    background-color: var(--links-color);
+   @media (max-width: 720px) {
+    .project-container {
+     padding: 20px 14px 28px;
+    }
+    .code-example {
+     white-space: normal;
+    }
    }
   </style>
 
@@ -81,35 +111,35 @@
      </div>
      <div class="nine columns">
       <div class="project-container">
-       <h1 class="title">ABIF Parser for Nim</h1>
-         <p>
-          <!-- Github action -->
-          <a href="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml">
-              <a href="https://github.com/quadram-institute-bioscience/nim-abif/actions"><img src="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml/badge.svg" alt="CI status"></a>
-   	      <a href="https://bioconda.github.io/recipes/nim-abif/README.html"><img alt="Conda Version" src="https://img.shields.io/conda/v/bioconda/nim-abif"></a>
-	      <a href="https://bioconda.github.io/recipes/nim-abif/README.html"><img alt="Conda Platform" src="https://img.shields.io/conda/p/bioconda/nim-abif"></a>
-
-          </a>
-         </p>
-       <div class="project-section">
+       <h1 class="title">ABIF tools for Nim</h1>
+       <p class="badges">
+        <a href="https://github.com/quadram-institute-bioscience/nim-abif/actions"><img src="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml/badge.svg" alt="CI status"></a>
+        <a href="https://bioconda.github.io/recipes/nim-abif/README.html"><img alt="Conda version" src="https://img.shields.io/conda/v/bioconda/nim-abif"></a>
+        <a href="https://bioconda.github.io/recipes/nim-abif/README.html"><img alt="Conda platform" src="https://img.shields.io/conda/p/bioconda/nim-abif"></a>
+       </p>
+       <div class="project-section intro">
         <p>
-         A Nim library to parse ABIF (Applied Biosystems Information Format) files from DNA sequencing machines, 
-         commonly used in Sanger capillary sequencing.
+         <code>nim-abif</code> is a Nim library and command-line toolkit for ABIF
+         (Applied Biosystems Information Format) files from Sanger capillary
+         sequencing instruments.
         </p>
-        <p>
-         
-         <a href="theindex.html">Library API</a> | <a href="https://github.com/quadram-institute-bioscience/nim-abif?tab=readme-ov-file"> Github repository</a>
-        </p>
+        <div class="quick-links">
+         <a href="theindex.html">Library API</a>
+         <a href="datasets.html">Validation datasets</a>
+         <a href="viewer.html">Ab1 online viewer</a>
+         <a href="https://github.com/quadram-institute-bioscience/nim-abif?tab=readme-ov-file">GitHub repository</a>
+        </div>
        </div>
        
        <div class="project-section">
         <h2>Features</h2>
         <ul>
          <li>Parse <code>.ab1</code> and <code>.fsa</code> trace files</li>
-         <li>Extract sequence data, quality values, and sample names</li>
-         <li>Supports all standard ABIF data types</li>
-         <li>Export to FASTA and FASTQ formats</li>
-         <li>Correctly handles big-endian binary data</li>
+         <li>Extract sequences, quality values, sample names, and metadata tags</li>
+         <li>Export traces to FASTA and FASTQ formats</li>
+         <li>Trim low-quality bases and merge paired forward/reverse traces</li>
+         <li>Render chromatograms as SVG images</li>
+         <li>Screen hotspot panels and write CSV, VCF, and HTML reports</li>
         </ul>
        </div>
        
@@ -118,8 +148,7 @@
         
         <div class="tool-box">
          <div class="tool-name"><a href="abi2fq.html">abi2fq</a></div>
-         <p>Advanced FASTQ converter with quality trimming capabilities.</p>
-         <p>This tool allows you to:</p>
+         <p>Convert ABIF trace files to FASTQ, with optional quality trimming.</p>
          <ul>
           <li>Convert ABIF trace files to FASTQ format</li>
           <li>Trim low-quality bases from sequence ends</li>
@@ -127,7 +156,7 @@
           <li>Output to STDOUT or to a file</li>
          </ul>
          
-         <h4>Usage Examples:</h4>
+         <h4>Usage examples</h4>
          <div class="code-example">
 # Basic conversion<br>
 abi2fq trace.ab1 output.fq
@@ -143,44 +172,60 @@ abi2fq --window=15 --quality=25 trace.ab1 output.fq
 abi2fq --no-trim trace.ab1 output.fq
          </div>
         </div>
-       </div>
        
 
        <div class="tool-box">
         <div class="tool-name"><a href="abimerge.html">abimerge</a></div>
         <p>Merge overlapping traces using Smith-Waterman alignment.</p>
-        <div class="code-example">abimerge trace_F.ab1t race_R.ab1</div>
-      </div>
+        <div class="code-example">abimerge trace_F.ab1 trace_R.ab1</div>
+       </div>
 
 
        <div class="tool-box">
-        <div class="tool-name">abichromatogram</div>
-        <p>Render chromatogram in SVG format</p>
-        <img src="chromas.png">
+        <div class="tool-name"><a href="abichromatogram.html">abichromatogram</a></div>
+        <p>Render ABIF traces as SVG chromatograms for inspection or reports.</p>
+        <img class="tool-image" src="chromas.png" alt="Example chromatogram">
         <div class="code-example">abichromatogram file.ab1 -o image.svg -s 500 -e 1000 --width 1600</div>
-      </div>
+        
+        <p>The output can be in <a href="hetero-trace.html">HTML format</a> and <a href="highlighted_repeat.svg">SVG format</a>.</p>
+       </div>
 
        <div class="tool-box">
         <div class="tool-name"><a href="abimetadata.html">abimetadata</a></div>
-        <p>Print tags from traces</p>
+        <p>Inspect ABIF metadata tags from trace files.</p>
         <div class="code-example">abimetadata trace_F.ab1</div>
        </div>
 
        <div class="tool-box">
         <div class="tool-name"><a href="abiscreen.html">abiscreen</a></div>
-        <p>Batch hotspot mutation screening across many .ab1 traces. Aligns each trace against a panel of reference amplicons (orientation auto-detected) and classifies the state at each hotspot position as Reference, Variant, Heterozygous, Ambiguous, or FailedQC. Emits CSV, VCF, and a self-contained HTML report with per-call chromatogram evidence. Files are processed in parallel.</p>
+        <p>Batch hotspot mutation screening across many <code>.ab1</code> traces. It aligns each trace against a reference panel, classifies the hotspot state, and writes CSV, VCF, and HTML reports with chromatogram evidence.</p>
         <div class="code-example">abiscreen -i traces/ -p targets.tsv -r refs.fa -o results/</div>
+       </div>
+       </div>
+
+       <div class="project-section">
+        <h2>Validation datasets</h2>
+        <p>
+         The test suite includes real AB1 datasets used for regression and
+         validation checks.
+        </p>
+        <div class="quick-links">
+         <a href="datasets.html">Open datasets page</a>
+        </div>
        </div>
 
        <div class="project-section">
         <h2>Installation</h2>
+        <p>Install with Nimble:</p>
         <div class="code-example">nimble install abif</div>
-        <p>To install the tool:</p>
+        <p>Or install the packaged command-line tools from Bioconda:</p>
         <div class="code-example">conda install -c bioconda nim-abif</div>
        </div>
        
        <div class="footer">
-        <a href="abif.html">Library Documentation</a> | &copy; 2023 Quadram Institute Bioscience (Andrea Telatin)
+        <a href="abif.html">Library documentation</a> |
+        <a href="datasets.html">Validation datasets</a> |
+        &copy; 2023 Quadram Institute Bioscience (Andrea Telatin)
        </div>
       </div>
      </div>

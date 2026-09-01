@@ -7,7 +7,7 @@
 [![Conda Platform](https://img.shields.io/conda/p/bioconda/nim-abif)](https://bioconda.github.io/recipes/nim-abif/README.html)
 
 
-A Nim library to parse [ABIF](chromatograms.md) (Applied Biosystems Information Format)
+A Nim library to parse [ABIF](docs/chromatogram-specs.md) (Applied Biosystems Information Format)
 files from DNA sequencing machines, commonly used in Sanger capillary sequencing.
 
 - [**API reference**](https://quadram-institute-bioscience.github.io/nim-abif/)
@@ -75,15 +75,31 @@ The library provides three command-line tools:
 abi2fq trace.ab1 output.fq
 ```
 
-The abi2fq tool provides quality-based sequence trimming:
+The abi2fq tool provides quality-based sequence trimming, safe ambiguity handling,
+FASTQ quality validation, and FASTA output:
 
 ```
 abi2fq --help                    # Show help message
 abi2fq --window=15 --quality=25 trace.ab1  # Trim with window size 15, quality threshold 25
 abi2fq --no-trim trace.ab1       # Skip quality trimming
+abi2fq --min-length=100 trace.ab1 # Require at least 100 bases after trimming
+abi2fq --ambiguity=mask trace.ab1 # Replace IUPAC ambiguity codes with N
+abi2fq --ambiguity=enumerate --max-variants=64 trace.ab1 # Enumerate ambiguity combinations
+abi2fq --name=sample-1 trace.ab1 # Override the ABIF sample name
 abi2fq --verbose trace.ab1       # Show additional information
 abi2fq trace.ab1                 # Output to STDOUT
 ```
+
+Ambiguity codes are preserved by default. `--ambiguity=enumerate` emits every
+IUPAC combination and fails before exceeding `--max-variants` (default: 256).
+The legacy `--split` option emits two sequences but assigns arbitrary phase
+across multiple ambiguous positions and prints a warning.
+
+The default minimum output length is one base. `--min-length` is applied after
+quality trimming. FASTQ quality scores must be in the Phred+33 range 0-93 and
+must match the sequence length. Untrimmed FASTA conversion does not require
+quality scores. Empty ABIF sample names fall back to the input filename, while
+`--name` provides an explicit record name.
 
 #### Merging paired (forward/reverse) traces
 
@@ -110,6 +126,7 @@ Convert a trace (or part of it) into SVG
 
 ```bash
 abichromatogram tests/A_forward.ab1 -o A.svg -s 500 -e 1000 --width 1600
+abichromatogram tests/A_forward.ab1 -o highlighted.svg --highlight 620-680,820-860
 ```
 
 #### Batch hotspot mutation screening
@@ -160,6 +177,5 @@ This library is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 This Nim implementation is based on:
-- Co-authored with [Claude code](CLAUDE.md)
-- Inspired by Python implementation: [abifpy](https://github.com/bow/abifpy) and a Perl implementation: [Bio::Trace::ABIF](https://metacpan.org/pod/Bio::Trace::ABIF) from CPAN
-
+- Inspired by the Perl implementation: [Bio::Trace::ABIF](https://metacpan.org/pod/Bio::Trace::ABIF) and my own [FASTX::Abi](https://metacpan.org/pod/FASTX::Abi) from CPAN
+- Co-authored with [Claude code](CLAUDE.md) and OpenCode using mixed models, mainly DeepSeek v4 (Light and Pro)

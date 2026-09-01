@@ -26,7 +26,11 @@ skipDirs = @["tests"]
 task test, "Run the test suite":
   exec "nimble buildbin"
   exec "nim c -r tests/test_abif.nim"
+  exec "nim c --nimcache:nimcache/test_qualitytrim -r tests/test_qualitytrim.nim"
+  exec "nim c --nimcache:nimcache/test_versions -r tests/test_versions.nim"
   exec "nim c -r tests/test_abi2fq.nim"
+  exec "nim c -r tests/test_abichromatogram.nim"
+  exec "nim c --nimcache:nimcache/test_viewer_html -r tests/test_viewer_html.nim"
   exec "nim c -r tests/test_abimerge.nim"
   exec "nim c -r tests/test_edit_smpl.nim"
   exec "nim c -r --threads:on tests/test_abiscreen.nim"
@@ -40,6 +44,20 @@ task test_abif, "Run core library tests":
 task test_abi2fq, "Run abi2fq tool tests":
   exec "nimble buildbin"
   exec "nim c -r tests/test_abi2fq.nim"
+
+task test_qualitytrim, "Run quality trimming tests":
+  exec "nim c --nimcache:nimcache/test_qualitytrim -r tests/test_qualitytrim.nim"
+
+task test_versions, "Run CLI version tests":
+  exec "nimble buildbin"
+  exec "nim c --nimcache:nimcache/test_versions -r tests/test_versions.nim"
+
+task test_abichromatogram, "Run abichromatogram tool tests":
+  exec "nimble buildbin"
+  exec "nim c -r tests/test_abichromatogram.nim"
+
+task test_viewer_html, "Run docs viewer HTML smoke tests":
+  exec "nim c --nimcache:nimcache/test_viewer_html -r tests/test_viewer_html.nim"
 
 task test_abimerge, "Run abimerge tool tests":
   exec "nimble buildbin"
@@ -109,13 +127,13 @@ task docs, "Generate documentation":
     
 task buildbin, "Build all binaries to bin/ directory":
     exec "mkdir -p bin"
-    exec "nim c -d:release --opt:speed -o:bin/abif           src/abif.nim"
-    exec "nim c -d:release --opt:speed -o:bin/abi2fq         src/abi2fq.nim"
-    exec "nim c -d:release --opt:speed -o:bin/abimerge       src/abimerge.nim"
-    exec "nim c -d:release --opt:speed -o:bin/abimetadata    src/abimetadata.nim"
-    exec "nim c -d:release --opt:speed -o:bin/abichromatogram  src/abichromatogram.nim"
-    exec "nim c -d:release --opt:speed -o:bin/abivalidate    src/abivalidate.nim"
-    exec "nim c -d:release --opt:speed --threads:on -o:bin/abiscreen src/abiscreen.nim"
+    exec "nim c -d:release -d:NimblePkgVersion=0.3.0 --opt:speed -o:bin/abif           src/abif.nim"
+    exec "nim c -d:release -d:NimblePkgVersion=0.3.0 --opt:speed -o:bin/abi2fq         src/abi2fq.nim"
+    exec "nim c -d:release -d:NimblePkgVersion=0.3.0 --opt:speed -o:bin/abimerge       src/abimerge.nim"
+    exec "nim c -d:release -d:NimblePkgVersion=0.3.0 --opt:speed -o:bin/abimetadata    src/abimetadata.nim"
+    exec "nim c -d:release -d:NimblePkgVersion=0.3.0 --opt:speed -o:bin/abichromatogram  src/abichromatogram.nim"
+    exec "nim c -d:release -d:NimblePkgVersion=0.3.0 --opt:speed -o:bin/abivalidate    src/abivalidate.nim"
+    exec "nim c -d:release -d:NimblePkgVersion=0.3.0 --opt:speed --threads:on -o:bin/abiscreen src/abiscreen.nim"
     echo "Binaries built to bin/ directory"
 
 # Before installing, compile the binaries
@@ -124,10 +142,10 @@ before install:
   exec "nimble install -y nimsvg"
   exec "nimble install -y readfx"
   exec "nimble install -y malebolgia"
-  exec "nim c -d:release -d:danger --opt:speed src/abif.nim"
-  exec "nim c -d:release -d:danger --opt:speed src/abi2fq.nim"
-  exec "nim c -d:release -d:danger --opt:speed src/abimerge.nim"
-  exec "nim c -d:release -d:danger --opt:speed src/abimetadata.nim"
-  exec "nim c -d:release -d:danger --opt:speed src/abichromatogram.nim"
-  exec "nim c -d:release -d:danger --opt:speed src/abivalidate.nim"
-  exec "nim c -d:release -d:danger --opt:speed --threads:on src/abiscreen.nim"
+  exec "nim c -d:release -d:danger -d:NimblePkgVersion=0.3.0 --opt:speed src/abif.nim"
+  exec "nim c -d:release -d:danger -d:NimblePkgVersion=0.3.0 --opt:speed src/abi2fq.nim"
+  exec "nim c -d:release -d:danger -d:NimblePkgVersion=0.3.0 --opt:speed src/abimerge.nim"
+  exec "nim c -d:release -d:danger -d:NimblePkgVersion=0.3.0 --opt:speed src/abimetadata.nim"
+  exec "nim c -d:release -d:danger -d:NimblePkgVersion=0.3.0 --opt:speed src/abichromatogram.nim"
+  exec "nim c -d:release -d:danger -d:NimblePkgVersion=0.3.0 --opt:speed src/abivalidate.nim"
+  exec "nim c -d:release -d:danger -d:NimblePkgVersion=0.3.0 --opt:speed --threads:on src/abiscreen.nim"

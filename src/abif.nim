@@ -23,14 +23,16 @@ import std/[streams, tables, strformat, endians]
 ##   # Close the file when done
 ##   trace.close()
 
-const NimblePkgVersion {.strdefine.} = "<NimblePkgVersion>"
+const
+  NimblePkgVersion {.strdefine.} = "<NimblePkgVersion>"
+  AbifSourceVersion = "0.3.0"
 
 proc abifVersion*(): string =
   ## Returns the version of the abif library.
-  if len(NimblePkgVersion) == 0:
-    return "0.0.0"
+  if NimblePkgVersion.len == 0 or NimblePkgVersion == "<NimblePkgVersion>":
+    AbifSourceVersion
   else:
-    return NimblePkgVersion
+    NimblePkgVersion
 
 type
   ElementType* = enum

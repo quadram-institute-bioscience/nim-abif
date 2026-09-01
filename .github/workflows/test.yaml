@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nim-version: ['2.0.8', 'stable']
+        nim-version: ['2.2.0', 'stable']
       fail-fast: false
 
     steps:
@@ -39,7 +39,7 @@ jobs:
     - name: Archive binaries
       run: |
         mkdir -p artifacts
-        cp bin/abif bin/abi2fq artifacts/
+        cp bin/* artifacts/
         tar -czf abif-ubuntu-${{ matrix.nim-version }}.tar.gz artifacts/
         
     # Store the archive using the GitHub Actions cache

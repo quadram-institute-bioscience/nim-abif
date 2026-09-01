@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+current="$PWD"
 readonly ZENODO_URL="https://zenodo.org/records/4968940/files/qpqr_ori_ab1_final.zip?download=1"
 readonly ARCHIVE_NAME="qpqr_ori_ab1_final.zip"
 readonly ARCHIVE_MD5="25b84a3f8c3ff118fbedef7d55592b1b"
@@ -122,5 +123,11 @@ safe_unzip "$archive" "$extract_dir"
 rm "$archive"
 
 move_contents "$extract_dir" "$outdir"
+
+## Temporary
+
+cd "$outdir"
+git clone https://github.com/garniergere/Reference.Db.SNPs.Quercus/ || cd "$current"
+cd "$current"
 
 printf 'Extracted Zenodo record 4968940 to %s\n' "$outdir"
