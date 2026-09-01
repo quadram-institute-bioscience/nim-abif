@@ -27,6 +27,7 @@ task test, "Run the test suite":
   exec "nimble buildbin"
   exec "nim c -r tests/test_abif.nim"
   exec "nim c -r tests/test_abi2fq.nim"
+  exec "nim c -r tests/test_abichromatogram.nim"
   exec "nim c -r tests/test_abimerge.nim"
   exec "nim c -r tests/test_edit_smpl.nim"
   exec "nim c -r --threads:on tests/test_abiscreen.nim"
@@ -40,6 +41,10 @@ task test_abif, "Run core library tests":
 task test_abi2fq, "Run abi2fq tool tests":
   exec "nimble buildbin"
   exec "nim c -r tests/test_abi2fq.nim"
+
+task test_abichromatogram, "Run abichromatogram tool tests":
+  exec "nimble buildbin"
+  exec "nim c -r tests/test_abichromatogram.nim"
 
 task test_abimerge, "Run abimerge tool tests":
   exec "nimble buildbin"

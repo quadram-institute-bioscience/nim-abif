@@ -242,6 +242,10 @@
 <li><a class="reference external"
           data-doc-search-tag="abichromatogram: object HighlightRegion" href="abichromatogram.html#HighlightRegion">abichromatogram: object HighlightRegion</a></li>
           </ul></dd>
+<dt><a name="htmlEscape" href="#htmlEscape"><span>htmlEscape:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abichromatogram: proc htmlEscape(s: string): string" href="abichromatogram.html#htmlEscape%2Cstring">abichromatogram: proc htmlEscape(s: string): string</a></li>
+          </ul></dd>
 <dt><a name="isAmbiguousBaseCompatible" href="#isAmbiguousBaseCompatible"><span>isAmbiguousBaseCompatible:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="aligner: proc isAmbiguousBaseCompatible(ambiguousBase: char; refBase: char): bool" href="aligner.html#isAmbiguousBaseCompatible%2Cchar%2Cchar">aligner: proc isAmbiguousBaseCompatible(ambiguousBase: char; refBase: char): bool</a></li>
@@ -323,6 +327,18 @@
 <dt><a name="RefSequence" href="#RefSequence"><span>RefSequence:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="aligner: object RefSequence" href="aligner.html#RefSequence">aligner: object RefSequence</a></li>
+          </ul></dd>
+<dt><a name="renderChromatogramHtml" href="#renderChromatogramHtml"><span>renderChromatogramHtml:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abichromatogram: proc renderChromatogramHtml(trace: ABIFTrace; data: TraceData; inputFile: string;
+                       width: int = 1200; height: int = 600;
+                       showBaseCalls: bool = true; startPos: int = 0;
+                       endPos: int = -1; downsample: int = 1;
+                       highlights: seq[HighlightRegion] = @[]): string" href="abichromatogram.html#renderChromatogramHtml%2CABIFTrace%2CTraceData%2Cstring%2Cint%2Cint%2Cbool%2Cint%2Cint%2Cint%2Cseq%5BHighlightRegion%5D">abichromatogram: proc renderChromatogramHtml(trace: ABIFTrace; data: TraceData; inputFile: string;
+                       width: int = 1200; height: int = 600;
+                       showBaseCalls: bool = true; startPos: int = 0;
+                       endPos: int = -1; downsample: int = 1;
+                       highlights: seq[HighlightRegion] = @[]): string</a></li>
           </ul></dd>
 <dt><a name="renderChromatogramSvg" href="#renderChromatogramSvg"><span>renderChromatogramSvg:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -414,6 +430,18 @@
                      offset: int): bool" href="abimetadata.html#verifyTagUpdateBasic%2Cstring%2Cstring%2Cstring%2Cstring%2Cint">abimetadata: proc verifyTagUpdateBasic(inputFile, outputFile, tagName: string; newValue: string;
                      offset: int): bool</a></li>
           </ul></dd>
+<dt><a name="writeChromatogramHtml" href="#writeChromatogramHtml"><span>writeChromatogramHtml:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abichromatogram: proc writeChromatogramHtml(trace: ABIFTrace; data: TraceData;
+                      inputFile, outFile: string; width: int = 1200;
+                      height: int = 600; showBaseCalls: bool = true;
+                      startPos: int = 0; endPos: int = -1; downsample: int = 1;
+                      highlights: seq[HighlightRegion] = @[]): bool" href="abichromatogram.html#writeChromatogramHtml%2CABIFTrace%2CTraceData%2Cstring%2Cstring%2Cint%2Cint%2Cbool%2Cint%2Cint%2Cint%2Cseq%5BHighlightRegion%5D">abichromatogram: proc writeChromatogramHtml(trace: ABIFTrace; data: TraceData;
+                      inputFile, outFile: string; width: int = 1200;
+                      height: int = 600; showBaseCalls: bool = true;
+                      startPos: int = 0; endPos: int = -1; downsample: int = 1;
+                      highlights: seq[HighlightRegion] = @[]): bool</a></li>
+          </ul></dd>
 <dt><a name="writeFastq" href="#writeFastq"><span>writeFastq:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abi2fq: proc writeFastq(sequence: string; qualities: seq[int]; name: string;
@@ -426,7 +454,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-31 16:16:03 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-01 14:28:21 UTC</small>
       </div>
     </div>
   </div>

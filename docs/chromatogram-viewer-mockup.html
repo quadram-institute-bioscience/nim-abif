@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chromatogram Viewer Improved Mockup</title>
+<style>
+  :root{
+    --bg:#111414;
+    --panel:#181C1B;
+    --panel-2:#202625;
+    --line:#2F3836;
+    --line-strong:#46504D;
+    --text:#E9EFEC;
+    --muted:#8B9893;
+    --amber:#DFA84B;
+    --A:#58B875;
+    --C:#4B91D1;
+    --G:#D9DFDD;
+    --T:#D95662;
+    --trace-pane-height:34%;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    height:100%;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    overflow:hidden;
+  }
+  body.resizing{ cursor:row-resize; user-select:none; }
+  .mono{ font-family:"IBM Plex Mono","SFMono-Regular",Consolas,monospace; }
+
+  #app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    min-width:0;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:0 18px;
+    height:52px;
+    flex-shrink:0;
+    background:var(--panel);
+    border-bottom:1px solid var(--line);
+    min-width:0;
+  }
+  .filename{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-width:150px;
+    font-size:14px;
+    font-weight:500;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .filename .dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    flex:0 0 auto;
+    background:var(--A);
+  }
+  .stat{
+    font-size:12.5px;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .stat b{
+    color:var(--text);
+    font-weight:500;
+  }
+  .legend{
+    display:flex;
+    gap:10px;
+    margin-left:auto;
+  }
+  .legend span{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .legend i{
+    width:9px;
+    height:9px;
+    border-radius:2px;
+    display:inline-block;
+  }
+  .zoom-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .zoom-wrap label{
+    font-size:11.5px;
+    color:var(--muted);
+  }
+  input[type=range]{
+    -webkit-appearance:none;
+    width:116px;
+    height:2px;
+    background:var(--line-strong);
+    border-radius:2px;
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:var(--amber);
+    cursor:pointer;
+    border:2px solid var(--bg);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:var(--amber);
+    cursor:pointer;
+    border:2px solid var(--bg);
+  }
+  .icon-btn,.text-btn{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    height:32px;
+    border-radius:6px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    transition:border-color .15s,color .15s,background .15s;
+  }
+  .icon-btn{
+    width:32px;
+    flex:0 0 auto;
+    font-size:13px;
+    font-weight:600;
+  }
+  .text-btn{
+    padding:0 11px;
+    font-size:11.5px;
+  }
+  .icon-btn:hover,.text-btn:hover{
+    border-color:var(--muted);
+  }
+  .icon-btn.active{
+    border-color:var(--amber);
+    color:var(--amber);
+  }
+
+  #workspace{
+    display:flex;
+    flex-direction:column;
+    flex:1;
+    min-height:0;
+  }
+  #viewer-region{
+    flex:0 0 var(--trace-pane-height);
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+    min-height:160px;
+    padding:12px 0 0;
+    position:relative;
+    background:var(--bg);
+  }
+  #scroller{
+    overflow-x:auto;
+    overflow-y:hidden;
+    flex:1;
+    min-height:0;
+    position:relative;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  #scroller::-webkit-scrollbar{ height:9px; }
+  #scroller::-webkit-scrollbar-track{ background:var(--panel); }
+  #scroller::-webkit-scrollbar-thumb{
+    background:#48534F;
+    border-radius:5px;
+  }
+  #track{
+    position:relative;
+    height:100%;
+  }
+  #ruler{
+    position:sticky;
+    top:0;
+    height:22px;
+    display:block;
+    z-index:2;
+  }
+  #trace-canvas{
+    display:block;
+  }
+  #bases-row{
+    display:flex;
+    height:26px;
+    align-items:center;
+  }
+  .base-cell{
+    appearance:none;
+    background:transparent;
+    border:0;
+    border-top:1px solid transparent;
+    padding:0;
+    font-family:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:26px;
+    font-size:12px;
+    font-weight:600;
+    flex-shrink:0;
+    cursor:pointer;
+  }
+  .base-cell.selected{
+    background:rgba(223,168,75,.16);
+    border-top-color:var(--amber);
+  }
+  #crosshair,#selection-marker{
+    position:absolute;
+    top:22px;
+    bottom:26px;
+    width:1px;
+    pointer-events:none;
+    display:none;
+  }
+  #crosshair{
+    background:rgba(223,168,75,.5);
+  }
+  #selection-marker{
+    background:var(--amber);
+    box-shadow:0 0 0 1px rgba(223,168,75,.28);
+  }
+  #tooltip{
+    position:absolute;
+    top:2px;
+    transform:translateX(-50%);
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:3px 7px;
+    font-size:11px;
+    white-space:nowrap;
+    pointer-events:none;
+    display:none;
+    z-index:4;
+  }
+  .viewport-status{
+    min-height:25px;
+    padding:6px 18px 7px;
+    font-size:11px;
+    color:var(--muted);
+    flex-shrink:0;
+  }
+
+  #splitter{
+    height:12px;
+    flex:0 0 12px;
+    cursor:row-resize;
+    background:var(--panel);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    outline:none;
+  }
+  #splitter::before{
+    content:"";
+    width:48px;
+    height:3px;
+    border-radius:3px;
+    background:var(--line-strong);
+  }
+  #splitter:hover::before,
+  #splitter:focus-visible::before{
+    background:var(--amber);
+  }
+
+  #seq-panel{
+    flex:1 1 auto;
+    background:var(--panel);
+    padding:12px 18px 16px;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+    min-height:160px;
+  }
+  .seq-head{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:8px;
+    min-width:0;
+  }
+  .seq-head h2{
+    font-size:12px;
+    font-weight:600;
+    margin:0;
+    color:var(--muted);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    white-space:nowrap;
+  }
+  .seq-head .count{
+    color:var(--text);
+    font-weight:500;
+  }
+  #seq-mini-status{
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    color:var(--muted);
+    font-size:11px;
+  }
+  #copy-btn{
+    margin-left:auto;
+    flex:0 0 auto;
+  }
+  #seq-text{
+    flex:1;
+    min-height:0;
+    font-size:13px;
+    line-height:1.9;
+    letter-spacing:0;
+    overflow:auto;
+    user-select:text;
+    word-break:break-all;
+    padding:4px 0 8px;
+  }
+  .seq-base{
+    display:inline-block;
+    min-width:1ch;
+    border-radius:2px;
+    cursor:pointer;
+    text-align:center;
+    border-bottom:2px solid transparent;
+  }
+  .seq-base:hover{
+    background:rgba(233,239,236,.1);
+  }
+  .seq-base.in-view{
+    background:rgba(223,168,75,.19);
+    border-bottom-color:rgba(223,168,75,.72);
+  }
+  .seq-base.selected-base{
+    background:var(--amber);
+    color:#151614;
+    border-bottom-color:var(--amber);
+    font-weight:600;
+  }
+  .base-A{ color:var(--A); }
+  .base-C{ color:var(--C); }
+  .base-G{ color:var(--G); }
+  .base-T{ color:var(--T); }
+
+  #drawer{
+    position:fixed;
+    top:0;
+    right:0;
+    height:100%;
+    width:300px;
+    background:var(--panel);
+    border-left:1px solid var(--line);
+    transform:translateX(100%);
+    transition:transform .22s ease;
+    z-index:10;
+    padding:18px;
+    overflow-y:auto;
+  }
+  #drawer.open{ transform:translateX(0); }
+  #drawer h3{
+    font-size:13px;
+    margin:0 0 16px;
+    color:var(--text);
+  }
+  .meta-row{
+    padding:9px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .meta-row .k{
+    font-size:10.5px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  .meta-row .v{
+    font-size:13px;
+    margin-top:3px;
+  }
+  #scrim{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.35);
+    z-index:9;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s;
+  }
+  #scrim.open{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  @media (max-width:760px){
+    header{
+      gap:10px;
+      padding:0 12px;
+    }
+    .legend{
+      display:none;
+    }
+    .stat{
+      display:none;
+    }
+    input[type=range]{
+      width:86px;
+    }
+    #seq-mini-status{
+      display:none;
+    }
+    #drawer{
+      width:min(320px,88vw);
+    }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="filename"><span class="dot" aria-hidden="true"></span><span>sample_A_forward.ab1</span></div>
+    <div class="stat"><b id="stat-len"></b> bp</div>
+    <div class="stat">Q avg <b id="stat-q"></b></div>
+    <div class="legend">
+      <span><i style="background:var(--A)"></i>A</span>
+      <span><i style="background:var(--C)"></i>C</span>
+      <span><i style="background:var(--G)"></i>G</span>
+      <span><i style="background:var(--T)"></i>T</span>
+    </div>
+    <div class="zoom-wrap">
+      <label for="zoom">Zoom</label>
+      <input type="range" id="zoom" min="4" max="34" value="12">
+    </div>
+    <button class="icon-btn" id="meta-toggle" type="button" title="Metadata" aria-label="Metadata">i</button>
+  </header>
+
+  <main id="workspace">
+    <section id="viewer-region" aria-label="Chromatogram">
+      <div id="scroller">
+        <div id="track">
+          <canvas id="ruler"></canvas>
+          <canvas id="trace-canvas"></canvas>
+          <div id="bases-row"></div>
+          <div id="selection-marker"></div>
+          <div id="crosshair"></div>
+          <div id="tooltip"></div>
+        </div>
+      </div>
+      <div class="viewport-status" id="viewport-status"></div>
+    </section>
+
+    <div id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize trace panel" tabindex="0"></div>
+
+    <section id="seq-panel" aria-label="Sequence">
+      <div class="seq-head">
+        <h2>SEQUENCE | <span class="count" id="seq-count"></span> bp</h2>
+        <div id="seq-mini-status"></div>
+        <button class="text-btn" id="copy-btn" type="button">Copy sequence</button>
+      </div>
+      <div id="seq-text" class="mono"></div>
+    </section>
+  </main>
+</div>
+
+<div id="scrim"></div>
+<aside id="drawer" aria-label="Trace metadata">
+  <h3>Trace metadata</h3>
+  <div class="meta-row"><div class="k">Sample name</div><div class="v mono">sample_A_forward</div></div>
+  <div class="meta-row"><div class="k">Instrument model</div><div class="v mono">3730xl</div></div>
+  <div class="meta-row"><div class="k">Polymer</div><div class="v mono">POP-7</div></div>
+  <div class="meta-row"><div class="k">Dye set</div><div class="v mono">BigDye Terminator v3.1</div></div>
+  <div class="meta-row"><div class="k">Run started</div><div class="v mono">2026-08-14 09:22</div></div>
+  <div class="meta-row"><div class="k">Run finished</div><div class="v mono">2026-08-14 10:47</div></div>
+  <div class="meta-row"><div class="k">Base order (FWO_1)</div><div class="v mono">GATC</div></div>
+  <div class="meta-row"><div class="k">Read length</div><div class="v mono" id="meta-len"></div></div>
+  <div class="meta-row"><div class="k">Mean quality (PCON2)</div><div class="v mono" id="meta-q"></div></div>
+</aside>
+
+<script>
+const BASES = ['A','C','G','T'];
+const COLORS = { A:'#58B875', C:'#4B91D1', G:'#D9DFDD', T:'#D95662' };
+const N = 620;
+const SAMPLES_PER_BASE = 9;
+const RULER_HEIGHT = 22;
+const BASE_ROW_HEIGHT = 26;
+
+function seededRand(seed){
+  let s = seed;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+const rnd = seededRand(42);
+const sequence = Array.from({length:N}, () => BASES[Math.floor(rnd() * 4)]);
+const quality = Array.from({length:N}, () => 25 + Math.floor(rnd() * 35));
+const totalSamples = N * SAMPLES_PER_BASE;
+const traces = {
+  A:new Float32Array(totalSamples),
+  C:new Float32Array(totalSamples),
+  G:new Float32Array(totalSamples),
+  T:new Float32Array(totalSamples)
+};
+
+for(let i = 0; i < N; i++){
+  const callBase = sequence[i];
+  const center = i * SAMPLES_PER_BASE + SAMPLES_PER_BASE / 2;
+  const height = 0.55 + rnd() * 0.4;
+  for(const b of BASES){
+    const amp = b === callBase ? height : rnd() * 0.12;
+    for(let s = 0; s < SAMPLES_PER_BASE * 1.4; s++){
+      const x = i * SAMPLES_PER_BASE + s - SAMPLES_PER_BASE * 0.2;
+      if(x < 0 || x >= totalSamples) continue;
+      const d = (x - center) / (SAMPLES_PER_BASE * 0.55);
+      traces[b][Math.floor(x)] += amp * Math.exp(-d * d * 2.2);
+    }
+  }
+}
+
+let pxPerBase = 12;
+let selectedBaseIndex = null;
+let scrollRaf = null;
+let baseCells = [];
+const workspace = document.getElementById('workspace');
+const viewerRegion = document.getElementById('viewer-region');
+const splitter = document.getElementById('splitter');
+const scroller = document.getElementById('scroller');
+const track = document.getElementById('track');
+const rulerCv = document.getElementById('ruler');
+const traceCv = document.getElementById('trace-canvas');
+const basesRow = document.getElementById('bases-row');
+const crosshair = document.getElementById('crosshair');
+const selectionMarker = document.getElementById('selection-marker');
+const tooltip = document.getElementById('tooltip');
+const seqText = document.getElementById('seq-text');
+const viewportStatus = document.getElementById('viewport-status');
+const seqMiniStatus = document.getElementById('seq-mini-status');
+
+document.getElementById('stat-len').textContent = N;
+document.getElementById('seq-count').textContent = N;
+document.getElementById('meta-len').textContent = N + ' bp';
+const avgQ = Math.round(quality.reduce((a,b) => a + b, 0) / N);
+document.getElementById('stat-q').textContent = avgQ;
+document.getElementById('meta-q').textContent = avgQ;
+
+const sequenceEls = [];
+function buildSequencePanel(){
+  const frag = document.createDocumentFragment();
+  for(let i = 0; i < N; i++){
+    const b = sequence[i];
+    const el = document.createElement('span');
+    el.className = `seq-base base-${b}`;
+    el.dataset.i = String(i);
+    el.textContent = b;
+    el.title = `${i + 1} ${b} Q${quality[i]}`;
+    sequenceEls[i] = el;
+    frag.appendChild(el);
+  }
+  seqText.innerHTML = '';
+  seqText.appendChild(frag);
+}
+
+function clamp(value, min, max){
+  return Math.min(max, Math.max(min, value));
+}
+
+function tracePaneLimits(){
+  const h = workspace.clientHeight;
+  return {
+    min: Math.min(220, Math.max(140, h * 0.22)),
+    max: Math.max(180, h - 170)
+  };
+}
+
+function setTracePaneHeight(nextHeight){
+  const limits = tracePaneLimits();
+  const height = clamp(nextHeight, limits.min, limits.max);
+  viewerRegion.style.flexBasis = `${height}px`;
+  splitter.setAttribute('aria-valuenow', String(Math.round(height)));
+  splitter.setAttribute('aria-valuemin', String(Math.round(limits.min)));
+  splitter.setAttribute('aria-valuemax', String(Math.round(limits.max)));
+  layout();
+}
+
+function layout(){
+  const width = N * pxPerBase;
+  const traceHeight = Math.max(scroller.clientHeight - RULER_HEIGHT - BASE_ROW_HEIGHT, 60);
+  track.style.width = `${width}px`;
+  track.style.height = `${RULER_HEIGHT + traceHeight + BASE_ROW_HEIGHT}px`;
+
+  rulerCv.width = width;
+  rulerCv.height = RULER_HEIGHT;
+  rulerCv.style.width = `${width}px`;
+  rulerCv.style.height = `${RULER_HEIGHT}px`;
+
+  traceCv.width = width;
+  traceCv.height = traceHeight;
+  traceCv.style.width = `${width}px`;
+  traceCv.style.height = `${traceHeight}px`;
+
+  drawRuler();
+  drawTrace();
+  buildBasesRow();
+  updateHighlight();
+  updateSelectionMarker();
+}
+
+function drawRuler(){
+  const ctx = rulerCv.getContext('2d');
+  ctx.fillStyle = '#181C1B';
+  ctx.fillRect(0,0,rulerCv.width,rulerCv.height);
+  ctx.strokeStyle = '#2F3836';
+  ctx.fillStyle = '#8B9893';
+  ctx.font = "11px ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace";
+  const step = pxPerBase < 8 ? 50 : pxPerBase < 16 ? 20 : 10;
+  for(let i = 0; i < N; i += step){
+    const x = i * pxPerBase;
+    ctx.beginPath();
+    ctx.moveTo(x + 0.5, 14);
+    ctx.lineTo(x + 0.5, RULER_HEIGHT);
+    ctx.stroke();
+    ctx.fillText(String(i + 1), x + 3, 12);
+  }
+}
+
+function drawTrace(){
+  const ctx = traceCv.getContext('2d');
+  const w = traceCv.width;
+  const h = traceCv.height;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = '#111414';
+  ctx.fillRect(0,0,w,h);
+
+  ctx.strokeStyle = 'rgba(47,56,54,.48)';
+  for(let i = 0; i < N; i++){
+    const x = i * pxPerBase;
+    ctx.beginPath();
+    ctx.moveTo(x,0);
+    ctx.lineTo(x,h);
+    ctx.stroke();
+  }
+
+  const pad = 6;
+  const plotH = h - pad * 2;
+  const pxPerSample = pxPerBase / SAMPLES_PER_BASE;
+
+  for(const b of BASES){
+    ctx.beginPath();
+    ctx.strokeStyle = COLORS[b];
+    ctx.lineWidth = 1.55;
+    const arr = traces[b];
+    for(let s = 0; s < arr.length; s++){
+      const x = s * pxPerSample;
+      const y = h - pad - arr[s] * plotH;
+      if(s === 0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+}
+
+function buildBasesRow(){
+  basesRow.innerHTML = '';
+  baseCells = [];
+  const frag = document.createDocumentFragment();
+  for(let i = 0; i < N; i++){
+    const b = sequence[i];
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'base-cell';
+    el.style.width = `${pxPerBase}px`;
+    el.style.color = COLORS[b];
+    el.textContent = pxPerBase >= 8 ? b : '';
+    el.dataset.i = String(i);
+    if(i === selectedBaseIndex) el.classList.add('selected');
+    baseCells[i] = el;
+    frag.appendChild(el);
+  }
+  basesRow.appendChild(frag);
+}
+
+function visibleRange(){
+  const scrollLeft = scroller.scrollLeft;
+  const viewW = scroller.clientWidth;
+  const start = Math.max(0, Math.floor(scrollLeft / pxPerBase));
+  const end = Math.min(N, Math.ceil((scrollLeft + viewW) / pxPerBase));
+  return [start, end];
+}
+
+function updateSequenceHighlight(start, end){
+  for(let i = 0; i < sequenceEls.length; i++){
+    const el = sequenceEls[i];
+    el.classList.toggle('in-view', i >= start && i < end);
+    el.classList.toggle('selected-base', i === selectedBaseIndex);
+  }
+  for(let i = 0; i < baseCells.length; i++){
+    baseCells[i].classList.toggle('selected', i === selectedBaseIndex);
+  }
+}
+
+function updateHighlight(){
+  const [start, end] = visibleRange();
+  updateSequenceHighlight(start, end);
+  const selectedText = selectedBaseIndex === null
+    ? ''
+    : ` | selected ${selectedBaseIndex + 1} ${sequence[selectedBaseIndex]} Q${quality[selectedBaseIndex]}`;
+  viewportStatus.textContent = `Bases ${start + 1}-${end} of ${N}${selectedText}`;
+  seqMiniStatus.textContent = `Visible ${start + 1}-${end}${selectedText}`;
+}
+
+function updateSelectionMarker(){
+  if(selectedBaseIndex === null){
+    selectionMarker.style.display = 'none';
+    return;
+  }
+  selectionMarker.style.display = 'block';
+  selectionMarker.style.left = `${selectedBaseIndex * pxPerBase + pxPerBase / 2}px`;
+}
+
+function centerOnBase(index, behavior = 'smooth'){
+  selectedBaseIndex = clamp(index, 0, N - 1);
+  const target = selectedBaseIndex * pxPerBase + pxPerBase / 2 - scroller.clientWidth / 2;
+  const maxScroll = Math.max(0, track.offsetWidth - scroller.clientWidth);
+  scroller.scrollTo({ left: clamp(target, 0, maxScroll), behavior });
+  updateSelectionMarker();
+  updateHighlight();
+}
+
+scroller.addEventListener('scroll', () => {
+  if(scrollRaf) return;
+  scrollRaf = requestAnimationFrame(() => {
+    updateHighlight();
+    scrollRaf = null;
+  });
+});
+
+document.getElementById('zoom').addEventListener('input', (e) => {
+  const oldPx = pxPerBase;
+  const centerBase = (scroller.scrollLeft + scroller.clientWidth / 2) / oldPx;
+  pxPerBase = parseInt(e.target.value, 10);
+  layout();
+  scroller.scrollLeft = centerBase * pxPerBase - scroller.clientWidth / 2;
+  updateHighlight();
+});
+
+traceCv.addEventListener('mousemove', (e) => {
+  const rect = traceCv.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const idx = Math.floor(x / pxPerBase);
+  if(idx < 0 || idx >= N) return;
+  crosshair.style.display = 'block';
+  crosshair.style.left = `${idx * pxPerBase + pxPerBase / 2}px`;
+  tooltip.style.display = 'block';
+  tooltip.style.left = `${idx * pxPerBase + pxPerBase / 2}px`;
+  tooltip.textContent = `${idx + 1} | ${sequence[idx]} | Q${quality[idx]}`;
+});
+traceCv.addEventListener('mouseleave', () => {
+  crosshair.style.display = 'none';
+  tooltip.style.display = 'none';
+});
+
+seqText.addEventListener('click', (e) => {
+  const base = e.target.closest('.seq-base');
+  if(!base) return;
+  centerOnBase(parseInt(base.dataset.i, 10));
+});
+
+basesRow.addEventListener('click', (e) => {
+  const base = e.target.closest('.base-cell');
+  if(!base) return;
+  centerOnBase(parseInt(base.dataset.i, 10));
+});
+
+document.getElementById('copy-btn').addEventListener('click', async () => {
+  const text = sequence.join('');
+  const btn = document.getElementById('copy-btn');
+  const original = btn.textContent;
+  try{
+    await navigator.clipboard.writeText(text);
+    btn.textContent = 'Copied';
+  }catch(_err){
+    btn.textContent = 'Copy failed';
+  }
+  setTimeout(() => btn.textContent = original, 1200);
+});
+
+let dragStartY = 0;
+let dragStartHeight = 0;
+
+function startResize(e){
+  dragStartY = e.clientY;
+  dragStartHeight = viewerRegion.getBoundingClientRect().height;
+  document.body.classList.add('resizing');
+  splitter.setPointerCapture(e.pointerId);
+}
+
+function moveResize(e){
+  if(!document.body.classList.contains('resizing')) return;
+  setTracePaneHeight(dragStartHeight + e.clientY - dragStartY);
+}
+
+function stopResize(e){
+  if(!document.body.classList.contains('resizing')) return;
+  document.body.classList.remove('resizing');
+  if(splitter.hasPointerCapture(e.pointerId)){
+    splitter.releasePointerCapture(e.pointerId);
+  }
+}
+
+splitter.addEventListener('pointerdown', startResize);
+splitter.addEventListener('pointermove', moveResize);
+splitter.addEventListener('pointerup', stopResize);
+splitter.addEventListener('pointercancel', stopResize);
+splitter.addEventListener('keydown', (e) => {
+  const current = viewerRegion.getBoundingClientRect().height;
+  if(e.key === 'ArrowUp'){
+    setTracePaneHeight(current - 24);
+    e.preventDefault();
+  }else if(e.key === 'ArrowDown'){
+    setTracePaneHeight(current + 24);
+    e.preventDefault();
+  }
+});
+
+const drawer = document.getElementById('drawer');
+const scrim = document.getElementById('scrim');
+const metaBtn = document.getElementById('meta-toggle');
+function toggleDrawer(){
+  drawer.classList.toggle('open');
+  scrim.classList.toggle('open');
+  metaBtn.classList.toggle('active');
+}
+metaBtn.addEventListener('click', toggleDrawer);
+scrim.addEventListener('click', toggleDrawer);
+
+window.addEventListener('resize', () => {
+  const current = viewerRegion.getBoundingClientRect().height;
+  setTracePaneHeight(current);
+});
+
+buildSequencePanel();
+setTracePaneHeight(workspace.clientHeight * 0.34);
+layout();
+</script>
+</body>
+</html>
