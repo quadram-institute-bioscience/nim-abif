@@ -36,14 +36,7 @@
 
 import std/[os, strformat, strutils, sequtils, tables, math]
 import nimsvg
-
-# Import the abif module properly
-when defined(release):
-  # When building as a nimble package
-  import abif
-else:
-  # When running directly from source directory
-  import ./abif
+import ./abif
 
 const DefaultHighlightFill* = "#fff6a6"
 
@@ -1378,8 +1371,7 @@ proc parseHighlightRegions(spec: string): seq[HighlightRegion] =
     result.add(newHighlightRegion(startPos, endPos))
 
 proc getVersion(): string =
-  let ver = abifVersion()
-  return if ver == "<NimblePkgVersion>": "0.2.0" else: ver
+  abifVersion()
 
 proc showVersion() =
   stdout.writeLine("abichromatogram version ", getVersion())

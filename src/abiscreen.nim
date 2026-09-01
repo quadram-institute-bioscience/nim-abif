@@ -87,8 +87,7 @@ type
     verbose: bool
 
 proc getVersion(): string =
-  let ver = abifVersion()
-  if ver == "<NimblePkgVersion>": "0.1.0" else: ver
+  abifVersion()
 
 proc showVersion() =
   echo fmt"abiscreen {getVersion()}"
