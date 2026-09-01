@@ -46,6 +46,22 @@
 <li><a class="reference external"
           data-doc-search-tag="aligner: object AlignmentResult" href="aligner.html#AlignmentResult">aligner: object AlignmentResult</a></li>
           </ul></dd>
+<dt><a name="AmbiguityMode" href="#AmbiguityMode"><span>AmbiguityMode:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abi2fq: enum AmbiguityMode" href="abi2fq.html#AmbiguityMode">abi2fq: enum AmbiguityMode</a></li>
+          </ul></dd>
+<dt><a name="amEnumerate" href="#amEnumerate"><span>amEnumerate:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abi2fq: AmbiguityMode.amEnumerate" href="abi2fq.html#amEnumerate">abi2fq: AmbiguityMode.amEnumerate</a></li>
+          </ul></dd>
+<dt><a name="amMask" href="#amMask"><span>amMask:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abi2fq: AmbiguityMode.amMask" href="abi2fq.html#amMask">abi2fq: AmbiguityMode.amMask</a></li>
+          </ul></dd>
+<dt><a name="amPreserve" href="#amPreserve"><span>amPreserve:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abi2fq: AmbiguityMode.amPreserve" href="abi2fq.html#amPreserve">abi2fq: AmbiguityMode.amPreserve</a></li>
+          </ul></dd>
 <dt><a name="C" href="#C"><span>C:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abichromatogram: Channel.C" href="abichromatogram.html#C">abichromatogram: Channel.C</a></li>
@@ -89,6 +105,10 @@
 <dt><a name="ElementType" href="#ElementType"><span>ElementType:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abif: enum ElementType" href="abif.html#ElementType">abif: enum ElementType</a></li>
+          </ul></dd>
+<dt><a name="enumerateAmbiguousBases" href="#enumerateAmbiguousBases"><span>enumerateAmbiguousBases:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abi2fq: proc enumerateAmbiguousBases(sequence: string; maxVariants: int): seq[string]" href="abi2fq.html#enumerateAmbiguousBases%2Cstring%2Cint">abi2fq: proc enumerateAmbiguousBases(sequence: string; maxVariants: int): seq[string]</a></li>
           </ul></dd>
 <dt><a name="etBool" href="#etBool"><span>etBool:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -256,6 +276,10 @@
 <li><a class="reference external"
           data-doc-search-tag="abimerge: proc makeMatrix[T](rows, cols: int; initValue: T): seq[seq[T]]" href="abimerge.html#makeMatrix%2Cint%2Cint%2CT">abimerge: proc makeMatrix[T](rows, cols: int; initValue: T): seq[seq[T]]</a></li>
           </ul></dd>
+<dt><a name="maskAmbiguousBases" href="#maskAmbiguousBases"><span>maskAmbiguousBases:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abi2fq: proc maskAmbiguousBases(sequence: string): string" href="abi2fq.html#maskAmbiguousBases%2Cstring">abi2fq: proc maskAmbiguousBases(sequence: string): string</a></li>
+          </ul></dd>
 <dt><a name="matchIUPAC" href="#matchIUPAC"><span>matchIUPAC:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abimerge: proc matchIUPAC(a, b: char): bool" href="abimerge.html#matchIUPAC%2Cchar%2Cchar">abimerge: proc matchIUPAC(a, b: char): bool</a></li>
@@ -292,7 +316,7 @@
           </ul></dd>
 <dt><a name="printHelp" href="#printHelp"><span>printHelp:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="abi2fq: proc printHelp()" href="abi2fq.html#printHelp">abi2fq: proc printHelp()</a></li>
+          data-doc-search-tag="abi2fq: proc printHelp(exitCode: int = 0)" href="abi2fq.html#printHelp%2Cint">abi2fq: proc printHelp(exitCode: int = 0)</a></li>
           <li><a class="reference external"
           data-doc-search-tag="abimetadata: proc printHelp()" href="abimetadata.html#printHelp">abimetadata: proc printHelp()</a></li>
           </ul></dd>
@@ -321,6 +345,10 @@
 <dt><a name="reverseString" href="#reverseString"><span>reverseString:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abimerge: proc reverseString(str: string): string" href="abimerge.html#reverseString%2Cstring">abimerge: proc reverseString(str: string): string</a></li>
+          </ul></dd>
+<dt><a name="sanitizeRecordName" href="#sanitizeRecordName"><span>sanitizeRecordName:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abi2fq: proc sanitizeRecordName(name, fallback: string): string" href="abi2fq.html#sanitizeRecordName%2Cstring%2Cstring">abi2fq: proc sanitizeRecordName(name, fallback: string): string</a></li>
           </ul></dd>
 <dt><a name="simpleSmithWaterman" href="#simpleSmithWaterman"><span>simpleSmithWaterman:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -368,6 +396,14 @@
              threshold: int): tuple[seq: string, qual: seq[int]]" href="qualitytrim.html#trimSequence%2Cstring%2Cseq%5Bint%5D%2Cint%2Cint">qualitytrim: proc trimSequence(sequence: string; qualities: seq[int]; windowSize: int;
              threshold: int): tuple[seq: string, qual: seq[int]]</a></li>
           </ul></dd>
+<dt><a name="validateQualityRange" href="#validateQualityRange"><span>validateQualityRange:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abi2fq: proc validateQualityRange(qualities: seq[int])" href="abi2fq.html#validateQualityRange%2Cseq%5Bint%5D">abi2fq: proc validateQualityRange(qualities: seq[int])</a></li>
+          </ul></dd>
+<dt><a name="validateSequenceAndQualities" href="#validateSequenceAndQualities"><span>validateSequenceAndQualities:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="abi2fq: proc validateSequenceAndQualities(sequence: string; qualities: seq[int])" href="abi2fq.html#validateSequenceAndQualities%2Cstring%2Cseq%5Bint%5D">abi2fq: proc validateSequenceAndQualities(sequence: string; qualities: seq[int])</a></li>
+          </ul></dd>
 <dt><a name="verifyTagUpdate" href="#verifyTagUpdate"><span>verifyTagUpdate:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="abimetadata: proc verifyTagUpdate(inputFile, outputFile, tagName: string): bool" href="abimetadata.html#verifyTagUpdate%2Cstring%2Cstring%2Cstring">abimetadata: proc verifyTagUpdate(inputFile, outputFile, tagName: string): bool</a></li>
@@ -390,7 +426,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-31 15:49:40 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-31 16:16:03 UTC</small>
       </div>
     </div>
   </div>
