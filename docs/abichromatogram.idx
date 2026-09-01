@@ -1,16 +1,16 @@
 nimTitle	abichromatogram	abichromatogram.html	module src/abichromatogram		0
-nim	DefaultHighlightFill	abichromatogram.html#DefaultHighlightFill	const DefaultHighlightFill		48
-nim	A	abichromatogram.html#A	Channel.A		51
-nim	C	abichromatogram.html#C	Channel.C		51
-nim	G	abichromatogram.html#G	Channel.G		51
-nim	T	abichromatogram.html#T	Channel.T		51
-nim	Channel	abichromatogram.html#Channel	enum Channel		51
-nim	TraceDataPoint	abichromatogram.html#TraceDataPoint	object TraceDataPoint		55
-nim	TraceData	abichromatogram.html#TraceData	object TraceData		60
-nim	HighlightRegion	abichromatogram.html#HighlightRegion	object HighlightRegion		69
-nim	newHighlightRegion	abichromatogram.html#newHighlightRegion,int,int,string,string	proc newHighlightRegion(startPos, endPos: int; fill: string = DefaultHighlightFill;\n                   label: string = ""): HighlightRegion		76
-nim	getTraceData	abichromatogram.html#getTraceData,ABIFTrace,bool	proc getTraceData(trace: ABIFTrace; debug: bool = false): TraceData		83
-nim	renderChromatogramSvg	abichromatogram.html#renderChromatogramSvg,TraceData,string,int,int,bool,int,int,int,seq[HighlightRegion]	proc renderChromatogramSvg(data: TraceData; sampleName: string; width: int = 1200;\n                      height: int = 600; showBaseCalls: bool = true;\n                      startPos: int = 0; endPos: int = -1; downsample: int = 1;\n                      highlights: seq[HighlightRegion] = @[]): string		310
-nim	htmlEscape	abichromatogram.html#htmlEscape,string	proc htmlEscape(s: string): string		543
-nim	renderChromatogramHtml	abichromatogram.html#renderChromatogramHtml,ABIFTrace,TraceData,string,int,int,bool,int,int,int,seq[HighlightRegion]	proc renderChromatogramHtml(trace: ABIFTrace; data: TraceData; inputFile: string;\n                       width: int = 1200; height: int = 600;\n                       showBaseCalls: bool = true; startPos: int = 0;\n                       endPos: int = -1; downsample: int = 1;\n                       highlights: seq[HighlightRegion] = @[]): string		756
-nim	writeChromatogramHtml	abichromatogram.html#writeChromatogramHtml,ABIFTrace,TraceData,string,string,int,int,bool,int,int,int,seq[HighlightRegion]	proc writeChromatogramHtml(trace: ABIFTrace; data: TraceData;\n                      inputFile, outFile: string; width: int = 1200;\n                      height: int = 600; showBaseCalls: bool = true;\n                      startPos: int = 0; endPos: int = -1; downsample: int = 1;\n                      highlights: seq[HighlightRegion] = @[]): bool		1328
+nim	DefaultHighlightFill	abichromatogram.html#DefaultHighlightFill	const DefaultHighlightFill		41
+nim	A	abichromatogram.html#A	Channel.A		44
+nim	C	abichromatogram.html#C	Channel.C		44
+nim	G	abichromatogram.html#G	Channel.G		44
+nim	T	abichromatogram.html#T	Channel.T		44
+nim	Channel	abichromatogram.html#Channel	enum Channel		44
+nim	TraceDataPoint	abichromatogram.html#TraceDataPoint	object TraceDataPoint		48
+nim	TraceData	abichromatogram.html#TraceData	object TraceData		53
+nim	HighlightRegion	abichromatogram.html#HighlightRegion	object HighlightRegion		62
+nim	newHighlightRegion	abichromatogram.html#newHighlightRegion,int,int,string,string	proc newHighlightRegion(startPos, endPos: int; fill: string = DefaultHighlightFill;\n                   label: string = ""): HighlightRegion		69
+nim	getTraceData	abichromatogram.html#getTraceData,ABIFTrace,bool	proc getTraceData(trace: ABIFTrace; debug: bool = false): TraceData		76
+nim	renderChromatogramSvg	abichromatogram.html#renderChromatogramSvg,TraceData,string,int,int,bool,int,int,int,seq[HighlightRegion]	proc renderChromatogramSvg(data: TraceData; sampleName: string; width: int = 1200;\n                      height: int = 600; showBaseCalls: bool = true;\n                      startPos: int = 0; endPos: int = -1; downsample: int = 1;\n                      highlights: seq[HighlightRegion] = @[]): string		303
+nim	htmlEscape	abichromatogram.html#htmlEscape,string	proc htmlEscape(s: string): string		536
+nim	renderChromatogramHtml	abichromatogram.html#renderChromatogramHtml,ABIFTrace,TraceData,string,int,int,bool,int,int,int,seq[HighlightRegion]	proc renderChromatogramHtml(trace: ABIFTrace; data: TraceData; inputFile: string;\n                       width: int = 1200; height: int = 600;\n                       showBaseCalls: bool = true; startPos: int = 0;\n                       endPos: int = -1; downsample: int = 1;\n                       highlights: seq[HighlightRegion] = @[]): string		749
+nim	writeChromatogramHtml	abichromatogram.html#writeChromatogramHtml,ABIFTrace,TraceData,string,string,int,int,bool,int,int,int,seq[HighlightRegion]	proc writeChromatogramHtml(trace: ABIFTrace; data: TraceData;\n                      inputFile, outFile: string; width: int = 1200;\n                      height: int = 600; showBaseCalls: bool = true;\n                      startPos: int = 0; endPos: int = -1; downsample: int = 1;\n                      highlights: seq[HighlightRegion] = @[]): bool		1321
