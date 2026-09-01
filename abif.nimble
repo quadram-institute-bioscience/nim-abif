@@ -30,6 +30,7 @@ task test, "Run the test suite":
   exec "nim c --nimcache:nimcache/test_versions -r tests/test_versions.nim"
   exec "nim c -r tests/test_abi2fq.nim"
   exec "nim c -r tests/test_abichromatogram.nim"
+  exec "nim c --nimcache:nimcache/test_viewer_html -r tests/test_viewer_html.nim"
   exec "nim c -r tests/test_abimerge.nim"
   exec "nim c -r tests/test_edit_smpl.nim"
   exec "nim c -r --threads:on tests/test_abiscreen.nim"
@@ -54,6 +55,9 @@ task test_versions, "Run CLI version tests":
 task test_abichromatogram, "Run abichromatogram tool tests":
   exec "nimble buildbin"
   exec "nim c -r tests/test_abichromatogram.nim"
+
+task test_viewer_html, "Run docs viewer HTML smoke tests":
+  exec "nim c --nimcache:nimcache/test_viewer_html -r tests/test_viewer_html.nim"
 
 task test_abimerge, "Run abimerge tool tests":
   exec "nimble buildbin"
