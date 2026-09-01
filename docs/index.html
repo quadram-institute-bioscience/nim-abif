@@ -85,7 +85,10 @@
          <p>
           <!-- Github action -->
           <a href="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml">
-              <img src="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml/badge.svg" alt="CI status">
+              <a href="https://github.com/quadram-institute-bioscience/nim-abif/actions"><img src="https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml/badge.svg" alt="CI status"></a>
+   	      <a href="https://bioconda.github.io/recipes/nim-abif/README.html"><img alt="Conda Version" src="https://img.shields.io/conda/v/bioconda/nim-abif"></a>
+	      <a href="https://bioconda.github.io/recipes/nim-abif/README.html"><img alt="Conda Platform" src="https://img.shields.io/conda/p/bioconda/nim-abif"></a>
+
           </a>
          </p>
        <div class="project-section">
@@ -157,11 +160,17 @@ abi2fq --no-trim trace.ab1 output.fq
         <div class="code-example">abichromatogram file.ab1 -o image.svg -s 500 -e 1000 --width 1600</div>
       </div>
 
-      <div class="tool-box">
+       <div class="tool-box">
         <div class="tool-name"><a href="abimetadata.html">abimetadata</a></div>
         <p>Print tags from traces</p>
         <div class="code-example">abimetadata trace_F.ab1</div>
-      </div>
+       </div>
+
+       <div class="tool-box">
+        <div class="tool-name"><a href="abiscreen.html">abiscreen</a></div>
+        <p>Batch hotspot mutation screening across many .ab1 traces. Aligns each trace against a panel of reference amplicons (orientation auto-detected) and classifies the state at each hotspot position as Reference, Variant, Heterozygous, Ambiguous, or FailedQC. Emits CSV, VCF, and a self-contained HTML report with per-call chromatogram evidence. Files are processed in parallel.</p>
+        <div class="code-example">abiscreen -i traces/ -p targets.tsv -r refs.fa -o results/</div>
+       </div>
 
        <div class="project-section">
         <h2>Installation</h2>

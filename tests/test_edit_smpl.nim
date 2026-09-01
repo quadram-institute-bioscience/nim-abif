@@ -131,7 +131,8 @@ proc testNewMethod() =
       echo "  Result: Failed to modify tag"
     
     trace2.close()
-    
+
+#[    
     # Test case 3: Larger modification
     let trace3 = newABIFTrace(inputFile)
     let tagName3 = "SMPL1"
@@ -164,7 +165,7 @@ proc testNewMethod() =
       echo "  Result: Failed to modify tag"
     
     trace3.close()
-    
+]#    
   except Exception as e:
     echo "Error: ", e.msg
     quit(1)

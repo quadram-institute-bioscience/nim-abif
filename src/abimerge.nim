@@ -1,5 +1,6 @@
 import std/[os, strformat, strutils, parseopt]
 import ./abif
+import ./qualitytrim
 
 ## This module provides a command-line tool for merging two ABI trace files 
 ## (forward and reverse) into a single sequence.
@@ -18,6 +19,7 @@ import ./abif
 ##   -m, --min-overlap INT      Minimum overlap length for merging (default: 20)
 ##   -o, --output STRING        Output file name (default: STDOUT)
 ##   -j, --join INT             Join with gap of INT Ns if no overlap detected
+##   --fasta                    Output in FASTA format instead of FASTQ
 ##   --score-match INT          Score for a match (default: 10)
 ##   --score-mismatch INT       Score for a mismatch (default: -8)
 ##   --score-gap INT            Score for a gap (default: -10)
@@ -35,6 +37,9 @@ import ./abif
 ##
 ##   # Join sequences with N gap if no overlap
 ##   abimerge -j 10 forward.ab1 reverse.ab1 merged.fastq
+##
+##   # Output in FASTA format instead of FASTQ
+##   abimerge --fasta forward.ab1 reverse.ab1 merged.fasta
 
 type
   swAlignment* = object
@@ -270,6 +275,7 @@ type
     qualityThreshold*: int   # Quality threshold for trimming
     noTrim*: bool        # Whether to disable quality trimming
     showVersion*: bool   # Whether to show version information
+    fasta*: bool         # Whether to output in FASTA format
 
 proc printHelp() =
   echo """
@@ -284,6 +290,7 @@ Options:
   -o, --output STRING        Output file name (default: STDOUT)
   -j, --join INT             If no overlap is detected join the two sequences with a gap of INT Ns
                              (reverse complement the second sequence)
+  --fasta                    Output in FASTA format instead of FASTQ
   Quality Trimming Options:
   -w, --window=INT           Window size for quality trimming (default: 4)
   -q, --quality=INT          Quality threshold 0-60 (default: 22)
@@ -300,43 +307,6 @@ Options:
 """
   quit(0)
 
-proc trimSequence(sequence: string, qualities: seq[int], 
-                  windowSize: int, threshold: int): tuple[seq: string, qual: seq[int]] =
-  # Check if sequence is too short for trimming
-  if sequence.len < windowSize or qualities.len < windowSize:
-    return (sequence, qualities)
-  
-  var startPos, endPos = 0
-  
-  # Find start position (trim low quality from beginning)
-  for i in 0 .. (sequence.len - windowSize):
-    var windowSum = 0
-    for j in 0 ..< windowSize:
-      windowSum += qualities[i + j]
-    
-    let windowAvg = windowSum / windowSize
-    if windowAvg >= threshold.float:
-      startPos = i
-      break
-  
-  # Find end position (trim low quality from end)
-  for i in countdown(sequence.len - windowSize, 0):
-    var windowSum = 0
-    for j in 0 ..< windowSize:
-      windowSum += qualities[i + j]
-    
-    let windowAvg = windowSum / windowSize
-    if windowAvg >= threshold.float:
-      endPos = i + windowSize
-      break
-  
-  # Handle case where entire sequence is below threshold
-  if endPos <= startPos:
-    return ("", @[])
-  
-  result.seq = sequence[startPos ..< endPos]
-  result.qual = qualities[startPos ..< endPos]
-
 proc parseCommandLine(): Config =
   var p = initOptParser(commandLineParams())
   result = Config(
@@ -352,7 +322,8 @@ proc parseCommandLine(): Config =
     windowSize: 4,       # Default window size for quality trimming
     qualityThreshold: 22, # Default quality threshold
     noTrim: false,        # Enable trimming by default
-    showVersion: false    # Don't show version by default
+    showVersion: false,   # Don't show version by default
+    fasta: false          # Default to FASTQ format
   )
   
   var fileArgs: seq[string] = @[]
@@ -377,6 +348,8 @@ proc parseCommandLine(): Config =
         if result.joinGap < 0:
           echo "Error: Join gap must not be negative"
           quit(1)
+      of "fasta":
+        result.fasta = true
       # Quality trimming options
       of "w", "window":
         result.windowSize = parseInt(val)
@@ -770,20 +743,25 @@ proc mergeSequences*(forwardSeq: string, forwardQual: seq[int],
     result.seq = mergedSeq
     result.qual = mergedQual
 
-proc writeFastq(sequence: string, qualities: seq[int], name: string, outFile: string = "") =
-  # Convert quality values to Phred+33 format
-  var qualityString = ""
-  for qv in qualities:
-    qualityString.add(chr(qv + 33))
+proc writeSequence(sequence: string, qualities: seq[int], name: string, outFile: string = "", fastaMode: bool = false) =
+  var content: string
   
-  let fastqContent = &"@{name}_merged\n{sequence}\n+\n{qualityString}"
+  if fastaMode:
+    # FASTA format - just header and sequence, no quality scores
+    content = &">{name}_merged\n{sequence}"
+  else:
+    # FASTQ format - header, sequence, + line, and quality scores
+    var qualityString = ""
+    for qv in qualities:
+      qualityString.add(chr(qv + 33))
+    content = &"@{name}_merged\n{sequence}\n+\n{qualityString}"
   
   if outFile == "":
     # Write to stdout
-    stdout.write(fastqContent & "\n")
+    stdout.write(content & "\n")
   else:
     # Write to file
-    writeFile(outFile, fastqContent & "\n")
+    writeFile(outFile, content & "\n")
 
 proc main() =
   let config = parseCommandLine()
@@ -793,6 +771,7 @@ proc main() =
     echo "  Forward: ", config.inputFileF
     echo "  Reverse: ", config.inputFileR
     echo "  Output: ", if config.outputFile == "": "STDOUT" else: config.outputFile
+    echo "  Output format: ", if config.fasta: "FASTA" else: "FASTQ"
     echo "Parameters:"
     echo "  Minimum overlap: ", config.minOverlap
     echo "  Match score: ", config.scoreMatch
@@ -865,8 +844,8 @@ proc main() =
     # Use sample name from forward read as the merged read name
     let mergedName = nameF
     
-    # Write output FASTQ
-    writeFastq(merged.seq, merged.qual, mergedName, config.outputFile)
+    # Write output in FASTA or FASTQ format
+    writeSequence(merged.seq, merged.qual, mergedName, config.outputFile, config.fasta)
     
     # Close traces
     traceF.close()

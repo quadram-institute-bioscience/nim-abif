@@ -1,0 +1,2 @@
+nimTitle	qualitytrim	qualitytrim.html	module src/qualitytrim		0
+nim	trimSequence	qualitytrim.html#trimSequence,string,seq[int],int,int	proc trimSequence(sequence: string; qualities: seq[int]; windowSize: int;\n             threshold: int): tuple[seq: string, qual: seq[int]]		6

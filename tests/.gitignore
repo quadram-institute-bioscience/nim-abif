@@ -1,2 +1,6 @@
 *
 !*.*
+!fixtures/
+!fixtures/**
+!golden/
+!golden/**

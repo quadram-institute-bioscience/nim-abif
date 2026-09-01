@@ -11,4 +11,4 @@ nim	listMetadata	abimetadata.html#listMetadata,ABIFTrace,bool,int	proc listMetad
 nim	verifyTagUpdateBasic	abimetadata.html#verifyTagUpdateBasic,string,string,string,string,int	proc verifyTagUpdateBasic(inputFile, outputFile, tagName: string; newValue: string;\n                     offset: int): bool		561
 nim	verifyTagUpdate	abimetadata.html#verifyTagUpdate,string,string,string	proc verifyTagUpdate(inputFile, outputFile, tagName: string): bool		622
 nim	modifyTag	abimetadata.html#modifyTag,ABIFTrace,string,string,string	proc modifyTag(trace: ABIFTrace; tagName: string; newValue: string;\n          outputFile: string): bool		719
-nim	main	abimetadata.html#main	proc main()		927
+nim	main	abimetadata.html#main	proc main()		818

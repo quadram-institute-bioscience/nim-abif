@@ -3,6 +3,9 @@
 # ABIF Parser for Nim
 
 [![ABIF Tests](https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml/badge.svg)](https://github.com/quadram-institute-bioscience/nim-abif/actions/workflows/test.yaml)
+[![Conda Version](https://img.shields.io/conda/v/bioconda/nim-abif)](https://bioconda.github.io/recipes/nim-abif/README.html)
+[![Conda Platform](https://img.shields.io/conda/p/bioconda/nim-abif)](https://bioconda.github.io/recipes/nim-abif/README.html)
+
 
 A Nim library to parse [ABIF](chromatograms.md) (Applied Biosystems Information Format)
 files from DNA sequencing machines, commonly used in Sanger capillary sequencing.
@@ -13,14 +16,15 @@ files from DNA sequencing machines, commonly used in Sanger capillary sequencing
 
 ## Installation
 
+To install the CLI packages:
+
+```bash 
+conda install -c bioconda nim-abif
+```
+
+If you have Nim installed, you can install binaries and library with:
 ```
 nimble install abif
-```
-
-Or add to your `.nimble` file:
-
-```
-requires "abif >= 0.1.0"
 ```
 
 ## Usage
@@ -106,6 +110,24 @@ Convert a trace (or part of it) into SVG
 
 ```bash
 abichromatogram tests/A_forward.ab1 -o A.svg -s 500 -e 1000 --width 1600
+```
+
+#### Batch hotspot mutation screening
+
+Screen many traces against a panel of hotspot mutations, producing CSV, VCF, and an interactive HTML report with per-call chromatogram evidence.
+
+```
+abiscreen -i traces/ -p targets.tsv -r refs.fa -o results/
+```
+
+Files are aligned against the reference panel (orientation auto-detected) and the state at each hotspot position is classified as Reference, Variant, Heterozygous, Ambiguous, or FailedQC.
+
+```
+abiscreen --help                                     # Show help message
+abiscreen -i traces/ -p targets.tsv -r refs.fa -o results/                # Default: emit CSV, VCF, and HTML
+abiscreen --report csv,vcf -i traces/ -p targets.tsv -r refs.fa -o out/   # Emit only CSV and VCF
+abiscreen --min-q 20 --min-identity 0.65 -i traces/ -p targets.tsv -r refs.fa -o out/  # Custom QC thresholds
+abiscreen --threads 4 -i traces/ -p targets.tsv -r refs.fa -o out/        # Limit worker threads
 ```
 
 ## Data Types

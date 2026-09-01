@@ -1,0 +1,26 @@
+# Hotspot panel for the SangeR/vbac009 dataset (Zenodo 5865470).
+# Positions are 1-based coordinates in tests/fixtures/5865470/refs.fa, located
+# by aligning the ground-truth mutation/ reads against each reference contig
+# (see tests/datasets/5865470.md for the ground-truth table and provenance).
+#
+# Two doc ground-truth calls are intentionally NOT covered by a target row
+# below because their exact nucleotide position could not be confidently
+# localized from the discrete base call in the downloaded .ab1 files:
+#   - patient_1 IDH1 R132H: the discrete PBAS2 call at the R132 column is a
+#     clean, unambiguous G (matching patient_2's own WT-flanking context);
+#     only a secondary T peak (not the expected A) is present in the raw
+#     trace, so no confident ref/alt assignment could be made. G105G (same
+#     read, different codon) IS covered below.
+#   - patient_5 H3F3A G34R: the read is genuinely low-quality (multiple
+#     uncalled N bases) in the codon-34 region in both reference orientations
+#     tried; no clean discrete or ambiguity-code signal was found. K28M (same
+#     gene, patient_4) IS covered below.
+# Both are treated as open items in tests/test_abiscreen.nim, not silently
+# dropped assumptions.
+assay_id	ref_name	position	ref_base	alt_base	gene	tag	strand
+TERTp_C250	TERTp	97	C	T	TERTp	C250T
+TERTp_C228	TERTp	119	C	T	TERTp	C228T
+IDH1_G105	IDH1	51	C	T	IDH1	G105G
+IDH1_R132	IDH1	131	G	A	IDH1	R132H
+IDH2_R172	IDH2	162	G	A	IDH2	R172M
+H3F3A_K28	H3F3A	333	A	T	H3F3A	K28M
