@@ -1,4 +1,5 @@
-import std/[streams, tables, strformat, endians]
+import std/[streams, tables, strformat, strutils, endians]
+import ./qualitytrim
 
 ## This module provides a parser for ABIF (Applied Biosystems Input Format) files, commonly used for
 ## DNA sequencing data (e.g., .ab1 files).
@@ -244,12 +245,19 @@ proc unpackData(trace: ABIFTrace, entry: DirectoryEntry): string =
     # For unsupported types, just read the raw data
     result = s.readStringBE(entry.dataSize)
 
-proc newABIFTrace*(filename: string, trimming: bool = false): ABIFTrace =
+proc newABIFTrace*(filename: string, trimming: bool = false,
+                   trimWindow: int = 10, trimThreshold: int = 20): ABIFTrace =
   ## Creates a new ABIFTrace object from the specified file.
   ##
   ## Parameters:
   ##   filename: Path to the ABIF file
-  ##   trimming: If true, low quality regions are trimmed (not implemented)
+  ##   trimming: If true, low quality regions are trimmed from the sequence ends
+  ##             using a sliding window approach.
+  ##   trimWindow: Size of the sliding window for quality assessment (default: 10).
+  ##               Only used when trimming is true.
+  ##   trimThreshold: Quality threshold — bases in windows with average quality
+  ##                  below this value are trimmed (default: 20). Only used when
+  ##                  trimming is true.
   ##
   ## Returns:
   ##   A new ABIFTrace object
@@ -294,6 +302,20 @@ proc newABIFTrace*(filename: string, trimming: bool = false): ABIFTrace =
     if Extract.hasKey(key):
       let extractedKey = Extract[key]
       result.data[extractedKey] = unpackData(result, entry)
+
+  # Apply quality trimming if requested
+  if trimming and result.data.hasKey("sequence") and result.data.hasKey("quality"):
+    let seq = result.data["sequence"]
+    var qual: seq[int]
+    for c in result.data["quality"]:
+      qual.add(ord(c))
+    let trimmed = trimSequence(seq, qual, trimWindow, trimThreshold)
+    if trimmed.seq.len > 0:
+      result.data["sequence"] = trimmed.seq
+      var trimmedQualStr = ""
+      for qv in trimmed.qual:
+        trimmedQualStr.add(chr(qv))
+      result.data["quality"] = trimmedQualStr
 
 proc close*(trace: ABIFTrace) =
   ## Closes the file stream associated with the trace.
@@ -347,22 +369,32 @@ proc getSampleName*(trace: ABIFTrace): string =
     return trace.data["name"]
   return trace.getData("SMPL1")
 
+proc sanitizeRecordName*(name, fallback: string): string =
+  ## Removes control characters and falls back to a stable non-empty name.
+  let candidate = if name.strip().len > 0: name.strip() else: fallback.strip()
+  for character in candidate:
+    if ord(character) >= 32 and ord(character) != 127:
+      result.add(character)
+  if result.len == 0:
+    for character in fallback.strip():
+      if ord(character) >= 32 and ord(character) != 127:
+        result.add(character)
+  if result.len == 0:
+    result = "unnamed"
+
 proc exportFasta*(trace: ABIFTrace, outFile: string = "") =
   ## Exports the sequence to a FASTA format file.
   ##
   ## Parameters:
   ##   outFile: Path to the output file. If empty, "trace.fa" is used.
+  ##            The record ID is the sanitized sample name, not this filename.
   let sequence = trace.getSequence()
   if sequence.len == 0:
     return
-  
-  let name = trace.getSampleName()
-  var id = outFile
-  if id == "":
-    id = "trace"
-  
-  let contents = &">{id} {name}\n{sequence}\n"
-  
+
+  let sampleName = sanitizeRecordName(trace.getSampleName(), "trace")
+  let contents = &">{sampleName}\n{sequence}\n"
+
   let fileName = if outFile == "": "trace.fa" else: outFile
   writeFile(fileName, contents)
 
@@ -371,21 +403,19 @@ proc exportFastq*(trace: ABIFTrace, outFile: string = "") =
   ##
   ## Parameters:
   ##   outFile: Path to the output file. If empty, "trace.fq" is used.
+  ##            The record ID is the sanitized sample name, not this filename.
   let sequence = trace.getSequence()
   if sequence.len == 0:
     return
-  
-  let name = trace.getSampleName()
-  var id = outFile
-  if id == "":
-    id = "trace"
-  
+
+  let sampleName = sanitizeRecordName(trace.getSampleName(), "trace")
+
   var quality = ""
   for qv in trace.getQualityValues():
     quality.add(chr(qv + 33))  # Convert to Phred+33 format
-  
-  let contents = &"@{id} {name}\n{sequence}\n+\n{quality}\n"
-  
+
+  let contents = &"@{sampleName}\n{sequence}\n+\n{quality}\n"
+
   let fileName = if outFile == "": "trace.fq" else: outFile
   writeFile(fileName, contents)
 

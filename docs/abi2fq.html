@@ -16,10 +16,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.2.8">
+<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.2.4">
 
 <!-- JS -->
-<script type="text/javascript" src="dochack.js?v=2.2.8"></script>
+<script type="text/javascript" src="dochack.js?v=2.2.4"></script>
 </head>
 <body>
   <div class="document" id="documentId">
@@ -102,10 +102,6 @@
   <li><a class="reference" href="#printHelp%2Cint" title="printHelp(exitCode: int = 0)">printHelp(exitCode: int = 0)</a></li>
 
 </ul>
-<ul class="simple nested-toc-section">sanitizeRecordName
-  <li><a class="reference" href="#sanitizeRecordName%2Cstring%2Cstring" title="sanitizeRecordName(name, fallback: string): string">sanitizeRecordName(name, fallback: string): string</a></li>
-
-</ul>
 <ul class="simple nested-toc-section">splitAmbiguousBases
   <li><a class="reference" href="#splitAmbiguousBases%2Cstring" title="splitAmbiguousBases(sequence: string): tuple[seq1: string, seq2: string]">splitAmbiguousBases(sequence: string): tuple[seq1: string, seq2: string]</a></li>
 
@@ -129,6 +125,9 @@
 
     </ul>
   </details>
+</li>
+<li>
+  <a class="reference reference-toplevel" href="#19" id="69">Exports</a>
 </li>
 
 </ul>
@@ -195,8 +194,8 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
   <dd>
     
     Controls how IUPAC ambiguity codes are represented in output sequences.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L59" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L59" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L60" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L60" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -218,8 +217,8 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
   <dd>
     
     Configuration for the abi2fq tool. Contains command-line options and settings.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L63" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L63" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L64" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L64" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -236,8 +235,8 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
   <dd>
     
     Expands all standard IUPAC alternatives up to maxVariants sequences.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L360" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L360" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L348" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L348" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -252,8 +251,8 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
     <p>Main entry point for the abi2fq program.</p>
 <p>Handles command-line parsing, reads the input ABIF file, performs quality trimming if enabled, and outputs the result in FASTQ or FASTA format (depending on the --fasta option).</p>
 
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L377" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L377" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L365" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L365" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -266,8 +265,8 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
   <dd>
     
     Replaces standard IUPAC ambiguity codes with N.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L336" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L336" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L324" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L324" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -288,8 +287,8 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
 </ul>
 <p>Returns: A Config object with settings based on command-line arguments</p>
 
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L112" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L112" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L113" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L113" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -302,22 +301,8 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
   <dd>
     
     Displays the help message for the abi2fq tool. Exits the program after displaying the message.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L80" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L80" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
-
-  </dd>
-</div>
-
-</div>
-<div id="sanitizeRecordName-procs-all">
-  <div id="sanitizeRecordName,string,string">
-  <dt><pre><span class="Keyword">proc</span> <a href="#sanitizeRecordName%2Cstring%2Cstring"><span class="Identifier">sanitizeRecordName</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">,</span> <span class="Identifier">fallback</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
-  <dd>
-    
-    Removes control characters and falls back to a stable non-empty name.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L238" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L238" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L81" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L81" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -341,8 +326,8 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
 <p>Parameters: sequence: The DNA sequence to split</p>
 <p>Returns: A tuple containing the two split sequences</p>
 
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L299" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L299" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L287" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L287" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -355,8 +340,8 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
   <dd>
     
     Ensures quality scores can be represented using standard Phred+33 FASTQ.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L231" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L231" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L232" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L232" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -369,8 +354,8 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
   <dd>
     
     Ensures every called base has a corresponding quality score.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L225" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L225" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L226" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L226" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -388,14 +373,20 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
 <p>If outFile is empty, the data is written to stdout. If fasta is true, the output will be in FASTA format instead of FASTQ. If splitSeq1 and splitSeq2 are not empty, writes them as two separate records.</p>
 <p>Parameters: sequence: The DNA sequence to write (used when not splitting) qualities: Quality scores for each base; optional for FASTA output name: The sample name for the header outFile: Path to the output file (empty string for stdout) fasta: Whether to output in FASTA format instead of FASTQ splitSeq1: First sequence when splitting ambiguous bases splitSeq2: Second sequence when splitting ambiguous bases</p>
 
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L278" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L278" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abi2fq.nim#L266" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abi2fq.nim#L266" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 
+  </dl>
+</div>
+<div class="section" id="19">
+  <h1><a class="toc-backref" href="#19">Exports</a></h1>
+  <dl class="item">
+    <a href="abif.html#sanitizeRecordName,string,string"><span class="Identifier">sanitizeRecordName</span></a>
   </dl>
 </div>
 
@@ -405,7 +396,7 @@ abi2fq --min-length=100 input.ab1 output.fastq</pre></p>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-01 15:22:06 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-02 12:10:34 UTC</small>
       </div>
     </div>
   </div>

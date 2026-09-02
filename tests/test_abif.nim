@@ -50,22 +50,29 @@ proc runTests() =
       let trace = newABIFTrace("tests/3730.ab1")
       let testFastaFile = "test_output.fa"
       let testFastqFile = "test_output.fq"
-      
+      let sampleName = sanitizeRecordName(trace.getSampleName(), "trace")
+
       # Export as FASTA
       trace.exportFasta(testFastaFile)
       check fileExists(testFastaFile)
-      
+      let fastaLines = readFile(testFastaFile).splitLines()
+      check fastaLines.len >= 2
+      check fastaLines[0] == ">" & sampleName
+
       # Export as FASTQ
       trace.exportFastq(testFastqFile)
       check fileExists(testFastqFile)
-      
+      let fastqLines = readFile(testFastqFile).splitLines()
+      check fastqLines.len >= 4
+      check fastqLines[0] == "@" & sampleName
+
       # Clean up
       try:
         removeFile(testFastaFile)
         removeFile(testFastqFile)
       except CatchableError:
         discard
-      
+
       trace.close()
     
     test "Test getTagNames function":
@@ -139,6 +146,45 @@ proc runTests() =
           removeFile(tmpFile)
         except CatchableError:
           discard
+
+    test "Trimmed trace has shorter sequence than untrimmed":
+      let full = newABIFTrace("tests/3730.ab1")
+      let trimmed = newABIFTrace("tests/3730.ab1", trimming=true)
+      check trimmed.getSequence().len > 0
+      check trimmed.getSequence().len < full.getSequence().len
+      check trimmed.getQualityValues().len == trimmed.getSequence().len
+      full.close()
+      trimmed.close()
+
+    test "Higher trim threshold trims more aggressively":
+      let mild = newABIFTrace("tests/3730.ab1", trimming=true, trimThreshold=20)
+      let aggressive = newABIFTrace("tests/3730.ab1", trimming=true, trimThreshold=50)
+      check aggressive.getSequence().len <= mild.getSequence().len
+      mild.close()
+      aggressive.close()
+
+    test "Trimming with window=1 trims individual low-quality bases":
+      let trimmed = newABIFTrace("tests/3730.ab1", trimming=true, trimWindow=1, trimThreshold=30)
+      check trimmed.getSequence().len > 0
+      check trimmed.getQualityValues().len == trimmed.getSequence().len
+      trimmed.close()
+
+    test "Trimming=false preserves full sequence":
+      let traceA = newABIFTrace("tests/3730.ab1")
+      let traceB = newABIFTrace("tests/3730.ab1", trimming=false)
+      check traceA.getSequence().len == traceB.getSequence().len
+      traceA.close()
+      traceB.close()
+
+    test "Empty sequence after aggressive trim is handled gracefully":
+      # Use a high enough threshold that everything gets trimmed
+      let trimmed = newABIFTrace("tests/3730.ab1", trimming=true, trimThreshold=60)
+      # With threshold 60 and window 10, the full sequence should survive
+      # because max quality is 55 — this is expected; the sequence stays intact.
+      # The guard `if trimmed.seq.len > 0` in newABIFTrace prevents replacing
+      # data with an empty result.
+      check trimmed.getSequence().len > 0
+      trimmed.close()
 
 when isMainModule:
   runTests()

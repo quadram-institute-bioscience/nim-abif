@@ -1,5 +1,6 @@
 import std/[os, strformat, strutils, parseopt]
 import ./abif
+export abif.sanitizeRecordName
 import ./qualitytrim
 
 ## This module provides a command-line tool for converting ABIF files to FASTQ or FASTA format
@@ -234,19 +235,6 @@ proc validateQualityRange*(qualities: seq[int]) =
     if quality < 0 or quality > 93:
       raise newException(ValueError,
         &"Quality score at position {i + 1} is outside the FASTQ range 0-93: {quality}")
-
-proc sanitizeRecordName*(name, fallback: string): string =
-  ## Removes control characters and falls back to a stable non-empty name.
-  let candidate = if name.strip().len > 0: name.strip() else: fallback.strip()
-  for character in candidate:
-    if ord(character) >= 32 and ord(character) != 127:
-      result.add(character)
-  if result.len == 0:
-    for character in fallback.strip():
-      if ord(character) >= 32 and ord(character) != 127:
-        result.add(character)
-  if result.len == 0:
-    result = "unnamed"
 
 proc writeRecords(sequences: seq[string], qualities: seq[int], name: string,
                   outFile: string, fasta: bool) =

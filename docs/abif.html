@@ -16,10 +16,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.2.8">
+<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.2.4">
 
 <!-- JS -->
-<script type="text/javascript" src="dochack.js?v=2.2.8"></script>
+<script type="text/javascript" src="dochack.js?v=2.2.4"></script>
 </head>
 <body>
   <div class="document" id="documentId">
@@ -52,6 +52,9 @@
     </div>
     <ul class="simple simple-toc" id="toc-list">
   <li>
+  <a class="reference reference-toplevel" href="#6" id="56">Imports</a>
+</li>
+<li>
   <details open>
     <summary><a class="reference reference-toplevel" href="#7" id="57">Types</a></summary>
     <ul class="simple simple-toc-section">
@@ -60,6 +63,7 @@
   fileName*: string          ## Path to the file
   version*: int              ## ABIF format version
   numElems*: int             ## Number of directory entries
+  ## Offset to the directory
   tags*: TableRef[string, DirectoryEntry] ## Directory entries indexed by tag
   data*: TableRef[string, string] ## Extracted data values">ABIFTrace</a></li>
 <li><a class="reference" href="#DirectoryEntry" title="DirectoryEntry = object
@@ -121,7 +125,13 @@
 
 </ul>
 <ul class="simple nested-toc-section">newABIFTrace
-  <li><a class="reference" href="#newABIFTrace%2Cstring%2Cbool" title="newABIFTrace(filename: string; trimming: bool = false): ABIFTrace">newABIFTrace(filename: string; trimming: bool = false): ABIFTrace</a></li>
+  <li><a class="reference" href="#newABIFTrace%2Cstring%2Cbool%2Cint%2Cint" title="newABIFTrace(filename: string; trimming: bool = false; trimWindow: int = 10;
+             trimThreshold: int = 20): ABIFTrace">newABIFTrace(filename: string; trimming: bool = false; trimWindow: int = 10;
+             trimThreshold: int = 20): ABIFTrace</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">sanitizeRecordName
+  <li><a class="reference" href="#sanitizeRecordName%2Cstring%2Cstring" title="sanitizeRecordName(name, fallback: string): string">sanitizeRecordName(name, fallback: string): string</a></li>
 
 </ul>
 
@@ -154,7 +164,13 @@
 
 <span class="Comment"># Close the file when done</span>
 <span class="Identifier">trace</span><span class="Operator">.</span><span class="Identifier">close</span><span class="Punctuation">(</span><span class="Punctuation">)</span></pre></p>
-    <div class="section" id="7">
+    <div class="section" id="6">
+  <h1><a class="toc-backref" href="#6">Imports</a></h1>
+  <dl class="item">
+    <a class="reference external" href="qualitytrim.html">qualitytrim</a>
+  </dl>
+</div>
+<div class="section" id="7">
   <h1><a class="toc-backref" href="#7">Types</a></h1>
   <dl class="item">
     <div id="ABIFTrace">
@@ -163,13 +179,14 @@
   <span class="Identifier">fileName</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>          <span class="Comment">## Path to the file</span>
   <span class="Identifier">version</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>              <span class="Comment">## ABIF format version</span>
   <span class="Identifier">numElems</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>             <span class="Comment">## Number of directory entries</span>
+  <span class="Comment">## Offset to the directory</span>
   <span class="Identifier">tags</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">TableRef</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">,</span> <a href="abif.html#DirectoryEntry"><span class="Identifier">DirectoryEntry</span></a><span class="Other">]</span> <span class="Comment">## Directory entries indexed by tag</span>
   <span class="Identifier">data</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">TableRef</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">string</span><span class="Other">]</span> <span class="Comment">## Extracted data values</span></pre></dt>
   <dd>
     
     Main object representing an ABIF file. Contains methods to extract and process the data.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L57" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L57" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L58" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L58" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -186,8 +203,8 @@
   <dd>
     
     Represents a directory entry in the ABIF file. Each entry contains metadata about a data element.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L45" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L45" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L46" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L46" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -200,8 +217,8 @@
   <dd>
     
     Represents the data types that can be stored in an ABIF file.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L38" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L38" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L39" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L39" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -217,8 +234,8 @@
   <dd>
     
     Returns the version of the abif library.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L30" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L30" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L31" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L31" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -231,8 +248,8 @@
   <dd>
     
     Closes the file stream associated with the trace.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L298" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L298" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L320" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L320" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -246,10 +263,10 @@
   <dd>
     
     <p>Exports the sequence to a FASTA format file.</p>
-<p>Parameters: outFile: Path to the output file. If empty, &quot;trace.fa&quot; is used.</p>
+<p>Parameters: outFile: Path to the output file. If empty, &quot;trace.fa&quot; is used. The record ID is the sanitized sample name, not this filename.</p>
 
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L350" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L350" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L385" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L385" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -263,10 +280,10 @@
   <dd>
     
     <p>Exports the sequence and quality values to a FASTQ format file.</p>
-<p>Parameters: outFile: Path to the output file. If empty, &quot;trace.fq&quot; is used.</p>
+<p>Parameters: outFile: Path to the output file. If empty, &quot;trace.fq&quot; is used. The record ID is the sanitized sample name, not this filename.</p>
 
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L369" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L369" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L401" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L401" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -282,8 +299,8 @@
 <p>Parameters: tag: The tag name to retrieve data for</p>
 <p>Returns: The data as a string, or an empty string if the tag does not exist</p>
 
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L308" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L308" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L330" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L330" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -298,8 +315,8 @@
     <p>Returns the sequence quality values as a sequence of integers.</p>
 <p>Each value represents the quality score for the corresponding base in the sequence.</p>
 
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L328" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L328" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L350" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L350" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -314,8 +331,8 @@
     <p>Returns the sample name from the trace.</p>
 <p>Uses the pre-extracted &quot;name&quot; data or retrieves it from the SMPL1 tag.</p>
 
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L342" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L342" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L364" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L364" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -330,8 +347,8 @@
     <p>Returns the DNA sequence from the trace.</p>
 <p>Uses the pre-extracted &quot;sequence&quot; data or retrieves it from the PBAS2 tag.</p>
 
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L320" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L320" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L342" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L342" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -344,26 +361,41 @@
   <dd>
     
     Returns a sequence of all tag names in the ABIF file.
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L303" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L303" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L325" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L325" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="newABIFTrace-procs-all">
-  <div id="newABIFTrace,string,bool">
-  <dt><pre><span class="Keyword">proc</span> <a href="#newABIFTrace%2Cstring%2Cbool"><span class="Identifier">newABIFTrace</span></a><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">trimming</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <a href="abif.html#ABIFTrace"><span class="Identifier">ABIFTrace</span></a> {.
+  <div id="newABIFTrace,string,bool,int,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#newABIFTrace%2Cstring%2Cbool%2Cint%2Cint"><span class="Identifier">newABIFTrace</span></a><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">trimming</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">;</span>
+                  <span class="Identifier">trimWindow</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">10</span><span class="Other">;</span> <span class="Identifier">trimThreshold</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">20</span><span class="Other">)</span><span class="Other">:</span> <a href="abif.html#ABIFTrace"><span class="Identifier">ABIFTrace</span></a> {.
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">KeyError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     <p>Creates a new ABIFTrace object from the specified file.</p>
-<p>Parameters: filename: Path to the ABIF file trimming: If true, low quality regions are trimmed (not implemented)</p>
+<p>Parameters: filename: Path to the ABIF file trimming: If true, low quality regions are trimmed from the sequence ends using a sliding window approach. trimWindow: Size of the sliding window for quality assessment (default: 10). Only used when trimming is true. trimThreshold: Quality threshold — bases in windows with average quality below this value are trimmed (default: 20). Only used when trimming is true.</p>
 <p>Returns: A new ABIFTrace object</p>
 <p>Raises: IOError: If the file cannot be opened or is not a valid ABIF file</p>
 
-    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L247" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L247" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L248" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L248" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="sanitizeRecordName-procs-all">
+  <div id="sanitizeRecordName,string,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sanitizeRecordName%2Cstring%2Cstring"><span class="Identifier">sanitizeRecordName</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">,</span> <span class="Identifier">fallback</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Removes control characters and falls back to a stable non-empty name.
+    <a href="https://github.com/quadram-institute-bioscience/nim-abif//tree/main/src/abif.nim#L372" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/quadram-institute-bioscience/nim-abif//edit/devel/src/abif.nim#L372" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -379,7 +411,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-01 15:22:09 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-02 12:10:38 UTC</small>
       </div>
     </div>
   </div>
